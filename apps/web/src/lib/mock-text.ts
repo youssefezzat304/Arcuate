@@ -63,3 +63,8 @@ Wenn du also das nächste Mal ein Haus mit dunklen Solarpanels auf dem Dach sieh
 Die Sonne ist ungefähr 150 Millionen Kilometer von der Erde entfernt. Trotzdem erreicht ihr Licht unsere Erde und kann wenige Augenblicke später in einer Solarzelle zu elektrischem Strom werden. Dieser Strom kann dann vielleicht genau in diesem Moment einen Kühlschrank, einen Laptop oder eine Lampe in einem Haus betreiben.
 
 Solaranlagen sehen deshalb vielleicht einfach aus, aber hinter ihnen steckt eine sehr interessante Idee: Wir können Licht, das jeden Tag kostenlos von der Sonne kommt, direkt benutzen, um einen Teil der elektrischen Energie für unser modernes Leben zu produzieren.`;
+
+export const theMockText = {
+  title: "The Mock Text",
+  text: mockText,
+};

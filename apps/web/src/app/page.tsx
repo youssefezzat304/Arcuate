@@ -1,7 +1,7 @@
+import { createMockText } from "@/app/actions";
+import { PromptTextarea } from "@/components/prompt-textarea";
+import { CEFR_LEVELS, TEXT_LENGTHS } from "@/lib/reading-settings";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
-
-const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
-const TEXT_LENGTHS = ["short", "medium", "long"] as const;
 
 export default function Home() {
   return (
@@ -22,15 +22,19 @@ export default function Home() {
           </h1>
         </div>
 
-        <form className="overflow-hidden rounded-xl border border-border bg-paper">
+        <form
+          action={createMockText}
+          className="overflow-hidden rounded-xl border border-border bg-paper"
+        >
           <label htmlFor="topic" className="sr-only">
             Reading topic
           </label>
-          <textarea
+          <PromptTextarea
             id="topic"
             name="topic"
             rows={4}
             required
+            maxLength={500}
             placeholder="Ask for a story, an explanation, or any topic..."
             className="block w-full resize-none bg-transparent px-5 pt-5 pb-3 text-base leading-7 outline-none placeholder:text-muted-foreground sm:px-6 sm:pt-6"
           />
