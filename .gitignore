@@ -69,16 +69,3 @@ tmp/
 temp/
 .cache/
 
-# AI agent instructions
-
-AGENTS.md
-AGENTS.override.md
-ARCHITECTURE.md
-PRODUCT.md
-DECISIONS.md
-
-# Canonical project documentation must remain versioned.
-
-!docs/ARCHITECTURE.md
-!docs/PRODUCT.md
-!docs/DECISIONS.md

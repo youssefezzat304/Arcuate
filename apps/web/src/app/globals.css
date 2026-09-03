@@ -1,28 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eaedf2;
+  --paper: #fcfbf7;
+  --foreground: #161616;
+  --ink-secondary: #31312f;
+  --muted-foreground: #706a5e;
+  --muted-warm: #bbaf92;
+  --warm-highlight: #e8cf90;
+  --border: #d8d8d4;
+  --accent: #f6bf13;
+  --accent-foreground: #161616;
   --app-font-sans: Arial, Helvetica, sans-serif;
+  --app-font-serif: Georgia, "Times New Roman", serif;
   --app-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-paper: var(--paper);
   --color-foreground: var(--foreground);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-warm: var(--muted-warm);
+  --color-warm-highlight: var(--warm-highlight);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--app-font-sans);
+}
+
+button,
+select,
+textarea {
+  font: inherit;
 }
