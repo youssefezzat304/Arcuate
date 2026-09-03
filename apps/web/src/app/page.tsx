@@ -1,6 +1,7 @@
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 
 const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+const TEXT_LENGTHS = ["short", "medium", "long"] as const;
 
 export default function Home() {
   return (
@@ -82,12 +83,47 @@ export default function Home() {
                   ))}
                 </select>
               </label>
+
+              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-paper px-4 py-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                  Translation
+                </span>
+                <select
+                  name="translationLanguage"
+                  defaultValue=""
+                  className="min-w-0 bg-transparent text-right text-sm font-medium outline-none"
+                >
+                  <option value="">None</option>
+                  {SUPPORTED_LANGUAGES.map((language) => (
+                    <option key={language.code} value={language.code}>
+                      {language.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-paper px-4 py-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                  Length
+                </span>
+                <select
+                  name="length"
+                  defaultValue="medium"
+                  className="min-w-0 bg-transparent text-right text-sm font-medium capitalize outline-none"
+                >
+                  {TEXT_LENGTHS.map((length) => (
+                    <option key={length} value={length}>
+                      {length.charAt(0).toUpperCase() + length.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
         </form>
 
         <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">
-          Choose a language and level, then describe the text you want to read.
+          Choose your reading settings, then describe the text you want to read.
         </p>
       </section>
     </main>

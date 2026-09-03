@@ -1,5 +1,4 @@
 // Conservative multilingual baseline for general-purpose LLMs.
-// Validate language quality against the selected provider before production use.
 export const SUPPORTED_LANGUAGES = [
   { code: "ar", name: "Arabic" },
   { code: "bn", name: "Bengali" },

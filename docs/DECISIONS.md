@@ -2,7 +2,7 @@
 
 - 2026-09-03 [CODE] Goal: build a small functional MVP for an AI-powered graded reader.
 - 2026-09-03 [CODE] Current state: the pnpm/Turborepo workspace contains one Next.js application at `apps/web`.
-- 2026-09-03 [CODE] Current state: the web app has an initial topic composer with target-language and CEFR-level controls.
+- 2026-09-03 [CODE] Current state: the topic composer captures target language, CEFR level, optional translation language, and text length.
 - 2026-09-03 [CODE] Now: define and validate the generation request contract represented by the initial form.
 - 2026-09-03 [CODE] Next: connect the composer to deterministic mock generation and add the reader view.
 - 2026-09-03 [USER] Open question: select the first LLM provider before real generation is implemented.
@@ -34,6 +34,10 @@ D006 ACTIVE — 2026-09-03 [USER]
 Use the retro-editorial visual direction and semantic palette defined in `docs/STYLE.md`.
 Reason: Arcuate should feel like a calm printed reading product rather than a generic SaaS or AI interface.
 
+D007 ACTIVE — 2026-09-03 [USER]
+Include optional translation language and short, medium, or long text length in the initial composer settings.
+Reason: these are core generation inputs in the MVP flow.
+
 [PROGRESS]
 
 - 2026-09-03 [CODE] Consolidated workspace ownership at the repository root.
@@ -41,6 +45,7 @@ Reason: Arcuate should feel like a calm printed reading product rather than a ge
 - 2026-09-03 [CODE] Removed the runtime build dependency on Google-hosted fonts.
 - 2026-09-03 [CODE] Replaced the default Next.js page with a flat, retro-editorial Arcuate topic-composer interface.
 - 2026-09-03 [CODE] Added typed catalogs for supported languages and all six CEFR levels.
+- 2026-09-03 [CODE] Added optional translation-language and three-choice text-length controls to the composer.
 
 [DISCOVERIES]
 
@@ -54,6 +59,7 @@ Reason: Arcuate should feel like a calm printed reading product rather than a ge
 
 - 2026-09-03 [CODE] Repository foundation stabilized with one pnpm workspace and lockfile, deterministic fonts, and lint, typecheck, and build verification.
 - 2026-09-03 [CODE] Initial Arcuate input experience completed with a topic field, language selector, and six-level CEFR selector; generation remains intentionally unimplemented.
+- 2026-09-03 [CODE] Composer settings now cover the four core generation dimensions requested so far; generation remains intentionally unimplemented.
 
 [WORKING SET]
 
@@ -77,3 +83,4 @@ Reason: Arcuate should feel like a calm printed reading product rather than a ge
 - 2026-09-03 [TOOL] Only root `pnpm-workspace.yaml` and `pnpm-lock.yaml` files remain after consolidation.
 - 2026-09-03 [TOOL] `pnpm lint`, `pnpm typecheck`, and `pnpm build` passed after foundation changes.
 - 2026-09-03 [TOOL] `pnpm lint`, `pnpm typecheck`, and `pnpm build` passed for the initial composer interface.
+- 2026-09-03 [TOOL] `pnpm lint`, `pnpm typecheck`, and `pnpm build` passed after adding translation and length settings.
