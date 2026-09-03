@@ -1,12 +1,14 @@
 {
-  "name": "readapt",
+  "name": "arcuate",
   "private": true,
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "lint": "turbo lint"
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck"
   },
   "devDependencies": {
     "turbo": "^2"
-  }
+  },
+  "packageManager": "pnpm@11.25.0"
 }
