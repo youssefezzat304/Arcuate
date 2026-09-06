@@ -1,0 +1,14 @@
+{
+  "name": "@arcuate/ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^2.21.0",
+    "zod": "^4.5.4"
+  }
+}

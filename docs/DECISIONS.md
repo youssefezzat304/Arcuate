@@ -1,12 +1,12 @@
 [SNAPSHOT]
 
 - 2026-09-03 [CODE] Goal: build a small functional MVP for an AI-powered graded reader.
-- 2026-09-03 [CODE] Current state: the pnpm/Turborepo workspace contains one Next.js application at `apps/web`.
-- 2026-09-03 [CODE] Current state: submitting the validated composer creates a UUID and opens a dynamic reader route backed by deterministic mock content.
+- 2026-09-06 [CODE] Current state: Next.js at `apps/web` and provider/structured generation in `packages/ai`.
+- 2026-09-06 [CODE] Current state: Gemini generation replaces mock content; validated texts are saved in browser localStorage and listed in My texts.
 - 2026-09-06 [CODE] Now: a shared collapsible sidebar links the composer and My texts placeholder; the reader supports session-only selection formatting.
-- 2026-09-03 [CODE] Next: replace mock creation with provider-backed generation and persistent text records.
-- 2026-09-03 [USER] Open question: select the first LLM provider before real generation is implemented.
-- 2026-09-03 [CODE] Open question: select a test runner when the first automated tests are added.
+- 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
+- 2026-09-06 [USER] Provider: Gemini; short/medium/long request 2,000/4,000/5,500 characters with no translation.
+- 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
 
 [DECISIONS]
 
@@ -18,7 +18,7 @@ D002 ACTIVE — 2026-09-03 [USER]
 Use system font stacks for the initial application.
 Reason: the MVP does not require custom typography, and system fonts keep local and CI builds independent of remote font services.
 
-D003 ACTIVE — 2026-09-03 [USER]
+D003 SUPERSEDED BY D012 — 2026-09-03 [USER]
 Add a TypeScript typecheck command now and defer the test command until a test runner is selected.
 Reason: a placeholder test command could report success without exercising application behavior.
 
@@ -34,7 +34,7 @@ D006 ACTIVE — 2026-09-03 [USER]
 Use the retro-editorial visual direction and semantic palette defined in `docs/STYLE.md`.
 Reason: Arcuate should feel like a calm printed reading product rather than a generic SaaS or AI interface.
 
-D007 ACTIVE — 2026-09-03 [USER]
+D007 SUPERSEDED BY D011 — 2026-09-03 [USER]
 Include optional translation language and short, medium, or long text length in the initial composer settings.
 Reason: these are core generation inputs in the MVP flow.
 
@@ -50,6 +50,16 @@ D010 ACTIVE — 2026-09-06 [USER]
 Provide a floating collapsible sidebar with New text, My texts, and Login at the bottom. Move the Arcuate wordmark inside it and display A when collapsed.
 Reason: establish navigation for a personal reading library. Guest texts should eventually be stored on-device and account texts in the cloud; authentication and persistence are outside the current sidebar task. The guest storage mechanism remains undecided (localStorage is a candidate).
 
+D011 SUPERSEDED BY D013 — 2026-09-06 [USER]
+Use Gemini for target-language and CEFR-controlled generation. Request 2,000 words for short, 4,000 for medium, and 5,500 for long. Defer translation. Store guest texts locally and reopen them through My texts.
+
+D012 ACTIVE — 2026-09-06 [CODE]
+Use Node's built-in test runner with native TypeScript stripping for input, storage, and provider tests. Keep provider tests mocked and API secrets server-side. AI package source is checked through the consuming web workspace.
+
+D013 ACTIVE — 2026-09-06 [USER]
+Use character targets instead of word targets: short 2,000, medium 4,000, long 5,500. Other generation settings remain unchanged.
+2026-09-06 [CODE] Count Unicode grapheme clusters including spaces, punctuation, and paragraph breaks, excluding the title. Derive counts from saved bodies to keep existing records readable.
+
 [PROGRESS]
 
 - 2026-09-03 [CODE] Consolidated workspace ownership at the repository root.
@@ -64,14 +74,18 @@ Reason: establish navigation for a personal reading library. Guest texts should 
 
 [DISCOVERIES]
 
+- 2026-09-06 [TOOL] Model listing included Gemini 2.5 Flash, but generation rejected it for new users and recommended Gemini 3.6 Flash. Default updated to 3.6 Flash; GEMINI_MODEL remains configurable.
+
 - 2026-09-03 [TOOL] The initial lint command passed.
 - 2026-09-03 [TOOL] The initial production build failed because `next/font` could not fetch Geist from Google Fonts.
-- 2026-09-03 [CODE] The planned `packages/ai` and `packages/cefr` workspaces do not exist yet.
-- 2026-09-03 [CODE] Zod and shadcn/ui are documented as stack choices but are not installed yet.
+- 2026-09-06 [CODE] `packages/ai` now exists; the CEFR evaluation package remains planned.
+- 2026-09-06 [CODE] Zod is installed; shadcn/ui remains a planned stack choice.
 - 2026-09-03 [TOOL] Current OpenAI models advertise multilingual capability, while Google publishes an explicit language list for Gemini; neither establishes equal graded-reading quality across languages.
 - 2026-09-03 [TOOL] Next.js route-aware helpers require `next typegen` before standalone TypeScript checks on a clean or stale build tree.
 
 [OUTCOMES]
+
+- 2026-09-06 [CODE] Completed Gemini generation, local per-text persistence, library listing, saved reader loading, pending/error UI, and save retry. Translation removed from current inputs; exact word count and CEFR enforcement remain deferred.
 
 - 2026-09-06 [CODE] Added the shared responsive sidebar, active navigation, and `/texts` placeholder. Desktop collapse survives client navigation; mobile starts collapsed and expands over content. Login is disabled and marked coming soon.
 
@@ -84,16 +98,17 @@ Reason: establish navigation for a personal reading library. Guest texts should 
 
 [WORKING SET]
 
-- `apps/web/src/components/app-shell.tsx`
-- `apps/web/src/app/layout.tsx`
-- `apps/web/src/app/texts/page.tsx`
-- `apps/web/src/app/globals.css`
-- `apps/web/src/app/page.tsx`
-- `apps/web/src/app/actions.ts`
-- `apps/web/src/app/texts/[id]/page.tsx`
-- `apps/web/src/components/formattable-reader.tsx`
-- `apps/web/src/lib/text-formatting.ts`
-- `apps/web/src/lib/mock-text.ts`
+- `packages/ai/src/index.ts`
+- `packages/ai/src/schema.ts`
+- `apps/web/src/app/api/texts/route.ts`
+- `apps/web/src/components/generation-form.tsx`
+- `apps/web/src/components/saved-reader.tsx`
+- `apps/web/src/components/text-library.tsx`
+- `apps/web/src/lib/saved-texts.ts`
+- `apps/web/src/lib/reading-settings.ts`
+- `apps/web/tests/generation.test.mjs`
+- `docs/ARCHITECTURE.md`
+- `docs/PRODUCT.md`
 - `docs/DECISIONS.md`
 
 [RECEIPTS]
@@ -111,3 +126,7 @@ Reason: establish navigation for a personal reading library. Guest texts should 
 
 - 2026-09-06 [TOOL] Selection toolbar: lint, typecheck, and build passed; browser checks verified five formatting actions and above/below placement. Node assertions verified cross-paragraph and overlapping formatting, partial toggles, and highlight removal.
 - 2026-09-06 [TOOL] Sidebar verification: `pnpm lint`, `pnpm typecheck`, and `pnpm build` passed. Browser checks confirmed desktop collapse, My texts navigation, mobile expansion/Escape dismissal, and readable composer settings at a 390px viewport.
+
+- 2026-09-06 [TOOL] Gemini integration: seven Node tests, lint, typecheck, and build passed. Live German A2 short request returned 2,194 words; browser verified saving, reload, library listing, and reopening. Client build scan found no API key.
+
+- 2026-09-06 [TOOL] Character-length update: nine tests, lint, typecheck, and build passed. Tests cover Unicode grapheme counting and compatibility with existing saved word-count records.

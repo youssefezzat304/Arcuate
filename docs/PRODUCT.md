@@ -13,8 +13,7 @@ Example:
 * Target language: German
 * Level: A2
 * Topic: How the Internet works
-* Translation: Arabic
-* Length: Medium
+* Length: Medium (4,000-character target)
 * Words to use: optional list of vocabulary the learner wants included
 
 ## MVP
@@ -24,16 +23,23 @@ The MVP includes:
 * text generation from a user-provided topic
 * CEFR level selection (`A1`–`C2`)
 * target language selection
-* translation language selection
 * text length selection
 * optional vocabulary words to include
 * reader view
-* translation display
 
 
-## Planned reading library
+## Reading library
 
-Users should be able to keep and revisit their texts without an account. Guest
-texts will be saved on the device (storage mechanism still to be selected), while
-account holders will have cloud storage. Authentication and storage are deferred;
-the current sidebar provides New text, My texts, and a disabled Login entry.
+Texts are saved automatically in the current browser using localStorage and can
+be reopened from My texts without an account. Clearing site data removes them.
+Account holders will eventually have cloud storage; authentication is deferred.
+
+## Generation scope
+
+Gemini generates the title and body in the selected language at the requested
+CEFR level. Length targets are short: 2,000 characters, medium: 4,000 characters, and long:
+5,500 characters. Actual counts are displayed; exact length and CEFR conformity are
+not independently enforced yet. Translation is deferred and has no current UI
+or generation input.
+
+Character counts include spaces, punctuation, and paragraph breaks, exclude the title, and count Unicode grapheme clusters (user-perceived characters).

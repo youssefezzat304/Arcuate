@@ -1,6 +1,6 @@
-import { createMockText } from "@/app/actions";
+import { GenerationForm } from "@/components/generation-form";
 import { PromptTextarea } from "@/components/prompt-textarea";
-import { CEFR_LEVELS, TEXT_LENGTHS } from "@/lib/reading-settings";
+import { CEFR_LEVELS, TEXT_LENGTHS, CHARACTER_TARGETS } from "@/lib/reading-settings";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 
 export default function Home() {
@@ -16,10 +16,7 @@ export default function Home() {
           </h1>
         </div>
 
-        <form
-          action={createMockText}
-          className="overflow-hidden rounded-xl border border-border bg-paper"
-        >
+        <GenerationForm>
           <label htmlFor="topic" className="sr-only">
             Reading topic
           </label>
@@ -84,24 +81,6 @@ export default function Home() {
 
               <label className="flex flex-col gap-2 rounded-lg border border-border bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
                 <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  Translation
-                </span>
-                <select
-                  name="translationLanguage"
-                  defaultValue=""
-                  className="min-w-0 bg-transparent text-left text-sm font-medium sm:text-right outline-none"
-                >
-                  <option value="">None</option>
-                  {SUPPORTED_LANGUAGES.map((language) => (
-                    <option key={language.code} value={language.code}>
-                      {language.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="flex flex-col gap-2 rounded-lg border border-border bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
-                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                   Length
                 </span>
                 <select
@@ -111,14 +90,14 @@ export default function Home() {
                 >
                   {TEXT_LENGTHS.map((length) => (
                     <option key={length} value={length}>
-                      {length.charAt(0).toUpperCase() + length.slice(1)}
+                      {length.charAt(0).toUpperCase() + length.slice(1)} · {CHARACTER_TARGETS[length].toLocaleString("en-US")} characters
                     </option>
                   ))}
                 </select>
               </label>
             </div>
           </div>
-        </form>
+        </GenerationForm>
 
         <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">
           Choose your reading settings, then describe the text you want to read.

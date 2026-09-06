@@ -3,10 +3,12 @@ import { z } from "zod";
 import {
   SUPPORTED_LANGUAGES,
   type SupportedLanguageCode,
-} from "@/lib/supported-languages";
+} from "./supported-languages.ts";
 
 export const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
 export const TEXT_LENGTHS = ["short", "medium", "long"] as const;
+
+export const CHARACTER_TARGETS = { short: 2000, medium: 4000, long: 5500 } as const;
 
 const supportedLanguageCodes = new Set(
   SUPPORTED_LANGUAGES.map(({ code }) => code),
@@ -22,10 +24,6 @@ export const createTextRequestSchema = z.object({
   topic: z.string().trim().min(1).max(500),
   language: supportedLanguageCodeSchema,
   level: z.enum(CEFR_LEVELS),
-  translationLanguage: z.union([
-    z.literal(""),
-    supportedLanguageCodeSchema,
-  ]),
   length: z.enum(TEXT_LENGTHS),
 });
 
