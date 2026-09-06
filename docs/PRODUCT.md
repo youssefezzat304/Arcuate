@@ -29,3 +29,11 @@ The MVP includes:
 * optional vocabulary words to include
 * reader view
 * translation display
+
+
+## Planned reading library
+
+Users should be able to keep and revisit their texts without an account. Guest
+texts will be saved on the device (storage mechanism still to be selected), while
+account holders will have cloud storage. Authentication and storage are deferred;
+the current sidebar provides New text, My texts, and a disabled Login entry.

@@ -6,13 +6,7 @@ import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 export default function Home() {
   return (
     <main className="flex min-h-dvh flex-col bg-background text-foreground">
-      <header className="mx-auto flex w-full max-w-6xl items-center px-5 py-5 sm:px-8">
-        <span className="font-serif text-xl font-semibold tracking-[-0.03em]">
-          Arcuate
-        </span>
-      </header>
-
-      <section className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-5 pb-24 sm:px-8">
+      <section className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-5 py-16 sm:px-8 sm:py-24">
         <div className="mb-8">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Your next read
@@ -53,15 +47,15 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-paper px-4 py-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="flex flex-col gap-2 rounded-lg border border-border bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
                 <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                   Language
                 </span>
                 <select
                   name="language"
                   defaultValue="de"
-                  className="min-w-0 bg-transparent text-right text-sm font-medium outline-none"
+                  className="min-w-0 bg-transparent text-left text-sm font-medium sm:text-right outline-none"
                 >
                   {SUPPORTED_LANGUAGES.map((language) => (
                     <option key={language.code} value={language.code}>
@@ -71,14 +65,14 @@ export default function Home() {
                 </select>
               </label>
 
-              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-paper px-4 py-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
+              <label className="flex flex-col gap-2 rounded-lg border border-border bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
                 <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                   CEFR level
                 </span>
                 <select
                   name="level"
                   defaultValue="A2"
-                  className="min-w-0 bg-transparent text-right text-sm font-medium outline-none"
+                  className="min-w-0 bg-transparent text-left text-sm font-medium sm:text-right outline-none"
                 >
                   {CEFR_LEVELS.map((level) => (
                     <option key={level} value={level}>
@@ -88,14 +82,14 @@ export default function Home() {
                 </select>
               </label>
 
-              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-paper px-4 py-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
+              <label className="flex flex-col gap-2 rounded-lg border border-border bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
                 <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                   Translation
                 </span>
                 <select
                   name="translationLanguage"
                   defaultValue=""
-                  className="min-w-0 bg-transparent text-right text-sm font-medium outline-none"
+                  className="min-w-0 bg-transparent text-left text-sm font-medium sm:text-right outline-none"
                 >
                   <option value="">None</option>
                   {SUPPORTED_LANGUAGES.map((language) => (
@@ -106,14 +100,14 @@ export default function Home() {
                 </select>
               </label>
 
-              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-paper px-4 py-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
+              <label className="flex flex-col gap-2 rounded-lg border border-border bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
                 <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                   Length
                 </span>
                 <select
                   name="length"
                   defaultValue="medium"
-                  className="min-w-0 bg-transparent text-right text-sm font-medium capitalize outline-none"
+                  className="min-w-0 bg-transparent text-left text-sm font-medium sm:text-right capitalize outline-none"
                 >
                   {TEXT_LENGTHS.map((length) => (
                     <option key={length} value={length}>

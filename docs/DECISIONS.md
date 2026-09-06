@@ -3,7 +3,7 @@
 - 2026-09-03 [CODE] Goal: build a small functional MVP for an AI-powered graded reader.
 - 2026-09-03 [CODE] Current state: the pnpm/Turborepo workspace contains one Next.js application at `apps/web`.
 - 2026-09-03 [CODE] Current state: submitting the validated composer creates a UUID and opens a dynamic reader route backed by deterministic mock content.
-- 2026-09-06 [CODE] Now: the reader supports session-only selection formatting for its title and paragraphs.
+- 2026-09-06 [CODE] Now: a shared collapsible sidebar links the composer and My texts placeholder; the reader supports session-only selection formatting.
 - 2026-09-03 [CODE] Next: replace mock creation with provider-backed generation and persistent text records.
 - 2026-09-03 [USER] Open question: select the first LLM provider before real generation is implemented.
 - 2026-09-03 [CODE] Open question: select a test runner when the first automated tests are added.
@@ -46,6 +46,10 @@ D009 ACTIVE — 2026-09-06 [USER]
 Show a reader selection toolbar with only highlight, bold, italic, underline, and text color controls. Place it above the selection unless the selection starts in the top 25% of the viewport, in which case place it below.
 Reason: support focused text annotation while reading.
 
+D010 ACTIVE — 2026-09-06 [USER]
+Provide a floating collapsible sidebar with New text, My texts, and Login at the bottom. Move the Arcuate wordmark inside it and display A when collapsed.
+Reason: establish navigation for a personal reading library. Guest texts should eventually be stored on-device and account texts in the cloud; authentication and persistence are outside the current sidebar task. The guest storage mechanism remains undecided (localStorage is a candidate).
+
 [PROGRESS]
 
 - 2026-09-03 [CODE] Consolidated workspace ownership at the repository root.
@@ -69,6 +73,8 @@ Reason: support focused text annotation while reading.
 
 [OUTCOMES]
 
+- 2026-09-06 [CODE] Added the shared responsive sidebar, active navigation, and `/texts` placeholder. Desktop collapse survives client navigation; mobile starts collapsed and expands over content. Login is disabled and marked coming soon.
+
 - 2026-09-06 [CODE] Added selection formatting with muted highlight/text palettes, composable styles, and viewport-relative placement. Formatting lives in client state and resets on reload; no persistence or dependencies were added.
 
 - 2026-09-03 [CODE] Repository foundation stabilized with one pnpm workspace and lockfile, deterministic fonts, and lint, typecheck, and build verification.
@@ -78,8 +84,9 @@ Reason: support focused text annotation while reading.
 
 [WORKING SET]
 
-- `apps/web/package.json`
-- `pnpm-lock.yaml`
+- `apps/web/src/components/app-shell.tsx`
+- `apps/web/src/app/layout.tsx`
+- `apps/web/src/app/texts/page.tsx`
 - `apps/web/src/app/globals.css`
 - `apps/web/src/app/page.tsx`
 - `apps/web/src/app/actions.ts`
@@ -87,7 +94,6 @@ Reason: support focused text annotation while reading.
 - `apps/web/src/components/formattable-reader.tsx`
 - `apps/web/src/lib/text-formatting.ts`
 - `apps/web/src/lib/mock-text.ts`
-- `apps/web/src/lib/reading-settings.ts`
 - `docs/DECISIONS.md`
 
 [RECEIPTS]
@@ -104,3 +110,4 @@ Reason: support focused text annotation while reading.
 - 2026-09-03 [TOOL] `pnpm lint`, `pnpm typecheck`, and `pnpm build` passed for the mock creation-to-reader flow.
 
 - 2026-09-06 [TOOL] Selection toolbar: lint, typecheck, and build passed; browser checks verified five formatting actions and above/below placement. Node assertions verified cross-paragraph and overlapping formatting, partial toggles, and highlight removal.
+- 2026-09-06 [TOOL] Sidebar verification: `pnpm lint`, `pnpm typecheck`, and `pnpm build` passed. Browser checks confirmed desktop collapse, My texts navigation, mobile expansion/Escape dismissal, and readable composer settings at a 390px viewport.
