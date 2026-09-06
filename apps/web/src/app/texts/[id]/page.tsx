@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
+import { FormattableReader } from "@/components/formattable-reader";
 import { theMockText } from "@/lib/mock-text";
 
 const textIdSchema = z.uuid();
@@ -40,20 +41,10 @@ export default async function TextPage({ params }: PageProps<"/texts/[id]">) {
         </header>
 
         <article className="rounded-xl border border-border bg-paper px-6 py-10 sm:px-12 sm:py-14 lg:px-16">
-          <header className="mb-10 border-b border-border pb-8">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Mock reading
-            </p>
-            <h1 className="max-w-3xl font-serif text-4xl leading-tight tracking-[-0.04em] sm:text-5xl">
-              {theMockText.title}
-            </h1>
-          </header>
-
-          <div className="space-y-7 font-serif text-lg leading-8 text-ink-secondary">
-            {paragraphs.map((paragraph, index) => (
-              <p key={`${id}-${index}`}>{paragraph}</p>
-            ))}
-          </div>
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Mock reading
+          </p>
+          <FormattableReader key={id} title={theMockText.title} paragraphs={paragraphs} />
         </article>
       </div>
     </main>

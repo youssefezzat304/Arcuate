@@ -8,6 +8,16 @@
   --muted-foreground: #706a5e;
   --muted-warm: #bbaf92;
   --warm-highlight: #e8cf90;
+  --color-yellow: #796015;
+  --color-rose: #9b3545;
+  --color-green: #286244;
+  --color-blue: #315f91;
+  --color-purple: #704792;
+  --highlight-yellow: #e8cf90;
+  --highlight-rose: #edc5c8;
+  --highlight-green: #c4dcc6;
+  --highlight-blue: #c8dced;
+  --highlight-purple: #dccdea;
   --border: #d8d8d4;
   --accent: #f6bf13;
   --accent-foreground: #161616;

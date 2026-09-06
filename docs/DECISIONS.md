@@ -3,7 +3,7 @@
 - 2026-09-03 [CODE] Goal: build a small functional MVP for an AI-powered graded reader.
 - 2026-09-03 [CODE] Current state: the pnpm/Turborepo workspace contains one Next.js application at `apps/web`.
 - 2026-09-03 [CODE] Current state: submitting the validated composer creates a UUID and opens a dynamic reader route backed by deterministic mock content.
-- 2026-09-03 [CODE] Now: evaluate the mock creation-to-reader experience.
+- 2026-09-06 [CODE] Now: the reader supports session-only selection formatting for its title and paragraphs.
 - 2026-09-03 [CODE] Next: replace mock creation with provider-backed generation and persistent text records.
 - 2026-09-03 [USER] Open question: select the first LLM provider before real generation is implemented.
 - 2026-09-03 [CODE] Open question: select a test runner when the first automated tests are added.
@@ -42,6 +42,10 @@ D008 ACTIVE — 2026-09-03 [USER]
 Assign each newly created text an opaque UUID and expose it at `/texts/[id]`.
 Reason: stable identifiers support direct navigation now and persisted, shareable text records later without coupling identity to mutable titles.
 
+D009 ACTIVE — 2026-09-06 [USER]
+Show a reader selection toolbar with only highlight, bold, italic, underline, and text color controls. Place it above the selection unless the selection starts in the top 25% of the viewport, in which case place it below.
+Reason: support focused text annotation while reading.
+
 [PROGRESS]
 
 - 2026-09-03 [CODE] Consolidated workspace ownership at the repository root.
@@ -65,6 +69,8 @@ Reason: stable identifiers support direct navigation now and persisted, shareabl
 
 [OUTCOMES]
 
+- 2026-09-06 [CODE] Added selection formatting with muted highlight/text palettes, composable styles, and viewport-relative placement. Formatting lives in client state and resets on reload; no persistence or dependencies were added.
+
 - 2026-09-03 [CODE] Repository foundation stabilized with one pnpm workspace and lockfile, deterministic fonts, and lint, typecheck, and build verification.
 - 2026-09-03 [CODE] Initial Arcuate input experience completed with a topic field, language selector, and six-level CEFR selector; generation remains intentionally unimplemented.
 - 2026-09-03 [CODE] Composer settings now cover the four core generation dimensions requested so far; generation remains intentionally unimplemented.
@@ -78,10 +84,10 @@ Reason: stable identifiers support direct navigation now and persisted, shareabl
 - `apps/web/src/app/page.tsx`
 - `apps/web/src/app/actions.ts`
 - `apps/web/src/app/texts/[id]/page.tsx`
-- `apps/web/src/components/prompt-textarea.tsx`
+- `apps/web/src/components/formattable-reader.tsx`
+- `apps/web/src/lib/text-formatting.ts`
 - `apps/web/src/lib/mock-text.ts`
 - `apps/web/src/lib/reading-settings.ts`
-- `apps/web/src/lib/supported-languages.ts`
 - `docs/DECISIONS.md`
 
 [RECEIPTS]
@@ -96,3 +102,5 @@ Reason: stable identifiers support direct navigation now and persisted, shareabl
 - 2026-09-03 [TOOL] A valid composer POST returned `303` to a newly generated UUID route; the route returned the mock title and content.
 - 2026-09-03 [TOOL] Valid UUID reader routes returned `200`; malformed IDs returned `404`.
 - 2026-09-03 [TOOL] `pnpm lint`, `pnpm typecheck`, and `pnpm build` passed for the mock creation-to-reader flow.
+
+- 2026-09-06 [TOOL] Selection toolbar: lint, typecheck, and build passed; browser checks verified five formatting actions and above/below placement. Node assertions verified cross-paragraph and overlapping formatting, partial toggles, and highlight removal.
