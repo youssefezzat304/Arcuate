@@ -13,7 +13,10 @@ export function countCharacters(paragraphs: string[]) {
 export const savedTextSchema = generatedTextSchema.extend({
   id: z.uuid(),
   createdAt: z.iso.datetime(),
-  settings: createTextRequestSchema,
+  // Preserve the original preset on older readings without accepting it for new requests.
+  settings: createTextRequestSchema.extend({
+    length: z.union([createTextRequestSchema.shape.length, z.enum(["short", "medium", "long"])]),
+  }),
   analysis: textAnalysisSchema.optional(),
   annotations: z.array(textAnnotationSchema).max(20_000).optional().default([]),
 }).transform((text) => ({

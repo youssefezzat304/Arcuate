@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import { createWordList, listWordLists, saveWordToList } from "../src/lib/saved-words.ts";
+import { createWordList, listWordLists, saveWordToList, renameWordList, removeSavedWord, deleteWordList, wordListMarkdown } from "../src/lib/saved-words.ts";
 
 const data = new Map();
 Object.defineProperty(globalThis, "localStorage", { configurable: true, value: {
@@ -8,6 +8,7 @@ Object.defineProperty(globalThis, "localStorage", { configurable: true, value: {
   key(index) { return [...data.keys()][index] ?? null; },
   getItem(key) { return data.get(key) ?? null; },
   setItem(key, value) { data.set(key, value); },
+  removeItem(key) { data.delete(key); },
 } });
 afterEach(() => data.clear());
 const word = { text: "Sonne", language: "de", sourceTextId: "123e4567-e89b-42d3-a456-426614174000", sourceTitle: "Solarenergie" };
@@ -54,4 +55,47 @@ test("failed writes propagate and leave existing words unchanged", (t) => {
   assert.throws(() => saveWordToList(list.id, { ...word, text: "Licht" }), /Storage full/);
   assert.equal(listWordLists().lists[0].words.length, 1);
   assert.throws(() => createWordList("Other", word), /Storage full/);
+});
+
+
+test("renames lists while preserving words and rejects conflicting names", () => {
+  const list = createWordList("German", word);
+  createWordList("Favorites", word);
+  renameWordList(list.id, " German ");
+  renameWordList(list.id, " Reading ");
+  const renamed = listWordLists().lists.find((item) => item.id === list.id);
+  assert.deepEqual(renamed, { ...list, name: "Reading" });
+  for (const name of [" ", "a".repeat(61), "FAVORITES"]) {
+    assert.throws(() => renameWordList(list.id, name));
+  }
+});
+
+test("removal reads the latest list and deletion leaves other lists intact", () => {
+  const list = createWordList("German", word);
+  const other = createWordList("Other", word);
+  saveWordToList(list.id, { ...word, text: "Licht" });
+  removeSavedWord(list.id, list.words[0].id);
+  const updated = listWordLists().lists.find((item) => item.id === list.id);
+  assert.deepEqual(updated.words.map((item) => item.text), ["Licht"]);
+  removeSavedWord(list.id, updated.words[0].id);
+  assert.equal(listWordLists().lists.find((item) => item.id === list.id).words.length, 0);
+  deleteWordList(list.id);
+  assert.deepEqual(listWordLists().lists, [other]);
+});
+
+test("management storage failures propagate without losing data", (t) => {
+  const list = createWordList("German", word);
+  t.mock.method(localStorage, "setItem", () => { throw new Error("Storage blocked"); });
+  t.mock.method(localStorage, "removeItem", () => { throw new Error("Storage blocked"); });
+  assert.throws(() => renameWordList(list.id, "New"), /Storage blocked/);
+  assert.throws(() => removeSavedWord(list.id, list.words[0].id), /Storage blocked/);
+  assert.throws(() => deleteWordList(list.id), /Storage blocked/);
+  assert.deepEqual(listWordLists().lists, [list]);
+});
+
+test("Markdown export includes the list name and Unicode words with escaped formatting", () => {
+  const list = createWordList("German", word);
+  assert.equal(wordListMarkdown(list), "# German\n\n- Sonne (de)\n");
+  const special = { ...list, name: "A*B", words: [{ ...list.words[0], text: "schön_[x]" }] };
+  assert.equal(wordListMarkdown(special), "# A\\*B\n\n- schön\\_\\[x\\] (de)\n");
 });

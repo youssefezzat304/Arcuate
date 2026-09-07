@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { listWordLists, type WordList } from "@/lib/saved-words";
-import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
+import { listWordLists, SAVED_WORDS_CHANGED_EVENT, type WordList } from "@/lib/saved-words";
+import { WordListSection } from "@/components/word-list-section";
 
 type LibraryState = { status: "loading" } | { status: "error" } | { status: "ready"; lists: WordList[]; invalidCount: number };
 
@@ -16,7 +16,11 @@ export function SavedWordsLibrary() {
     }
     load();
     window.addEventListener("storage", load);
-    return () => window.removeEventListener("storage", load);
+    window.addEventListener(SAVED_WORDS_CHANGED_EVENT, load);
+    return () => {
+      window.removeEventListener("storage", load);
+      window.removeEventListener(SAVED_WORDS_CHANGED_EVENT, load);
+    };
   }, []);
 
   if (state.status === "loading") return <p role="status">Loading your word lists…</p>;
@@ -31,21 +35,7 @@ export function SavedWordsLibrary() {
         <Link href="/texts" className="inline-flex min-h-11 items-center rounded-lg bg-accent px-5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2">Open My texts</Link>
       </section>
     ) : <div className="space-y-6">
-      {state.lists.map((list) => <section key={list.id} className="rounded-xl border border-border bg-paper p-6 sm:p-8">
-        <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-4">
-          <h2 className="break-words font-serif text-2xl">{list.name}</h2>
-          <p className="text-xs text-muted-foreground">{list.words.length} {list.words.length === 1 ? "word" : "words"}</p>
-        </div>
-        <ul className="divide-y divide-border">
-          {list.words.map((word) => <li key={word.id} className="py-4 first:pt-0 last:pb-0">
-            <p lang={word.language} dir="auto" className="mb-2 break-words font-serif text-xl">{word.text}</p>
-            <p className="text-xs leading-6 text-muted-foreground">
-              {SUPPORTED_LANGUAGES.find((language) => language.code === word.language)?.name} · {" "}
-              <Link href={`/texts/${word.sourceTextId}`} className="underline underline-offset-4 hover:text-foreground focus-visible:outline-2">{word.sourceTitle}</Link>
-            </p>
-          </li>)}
-        </ul>
-      </section>)}
+      {state.lists.map((list) => <WordListSection key={list.id} list={list} />)}
     </div>}
   </>;
 }

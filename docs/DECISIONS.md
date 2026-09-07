@@ -5,7 +5,7 @@
 - 2026-09-06 [CODE] Current state: Gemini generation replaces mock content; validated texts are saved in browser localStorage and listed in My texts.
 - 2026-09-07 [CODE] Now: saved words are recognized across readings, reader annotations persist per text, and Settings provides browser-local display preferences.
 - 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
-- 2026-09-06 [USER] Provider: Gemini; short/medium/long request 2,000/4,000/5,500 characters with no translation.
+- 2026-09-06 [USER] Provider: Gemini; a slider requests 2,000–20,000 characters in steps of 2,000 with no translation.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
 
 [DECISIONS]
@@ -56,7 +56,7 @@ Use Gemini for target-language and CEFR-controlled generation. Request 2,000 wor
 D012 ACTIVE — 2026-09-06 [CODE]
 Use Node's built-in test runner with native TypeScript stripping for input, storage, and provider tests. Keep provider tests mocked and API secrets server-side. AI package source is checked through the consuming web workspace.
 
-D013 ACTIVE — 2026-09-06 [USER]
+D013 SUPERSEDED BY D019 — 2026-09-06 [USER]
 Use character targets instead of word targets: short 2,000, medium 4,000, long 5,500. Other generation settings remain unchanged.
 2026-09-06 [CODE] Count Unicode grapheme clusters including spaces, punctuation, and paragraph breaks, excluding the title. Derive counts from saved bodies to keep existing records readable.
 
@@ -83,6 +83,14 @@ D018 ACTIVE — 2026-09-07 [USER]
 Persist highlights and text styles with each saved reading in browser localStorage. Provide a top-of-reading action that clears all annotations only after confirmation while preserving saved-word styling.
 2026-09-07 [CODE] Persist validated offset/style records rather than formatted text copies. Legacy readings default to an empty annotation set; saved-word styling remains a separately computed vocabulary overlay.
 Reason: offsets keep generated text canonical and let annotation clearing avoid any mutation of saved vocabulary.
+
+D019 ACTIVE — 2026-09-07 [USER]
+Replace text-length presets with a slider from 2,000 to 20,000 characters in steps of 2,000.
+2026-09-07 [CODE] Keep the 4,000-character default, validate numeric targets for new requests, and accept legacy presets only in saved records. Before replacement, code used 7,000 for long while documentation recorded 5,500.
+
+D020 ACTIVE — 2026-09-07 [USER]
+Show saved-word lists collapsed to their names, opening on click. Provide Copy as Markdown, per-word removal, and list rename/delete actions.
+2026-09-07 [CODE] Markdown exports the list heading and words with language codes. List deletion requires confirmation; removing the final word retains an empty list. Mutations notify the existing vocabulary subscribers.
 
 [PROGRESS]
 

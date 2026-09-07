@@ -1,6 +1,7 @@
 import { GenerationForm } from "@/components/generation-form";
 import { PromptTextarea } from "@/components/prompt-textarea";
-import { CEFR_LEVELS, TEXT_LENGTHS, CHARACTER_TARGETS } from "@/lib/reading-settings";
+import { TextLengthSlider } from "@/components/text-length-slider";
+import { CEFR_LEVELS } from "@/lib/reading-settings";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 
 export default function Home() {
@@ -79,22 +80,7 @@ export default function Home() {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2 rounded-lg border border-border bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
-                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  Length
-                </span>
-                <select
-                  name="length"
-                  defaultValue="medium"
-                  className="min-w-0 bg-transparent text-left text-sm font-medium sm:text-right capitalize outline-none"
-                >
-                  {TEXT_LENGTHS.map((length) => (
-                    <option key={length} value={length}>
-                      {length.charAt(0).toUpperCase() + length.slice(1)} · {CHARACTER_TARGETS[length].toLocaleString("en-US")} characters
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <TextLengthSlider />
             </div>
           </div>
         </GenerationForm>

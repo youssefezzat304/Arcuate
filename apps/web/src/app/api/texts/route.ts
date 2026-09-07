@@ -1,6 +1,6 @@
 import { generateText, GenerationError } from "@arcuate/ai";
 import { analyzeText } from "@arcuate/language";
-import { createTextRequestSchema, CHARACTER_TARGETS } from "@/lib/reading-settings";
+import { createTextRequestSchema } from "@/lib/reading-settings";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 import { savedTextSchema } from "@/lib/saved-texts";
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       topic: settings.topic,
       language: SUPPORTED_LANGUAGES.find((language) => language.code === settings.language)!.name,
       level: settings.level,
-      characterTarget: CHARACTER_TARGETS[settings.length],
+      characterTarget: settings.length,
     }, { apiKey, model: process.env.GEMINI_MODEL || "gemini-3.6-flash" });
     const analysis = await analyzeText(generated.paragraphs, settings.language, {
       stanzaEndpoint: process.env.LANGUAGE_ANALYZER_URL,

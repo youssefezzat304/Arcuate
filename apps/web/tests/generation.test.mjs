@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import { createTextRequestSchema, CHARACTER_TARGETS } from "../src/lib/reading-settings.ts";
+import { createTextRequestSchema } from "../src/lib/reading-settings.ts";
 import { saveText, readText, listTexts, countCharacters, saveTextAnnotations } from "../src/lib/saved-texts.ts";
 import { generateText } from "../../../packages/ai/src/index.ts";
 
@@ -12,11 +12,16 @@ Object.defineProperty(globalThis, "localStorage", { configurable: true, value: {
   setItem(key, value) { data.set(key, value); },
 } });
 afterEach(() => data.clear());
-const settings = { topic: "Solar energy", language: "de", level: "A2", length: "short" };
+const settings = { topic: "Solar energy", language: "de", level: "A2", length: 2000 };
 const record = { id: "123e4567-e89b-42d3-a456-426614174000", createdAt: "2026-09-06T12:00:00.000Z", settings, title: "Die Sonne", paragraphs: ["Die Sonne scheint."], characterCount: 18 };
 
-test("validates inputs and exact requested length mapping without translation", () => {
-  assert.deepEqual(CHARACTER_TARGETS, { short: 2000, medium: 4000, long: 7000 });
+test("validates inputs and all slider intervals without translation", () => {
+  for (let length = 2000; length <= 20000; length += 2000) {
+    assert.equal(createTextRequestSchema.parse({ ...settings, length }).length, length);
+  }
+  for (const length of [0, 1999, 3000, 20001, 22000, 4000.5, "4000", "short", null]) {
+    assert.equal(createTextRequestSchema.safeParse({ ...settings, length }).success, false);
+  }
   assert.equal(createTextRequestSchema.safeParse(settings).success, true);
   for (const patch of [{topic:" "}, {topic:"a".repeat(501)}, {language:"invalid"}, {level:"A3"}, {length:"tiny"}]) {
     assert.equal(createTextRequestSchema.safeParse({...settings,...patch}).success, false);
@@ -114,4 +119,12 @@ test("text annotations persist independently on each saved reading", () => {
     () => saveTextAnnotations("323e4567-e89b-42d3-a456-426614174000", annotations),
     /no longer saved/,
   );
+});
+
+test("legacy length presets remain readable in saved texts", () => {
+  for (const length of ["short", "medium", "long"]) {
+    data.set(`arcuate:text:v1:${record.id}`, JSON.stringify({ ...record, settings: { ...settings, length } }));
+    assert.equal(readText(record.id).settings.length, length);
+    assert.equal(listTexts().invalidCount, 0);
+  }
 });

@@ -93,3 +93,32 @@ export function saveWordToList(listId: string, draft: WordDraft) {
   }
   return { list, duplicate };
 }
+
+export function renameWordList(id: string, name: string) {
+  const parsed = listNameSchema.safeParse(name);
+  if (!parsed.success) throw new Error(parsed.error.issues[0].message);
+  const list = readList(id);
+  if (listWordLists().lists.some((other) => other.id !== id && nameKey(other.name) === nameKey(parsed.data))) {
+    throw new Error("A list with this name already exists. Use another name.");
+  }
+  writeList({ ...list, name: parsed.data });
+}
+
+export function removeSavedWord(listId: string, wordId: string) {
+  const list = readList(listId);
+  writeList({ ...list, words: list.words.filter((word) => word.id !== wordId) });
+}
+
+export function deleteWordList(id: string) {
+  readList(id);
+  localStorage.removeItem(prefix + id);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(SAVED_WORDS_CHANGED_EVENT));
+}
+
+function escapeMarkdown(value: string) {
+  return value.replace(/\r?\n/g, " ").replace(/([\\`*_{}\[\]<>()#+.!|~-])/g, "\\$1");
+}
+
+export function wordListMarkdown(list: WordList) {
+  return `# ${escapeMarkdown(list.name)}\n\n${list.words.map((word) => `- ${escapeMarkdown(word.text)} (${word.language})`).join("\n")}\n`;
+}

@@ -29,7 +29,8 @@ export function GenerationForm({ children }: { children: ReactNode }) {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (inFlight.current || unsaved) return;
-    const parsed = createTextRequestSchema.safeParse(Object.fromEntries(new FormData(event.currentTarget)));
+    const fields = Object.fromEntries(new FormData(event.currentTarget));
+    const parsed = createTextRequestSchema.safeParse({ ...fields, length: Number(fields.length) });
     if (!parsed.success) { setError("Check the topic and reading settings."); return; }
     inFlight.current = true;
     setPending(true);
