@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import { createTextRequestSchema, CHARACTER_TARGETS } from "../src/lib/reading-settings.ts";
-import { saveText, readText, listTexts, countCharacters } from "../src/lib/saved-texts.ts";
+import { saveText, readText, listTexts, countCharacters, saveTextAnnotations } from "../src/lib/saved-texts.ts";
 import { generateText } from "../../../packages/ai/src/index.ts";
 
 const data = new Map();
@@ -28,7 +28,7 @@ test("saved records survive reads, remain isolated, and sort newest first", () =
   const second = {...record,id:"223e4567-e89b-42d3-a456-426614174000",createdAt:"2026-09-07T12:00:00.000Z"};
   saveText(second);
   const saved = readText(record.id);
-  assert.deepEqual(saved, { ...record, analysis: saved.analysis });
+  assert.deepEqual(saved, { ...record, analysis: saved.analysis, annotations: [] });
   assert.deepEqual(listTexts().texts.map(({ id, createdAt }) => ({ id, createdAt })), [
     { id: second.id, createdAt: second.createdAt },
     { id: record.id, createdAt: record.createdAt },
@@ -89,9 +89,29 @@ test("existing word-count records remain readable with a derived character count
   data.set(`arcuate:text:v1:${record.id}`, JSON.stringify({ ...legacy, wordCount: 3 }));
   const upgraded = readText(record.id);
   const { analysis, ...upgradedText } = upgraded;
-  assert.deepEqual(upgradedText, record);
+  assert.deepEqual(upgradedText, { ...record, annotations: [] });
   assert.equal(upgraded.characterCount, characterCount);
   assert.equal(analysis.analyzer, "intl-segmenter");
   assert.equal(JSON.parse(data.get(`arcuate:text:v1:${record.id}`)).analysis.analyzer, "intl-segmenter");
   assert.equal(listTexts().invalidCount, 0);
+});
+
+test("text annotations persist independently on each saved reading", () => {
+  saveText(record);
+  const annotations = [{
+    start: 0,
+    end: 3,
+    format: { bold: true, highlight: "var(--highlight-blue)" },
+  }];
+
+  const updated = saveTextAnnotations(record.id, annotations);
+
+  assert.deepEqual(updated.annotations, annotations);
+  assert.deepEqual(readText(record.id).annotations, annotations);
+  saveTextAnnotations(record.id, []);
+  assert.deepEqual(readText(record.id).annotations, []);
+  assert.throws(
+    () => saveTextAnnotations("323e4567-e89b-42d3-a456-426614174000", annotations),
+    /no longer saved/,
+  );
 });

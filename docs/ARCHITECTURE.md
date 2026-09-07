@@ -81,13 +81,14 @@ shared output schema, so client code does not import the provider SDK.
 
 The browser saves each validated response under `arcuate:text:v1:<uuid>` in
 localStorage before opening `/texts/[id]`. Records contain the title, paragraphs,
-settings, actual character count, and creation time. `/texts` lists these records.
+settings, actual character count, creation time, and validated formatting
+annotations represented as text offsets plus semantic style values. `/texts` lists these records.
 Per-record keys avoid replacing the whole library during concurrent tab writes.
 Corrupt records are reported and retained; storage failures allow retrying the
 save without another generation request. Clearing site data removes the library.
 
 The CEFR validation/rewrite pipeline above remains planned. Current levels and
-character counts are prompt targets; `Intl.Segmenter` with grapheme granularity measures the returned body, including spaces and paragraph breaks but excluding the title. Counts are derived on validation, so older word-count records remain readable. Reader formatting remains session-only. Selection formatting supports Control-key shortcuts for bold, last-color highlighting, underline, and strikethrough; shortcut handling is scoped to active reader selections. Authentication, cloud persistence, translation, and distributed abuse controls remain unimplemented.
+character counts are prompt targets; `Intl.Segmenter` with grapheme granularity measures the returned body, including spaces and paragraph breaks but excluding the title. Counts are derived on validation, so older word-count records remain readable. Reader formatting is stored per text in localStorage and restored from validated offset annotations. Clearing annotations writes an empty annotation set without changing saved-word records or their independent rendering overlay. Selection formatting supports Control-key shortcuts for bold, last-color highlighting, underline, and strikethrough; shortcut handling is scoped to active reader selections. Authentication, cloud persistence, translation, and distributed abuse controls remain unimplemented.
 
 ## Local setup and verification
 

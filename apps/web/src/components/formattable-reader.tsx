@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { analyzeTextExact, normalizeToken, type TextAnalysis } from "@arcuate/language";
-import { formatSelection, selectionHasFormat, shortcutFormatPatch, type TextFormat, type TextRun, type TextSelection } from "@/lib/text-formatting";
+import { annotationsToBlocks, blocksHaveAnnotations, blocksToAnnotations, formatSelection, selectionHasFormat, shortcutFormatPatch, type TextAnnotation, type TextFormat, type TextRun, type TextSelection } from "@/lib/text-formatting";
 
+import { ClearAnnotationsDialog } from "@/components/clear-annotations-dialog";
 import { SaveWordDialog } from "@/components/save-word-dialog";
 import { listSavedWords, SAVED_WORDS_CHANGED_EVENT, type SavedWord, type WordDraft } from "@/lib/saved-words";
 import { findSavedWordRanges, type TextRange } from "@/lib/saved-word-matching";
@@ -35,23 +36,28 @@ function restoreSelection(root: HTMLElement, selected: TextSelection) {
   }
 }
 
-export function FormattableReader({ title, paragraphs, textId, language, analysis }: {
+export function FormattableReader({ title, paragraphs, textId, language, analysis, annotations, onAnnotationsChange }: {
   title: string;
   paragraphs: string[];
   textId: string;
   language: WordDraft["language"];
   analysis: TextAnalysis;
+  annotations: TextAnnotation[];
+  onAnnotationsChange: (annotations: TextAnnotation[]) => void;
 }) {
-  const [blocks, setBlocks] = useState<TextRun[][]>(() => [title, ...paragraphs].map((text) => [{ text, format: {} }]));
+  const texts = useMemo(() => [title, ...paragraphs], [paragraphs, title]);
+  const [blocks, setBlocks] = useState<TextRun[][]>(() => annotationsToBlocks(texts, annotations));
   const [selected, setSelected] = useState<SelectedText | null>(null);
   const [palette, setPalette] = useState<"color" | "highlight" | null>(null);
-  const [lastHighlight, setLastHighlight] = useState("var(--highlight-yellow)");
+  const [lastHighlight, setLastHighlight] = useState<NonNullable<TextFormat["highlight"]>>("var(--highlight-yellow)");
+  const [confirmClear, setConfirmClear] = useState(false);
   const [word, setWord] = useState<WordDraft | null>(null);
   const [notice, setNotice] = useState("");
   const [savedWords, setSavedWords] = useState<SavedWord[]>([]);
   const rootRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const pendingSelection = useRef<TextSelection | null>(null);
+  const clearButtonRef = useRef<HTMLButtonElement>(null);
 
   useLayoutEffect(() => {
     if (pendingSelection.current && rootRef.current) {
@@ -141,10 +147,20 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
     };
   }, []);
 
+  const commitBlocks = useCallback((next: TextRun[][], successMessage?: string) => {
+    setBlocks(next);
+    try {
+      onAnnotationsChange(blocksToAnnotations(next));
+      if (successMessage) setNotice(successMessage);
+    } catch {
+      setNotice("This annotation change is visible now, but could not be saved in your browser.");
+    }
+  }, [onAnnotationsChange]);
+
   function apply(patch: TextFormat) {
     if (!selected) return;
     pendingSelection.current = selected;
-    setBlocks((current) => formatSelection(current, selected, patch));
+    commitBlocks(formatSelection(blocks, selected, patch));
   }
 
   useEffect(() => {
@@ -156,11 +172,25 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
       if (!patch) return;
       event.preventDefault();
       pendingSelection.current = selected;
-      setBlocks((current) => formatSelection(current, selected, patch));
+      commitBlocks(formatSelection(blocks, selected, patch));
     }
     document.addEventListener("keydown", applyShortcut);
     return () => document.removeEventListener("keydown", applyShortcut);
-  }, [blocks, lastHighlight, selected]);
+  }, [blocks, commitBlocks, lastHighlight, selected]);
+
+  function clearAnnotations() {
+    window.getSelection()?.removeAllRanges();
+    setSelected(null);
+    setPalette(null);
+    setConfirmClear(false);
+    commitBlocks(annotationsToBlocks(texts, []), "All text annotations were cleared. Saved-word styling remains.");
+    requestAnimationFrame(() => clearButtonRef.current?.focus());
+  }
+
+  function closeClearDialog() {
+    setConfirmClear(false);
+    requestAnimationFrame(() => clearButtonRef.current?.focus());
+  }
 
   function bookmark() {
     if (!selected) return;
@@ -222,6 +252,10 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
   }
 
   return <>
+    <button ref={clearButtonRef} type="button" dir="ltr" disabled={!blocksHaveAnnotations(blocks)} onClick={() => setConfirmClear(true)}
+      className="absolute top-3 right-3 min-h-9 rounded-lg border border-border bg-paper px-3 py-2 font-sans text-xs font-semibold text-muted-foreground hover:bg-background hover:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground sm:top-4 sm:right-4">
+      Clear annotations
+    </button>
     <div ref={rootRef} tabIndex={-1} className="focus:outline-none">
       <h1 className="mb-10 border-b border-border pb-8 font-serif text-4xl leading-tight tracking-[-0.04em] sm:text-5xl">{renderRuns(blocks[0]!, savedRanges[0]!)}</h1>
       <div className="space-y-7 font-serif leading-[1.75] text-ink-secondary" style={{ fontSize: "var(--reader-font-size)" }}>
@@ -237,9 +271,13 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
         <span className="sr-only">{palette === "color" ? "Text color" : "Highlight color"}</span>
         <button type="button" className={controlClass} aria-label={palette === "color" ? "Default text color" : "Remove highlight"} onClick={() => apply({ [palette]: undefined })}>∅</button>
         {colors.map((color) => <button key={color} type="button" className={controlClass} aria-label={`${color} ${palette === "color" ? "text" : "highlight"}`} onClick={() => {
-          const value = `var(--${palette}-${color})`;
-          if (palette === "highlight") setLastHighlight(value);
-          apply({ [palette]: value });
+          if (palette === "highlight") {
+            const value = `var(--highlight-${color})` as NonNullable<TextFormat["highlight"]>;
+            setLastHighlight(value);
+            apply({ highlight: value });
+          } else {
+            apply({ color: `var(--color-${color})` as NonNullable<TextFormat["color"]> });
+          }
         }}>
           <span className="size-6 rounded-md border border-toolbar-foreground/30" style={{ backgroundColor: `var(--${palette}-${color})` }} />
         </button>)}
@@ -259,6 +297,7 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
         <button type="button" className={controlClass} aria-label="Text color" onClick={() => setPalette("color")}><span className="border-b-2 border-warm-highlight text-xl">A</span></button>
       </>}
     </div>}
+    {confirmClear && <ClearAnnotationsDialog onClose={closeClearDialog} onConfirm={clearAnnotations} />}
     {word && <SaveWordDialog word={word} onSaved={setNotice} onClose={() => { setWord(null); rootRef.current?.focus({ preventScroll: true }); }} />}
     {notice && <p role="status" className="fixed bottom-5 left-1/2 z-50 max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-lg border border-border bg-paper px-4 py-3 font-sans text-sm text-foreground shadow-sm">{notice}</p>}
   </>;

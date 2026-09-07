@@ -57,6 +57,14 @@ available. When the optional language-analysis service is configured, lemma and
 part-of-speech annotations also allow inflected forms to match. Translation,
 pronunciation, and grammar details remain planned uses of the same token data.
 
+## Text annotations
+
+Reader highlights, text colors, bold, italic, underline, and strikethrough are
+saved with each text in the current browser and restored when the reading is
+reopened. A control at the top of the reading clears all text annotations after
+confirmation. Saved-word styling is a separate vocabulary overlay and is not
+removed when annotations are cleared.
+
 ## Preferences
 
 Settings includes browser-local preferences for light, dark, or system-matched

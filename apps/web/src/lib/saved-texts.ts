@@ -3,6 +3,7 @@ import { generatedTextSchema } from "@arcuate/ai/schema";
 import { analysisFitsText, analyzeTextExact } from "@arcuate/language";
 import { textAnalysisSchema } from "@arcuate/language/schema";
 import { createTextRequestSchema } from "./reading-settings.ts";
+import { textAnnotationSchema, type TextAnnotation } from "./text-formatting.ts";
 
 export function countCharacters(paragraphs: string[]) {
   const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
@@ -14,11 +15,13 @@ export const savedTextSchema = generatedTextSchema.extend({
   createdAt: z.iso.datetime(),
   settings: createTextRequestSchema,
   analysis: textAnalysisSchema.optional(),
+  annotations: z.array(textAnnotationSchema).max(20_000).optional().default([]),
 }).transform((text) => ({
   ...text,
   analysis: text.analysis && analysisFitsText(text.analysis, text.paragraphs, text.settings.language)
     ? text.analysis
     : analyzeTextExact(text.paragraphs, text.settings.language),
+  annotations: text.annotations.filter(({ end }) => end <= text.title.length + text.paragraphs.reduce((length, paragraph) => length + paragraph.length, 0)),
   // Derive the count from the body so older word-count records remain readable.
   characterCount: countCharacters(text.paragraphs),
 }));
@@ -36,11 +39,19 @@ export function readText(id: string): SavedText | null {
   if (raw === null) return null;
   const stored: unknown = JSON.parse(raw);
   const text = savedTextSchema.parse(stored);
-  if (typeof stored === "object" && stored !== null && !("analysis" in stored)) {
+  if (typeof stored === "object" && stored !== null && (!("analysis" in stored) || !("annotations" in stored))) {
     try { localStorage.setItem(prefix + id, JSON.stringify(text)); }
     catch { /* A failed lazy upgrade must not make an existing text unreadable. */ }
   }
   return text;
+}
+
+export function saveTextAnnotations(id: string, annotations: TextAnnotation[]) {
+  const text = readText(id);
+  if (!text) throw new Error("This text is no longer saved in this browser.");
+  const updated = savedTextSchema.parse({ ...text, annotations });
+  saveText(updated);
+  return updated;
 }
 
 export function listTexts() {

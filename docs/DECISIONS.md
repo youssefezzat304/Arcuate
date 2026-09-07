@@ -3,7 +3,7 @@
 - 2026-09-03 [CODE] Goal: build a small functional MVP for an AI-powered graded reader.
 - 2026-09-06 [CODE] Current state: Next.js at `apps/web` and provider/structured generation in `packages/ai`.
 - 2026-09-06 [CODE] Current state: Gemini generation replaces mock content; validated texts are saved in browser localStorage and listed in My texts.
-- 2026-09-07 [CODE] Now: saved words are recognized and styled across readings through versioned token analysis; Settings provides browser-local display preferences.
+- 2026-09-07 [CODE] Now: saved words are recognized across readings, reader annotations persist per text, and Settings provides browser-local display preferences.
 - 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
 - 2026-09-06 [USER] Provider: Gemini; short/medium/long request 2,000/4,000/5,500 characters with no translation.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
@@ -79,10 +79,16 @@ Add Control-key shortcuts for bold, last-color highlighting, underline, and stri
 2026-09-07 [CODE] Shortcuts act only on an active reader selection and do not intercept editable form controls. The last highlight choice is retained for the current reader session.
 Reason: frequent formatting actions should remain fast while annotations stay legible against both light and dark reading surfaces.
 
+D018 ACTIVE — 2026-09-07 [USER]
+Persist highlights and text styles with each saved reading in browser localStorage. Provide a top-of-reading action that clears all annotations only after confirmation while preserving saved-word styling.
+2026-09-07 [CODE] Persist validated offset/style records rather than formatted text copies. Legacy readings default to an empty annotation set; saved-word styling remains a separately computed vocabulary overlay.
+Reason: offsets keep generated text canonical and let annotation clearing avoid any mutation of saved vocabulary.
+
 [PROGRESS]
 
 - 2026-09-07 [CODE] Added exact and Stanza-backed language analysis, lazy text enrichment, linguistic saved-word identity, and reactive cross-text highlighting.
 - 2026-09-07 [CODE] Added reader formatting shortcuts, strikethrough, a theme-invariant black toolbar, and dark-mode annotation colors.
+- 2026-09-07 [CODE] Added validated per-text annotation persistence and confirmation-protected annotation clearing.
 - 2026-09-07 [CODE] Replaced the Settings placeholder with persistent three-mode appearance, app language, and numeric reader font-size preferences.
 - 2026-09-03 [CODE] Consolidated workspace ownership at the repository root.
 - 2026-09-03 [CODE] Added repository-wide and web-workspace typecheck commands.
@@ -107,6 +113,7 @@ Reason: frequent formatting actions should remain fast while annotations stay le
 
 [OUTCOMES]
 
+- 2026-09-07 [CODE] Highlights and text styles now survive reopening a reading. A disabled-when-empty action at the reading top clears them after confirmation and leaves saved-word styling intact.
 - 2026-09-07 [CODE] Reader selections now support Ctrl+B bold, Ctrl+H last-color highlighting, Ctrl+U underline, and Ctrl+Y strikethrough. The toolbar remains black across themes, while highlight fills and text colors use dark-mode-specific muted variants.
 - 2026-09-07 [CODE] Saved words now appear bold with a warm underline across same-language texts. Exact forms work without services; lemma-inflected forms activate when Stanza annotations are available.
 - 2026-09-07 [CODE] Added validated browser-local preferences with an accessible Settings interface, system-aware dark theme, and reader-only pixel sizing.
@@ -125,18 +132,16 @@ Reason: frequent formatting actions should remain fast while annotations stay le
 
 [WORKING SET]
 
-- `packages/language/src/schema.ts`
-- `services/language/server.py`
-- `apps/web/src/app/api/language/analyze/route.ts`
 - `apps/web/src/lib/saved-texts.ts`
 - `apps/web/src/lib/saved-words.ts`
 - `apps/web/src/lib/saved-word-matching.ts`
 - `apps/web/src/lib/text-formatting.ts`
-- `apps/web/src/components/app-shell.tsx`
+- `apps/web/src/components/clear-annotations-dialog.tsx`
 - `apps/web/src/components/formattable-reader.tsx`
 - `apps/web/src/components/saved-reader.tsx`
-- `apps/web/src/app/globals.css`
+- `apps/web/tests/generation.test.mjs`
 - `apps/web/tests/text-formatting.test.mjs`
+- `docs/PRODUCT.md`
 
 [RECEIPTS]
 
@@ -162,3 +167,4 @@ Reason: frequent formatting actions should remain fast while annotations stay le
 - 2026-09-07 [TOOL] Preferences: all 18 tests, lint, typecheck, and build passed. Browser verified three appearance choices, a 14px default, and persisted system/18px selections after reload.
 - 2026-09-07 [TOOL] Language analysis: 23 tests, lint, typecheck, and build passed; Python service syntax parsed. Browser verified legacy text upgrade and saved exact forms styled across repeated title/body occurrences.
 - 2026-09-07 [TOOL] Formatting shortcuts: all 25 tests, lint, typecheck, build, and diff validation passed. Browser accessibility checks confirmed Ctrl+B and Ctrl+Y state changes; visual checks confirmed the fixed black toolbar, muted dark palettes, and saved dark mode after a direct reader load.
+- 2026-09-07 [TOOL] Annotation persistence: all 27 tests, lint, typecheck, build, and diff validation passed. Browser verified annotate/reload, confirmation cancel/accept, persistent clearing, and preserved saved-word styling.
