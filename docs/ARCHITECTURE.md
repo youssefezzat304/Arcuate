@@ -87,7 +87,18 @@ opening a native modal dialog, which supports selecting a list or creating and
 saving atomically. Duplicate words are compared using Unicode NFC and
 language-aware case folding within each list. Storage failures are surfaced;
 invalid records are retained and reported. Lists refresh on cross-tab storage
-events. `/saved-words` displays the library; `/settings` is a placeholder.
+events. `/saved-words` displays the library.
+
+## Preferences
+
+`/settings` stores one validated record under `arcuate:preferences:v1` in
+localStorage. Light/dark appearance is applied through a data attribute on the
+document root; system mode follows `prefers-color-scheme`, including live device
+changes. Reader body-text size is stored as pixels and applied through the
+`--reader-font-size` custom property without scaling the surrounding interface.
+App language updates the root `lang` attribute; interface translations remain
+future work. Invalid stored records fall back to defaults, and the original
+boolean/theme-size record shape is migrated when read.
 
 The Gemini master prompt is maintained separately in `packages/ai/src/prompt.ts`
 and imported by the provider in `packages/ai/src/index.ts`.

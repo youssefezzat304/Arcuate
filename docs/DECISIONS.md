@@ -3,7 +3,7 @@
 - 2026-09-03 [CODE] Goal: build a small functional MVP for an AI-powered graded reader.
 - 2026-09-06 [CODE] Current state: Next.js at `apps/web` and provider/structured generation in `packages/ai`.
 - 2026-09-06 [CODE] Current state: Gemini generation replaces mock content; validated texts are saved in browser localStorage and listed in My texts.
-- 2026-09-07 [CODE] Now: the reader supports formatting and word bookmarks; the sidebar links New text, My texts, Saved words, and a Settings placeholder.
+- 2026-09-07 [CODE] Now: the reader supports formatting and word bookmarks; Settings provides browser-local display preferences.
 - 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
 - 2026-09-06 [USER] Provider: Gemini; short/medium/long request 2,000/4,000/5,500 characters with no translation.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
@@ -64,8 +64,14 @@ D014 ACTIVE — 2026-09-07 [USER]
 Extend the selection toolbar with a bookmark button that saves a word into an existing or newly created list. Keep its formatting controls and above/below placement rule. Add Saved words and Settings navigation.
 2026-09-07 [CODE] Lists persist in browser localStorage; duplicate text/language entries within one list are suppressed. Settings is a placeholder until preferences are specified.
 
+D015 ACTIVE — 2026-09-07 [USER]
+Provide Settings preferences for dark mode, app language, and font size.
+2026-09-07 [USER] Appearance supports light, dark, and system. Font size controls reader body text in pixels and defaults to 14px rather than scaling the full interface.
+2026-09-07 [CODE] Preferences persist in browser localStorage. System appearance follows live device changes; app language updates the document language while translated interface copy remains deferred.
+
 [PROGRESS]
 
+- 2026-09-07 [CODE] Replaced the Settings placeholder with persistent three-mode appearance, app language, and numeric reader font-size preferences.
 - 2026-09-03 [CODE] Consolidated workspace ownership at the repository root.
 - 2026-09-03 [CODE] Added repository-wide and web-workspace typecheck commands.
 - 2026-09-03 [CODE] Removed the runtime build dependency on Google-hosted fonts.
@@ -89,6 +95,7 @@ Extend the selection toolbar with a bookmark button that saves a word into an ex
 
 [OUTCOMES]
 
+- 2026-09-07 [CODE] Added validated browser-local preferences with an accessible Settings interface, system-aware dark theme, and reader-only pixel sizing.
 - 2026-09-07 [CODE] Added word bookmarking with list creation/selection, local persistence, source-text links, and Saved words/Settings routes. Preserved the user’s separate Gemini master prompt file.
 
 - 2026-09-06 [CODE] Completed Gemini generation, local per-text persistence, library listing, saved reader loading, pending/error UI, and save retry. Translation removed from current inputs; exact word count and CEFR enforcement remain deferred.
@@ -104,16 +111,12 @@ Extend the selection toolbar with a bookmark button that saves a word into an ex
 
 [WORKING SET]
 
-- `apps/web/src/lib/saved-words.ts`
-- `apps/web/src/components/save-word-dialog.tsx`
-- `apps/web/src/components/saved-words-library.tsx`
-- `apps/web/src/components/formattable-reader.tsx`
-- `apps/web/src/components/saved-reader.tsx`
-- `apps/web/src/components/app-shell.tsx`
-- `apps/web/src/app/saved-words/page.tsx`
+- `apps/web/src/app/globals.css`
+- `apps/web/src/app/layout.tsx`
 - `apps/web/src/app/settings/page.tsx`
-- `apps/web/tests/saved-words.test.mjs`
-- `packages/ai/src/prompt.ts`
+- `apps/web/src/components/preferences-section.tsx`
+- `apps/web/src/lib/preferences.ts`
+- `apps/web/tests/preferences.test.mjs`
 - `docs/PRODUCT.md`
 - `docs/ARCHITECTURE.md`
 
@@ -138,3 +141,4 @@ Extend the selection toolbar with a bookmark button that saves a word into an ex
 - 2026-09-06 [TOOL] Character-length update: nine tests, lint, typecheck, and build passed. Tests cover Unicode grapheme counting and compatibility with existing saved word-count records.
 
 - 2026-09-07 [TOOL] Bookmarking: all 14 tests, lint, typecheck, and build passed. Browser verified list creation, adding a second word to an existing list, reopening the saved list in a new tab, and Settings navigation.
+- 2026-09-07 [TOOL] Preferences: all 18 tests, lint, typecheck, and build passed. Browser verified three appearance choices, a 14px default, and persisted system/18px selections after reload.

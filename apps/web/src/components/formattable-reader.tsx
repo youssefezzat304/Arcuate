@@ -138,7 +138,7 @@ export function FormattableReader({ title, paragraphs, textId, language }: { tit
   return <>
     <div ref={rootRef} tabIndex={-1} className="focus:outline-none">
       <h1 className="mb-10 border-b border-border pb-8 font-serif text-4xl leading-tight tracking-[-0.04em] sm:text-5xl">{renderRuns(blocks[0]!)}</h1>
-      <div className="space-y-7 font-serif text-lg leading-8 text-ink-secondary">
+      <div className="space-y-7 font-serif leading-[1.75] text-ink-secondary" style={{ fontSize: "var(--reader-font-size)" }}>
         {blocks.slice(1).map((runs, index) => <p key={index}>{renderRuns(runs)}</p>)}
       </div>
     </div>

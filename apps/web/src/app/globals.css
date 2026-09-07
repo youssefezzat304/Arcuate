@@ -24,6 +24,20 @@
   --app-font-sans: Arial, Helvetica, sans-serif;
   --app-font-serif: Georgia, "Times New Roman", serif;
   --app-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --reader-font-size: 14px;
+}
+
+:root[data-theme="dark"] {
+  --background: #191a1d;
+  --paper: #232427;
+  --foreground: #f1eee5;
+  --ink-secondary: #d2cec2;
+  --muted-foreground: #aaa496;
+  --border: #3c3d3f;
+  --warm-highlight: #665727;
+  --accent: #e1ad12;
+  --accent-foreground: #161616;
+  color-scheme: dark;
 }
 
 @theme inline {

@@ -49,4 +49,11 @@ Character counts include spaces, punctuation, and paragraph breaks, exclude the 
 Readers can bookmark a selected word or short phrase (up to 200 characters) into
 an existing list or create a list while saving. Saved words shows each list and
 its words, with language and links to the source reading. Lists are saved on the
-current browser without an account. Settings is currently a placeholder.
+current browser without an account.
+
+## Preferences
+
+Settings includes browser-local preferences for light, dark, or system-matched
+appearance; app language; and reader body-text size in pixels. Reader text
+defaults to 14px. App language currently updates the document language for
+accessibility; translated interface copy is not yet implemented.
