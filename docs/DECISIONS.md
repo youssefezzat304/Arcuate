@@ -88,9 +88,13 @@ D019 ACTIVE — 2026-09-07 [USER]
 Replace text-length presets with a slider from 2,000 to 20,000 characters in steps of 2,000.
 2026-09-07 [CODE] Keep the 4,000-character default, validate numeric targets for new requests, and accept legacy presets only in saved records. Before replacement, code used 7,000 for long while documentation recorded 5,500.
 
-D020 ACTIVE — 2026-09-07 [USER]
+D020 SUPERSEDED BY D021 — 2026-09-07 [USER]
 Show saved-word lists collapsed to their names, opening on click. Provide Copy as Markdown, per-word removal, and list rename/delete actions.
 2026-09-07 [CODE] Markdown exports the list heading and words with language codes. List deletion requires confirmation; removing the final word retains an empty list. Mutations notify the existing vocabulary subscribers.
+
+D021 ACTIVE — 2026-09-07 [USER]
+Open saved-word lists on dedicated `/saved-words/[id]` pages instead of expanding them inline. Retain list copy/rename/delete and word removal. Add Copy as Markdown beside Clear annotations on each reading.
+2026-09-07 [CODE] Reading exports contain the original title and paragraphs, with literal Markdown escaped and annotations omitted. Successful list deletion returns to Saved words.
 
 [PROGRESS]
 

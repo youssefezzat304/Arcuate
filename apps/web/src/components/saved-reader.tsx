@@ -58,7 +58,7 @@ export function SavedReader({ id, enrichmentAvailable }: { id: string; enrichmen
     saveTextAnnotations(text.id, annotations);
   }
   return (
-    <article className="relative rounded-xl border border-border bg-paper px-6 pt-16 pb-10 sm:px-12 sm:py-14 lg:px-16">
+    <article className="relative rounded-xl border border-border bg-paper px-6 py-10 sm:px-12 sm:py-14 lg:px-16">
       <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {language} · {text.settings.level} · {text.characterCount.toLocaleString()} characters
       </p>

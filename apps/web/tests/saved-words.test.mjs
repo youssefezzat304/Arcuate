@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import { createWordList, listWordLists, saveWordToList, renameWordList, removeSavedWord, deleteWordList, wordListMarkdown } from "../src/lib/saved-words.ts";
+import { createWordList, readWordList, listWordLists, saveWordToList, renameWordList, removeSavedWord, deleteWordList, wordListMarkdown } from "../src/lib/saved-words.ts";
 
 const data = new Map();
 Object.defineProperty(globalThis, "localStorage", { configurable: true, value: {
@@ -98,4 +98,15 @@ test("Markdown export includes the list name and Unicode words with escaped form
   assert.equal(wordListMarkdown(list), "# German\n\n- Sonne (de)\n");
   const special = { ...list, name: "A*B", words: [{ ...list.words[0], text: "schön_[x]" }] };
   assert.equal(wordListMarkdown(special), "# A\\*B\n\n- schön\\_\\[x\\] (de)\n");
+});
+
+
+test("dedicated list reads reject missing, mismatched, and corrupt records", () => {
+  const list = createWordList("German", word);
+  assert.deepEqual(readWordList(list.id), list);
+  assert.throws(() => readWordList("missing"));
+  data.set(`arcuate:word-list:v1:${list.id}`, JSON.stringify({ ...list, id: word.sourceTextId }));
+  assert.throws(() => readWordList(list.id));
+  data.set(`arcuate:word-list:v1:${list.id}`, "broken");
+  assert.throws(() => readWordList(list.id));
 });

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { analyzeTextExact, normalizeToken, type TextAnalysis } from "@arcuate/language";
 import { annotationsToBlocks, blocksHaveAnnotations, blocksToAnnotations, formatSelection, selectionHasFormat, shortcutFormatPatch, type TextAnnotation, type TextFormat, type TextRun, type TextSelection } from "@/lib/text-formatting";
 
+import { readingMarkdown } from "@/lib/markdown";
 import { ClearAnnotationsDialog } from "@/components/clear-annotations-dialog";
 import { SaveWordDialog } from "@/components/save-word-dialog";
 import { listSavedWords, SAVED_WORDS_CHANGED_EVENT, type SavedWord, type WordDraft } from "@/lib/saved-words";
@@ -252,10 +253,20 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
   }
 
   return <>
+    <div dir="ltr" className="mb-6 flex flex-wrap justify-end gap-2">
+    <button type="button" onClick={async () => {
+      try {
+        await navigator.clipboard.writeText(readingMarkdown(title, paragraphs));
+        setNotice("Copied as Markdown.");
+      } catch { setNotice("Could not copy. Allow clipboard access and try again."); }
+    }} className="min-h-9 rounded-lg border border-border bg-paper px-3 py-2 font-sans text-xs font-semibold text-muted-foreground hover:bg-background hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground">
+      Copy as Markdown
+    </button>
     <button ref={clearButtonRef} type="button" dir="ltr" disabled={!blocksHaveAnnotations(blocks)} onClick={() => setConfirmClear(true)}
-      className="absolute top-3 right-3 min-h-9 rounded-lg border border-border bg-paper px-3 py-2 font-sans text-xs font-semibold text-muted-foreground hover:bg-background hover:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground sm:top-4 sm:right-4">
+      className="min-h-9 rounded-lg border border-border bg-paper px-3 py-2 font-sans text-xs font-semibold text-muted-foreground hover:bg-background hover:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground">
       Clear annotations
     </button>
+    </div>
     <div ref={rootRef} tabIndex={-1} className="focus:outline-none">
       <h1 className="mb-10 border-b border-border pb-8 font-serif text-4xl leading-tight tracking-[-0.04em] sm:text-5xl">{renderRuns(blocks[0]!, savedRanges[0]!)}</h1>
       <div className="space-y-7 font-serif leading-[1.75] text-ink-secondary" style={{ fontSize: "var(--reader-font-size)" }}>

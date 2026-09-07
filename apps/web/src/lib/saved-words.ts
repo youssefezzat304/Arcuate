@@ -1,3 +1,4 @@
+import { escapeMarkdown } from "./markdown.ts";
 import { z } from "zod";
 import { normalizeToken } from "@arcuate/language";
 import { createTextRequestSchema } from "./reading-settings.ts";
@@ -24,7 +25,7 @@ const wordListSchema = z.object({
 export type WordList = z.infer<typeof wordListSchema>;
 const prefix = "arcuate:word-list:v1:";
 
-function readList(id: string) {
+export function readWordList(id: string) {
   const raw = localStorage.getItem(prefix + id);
   if (raw === null) throw new Error("This list is no longer available. Reopen the picker and choose another list.");
   const list = wordListSchema.parse(JSON.parse(raw));
@@ -38,7 +39,7 @@ export function listWordLists() {
   for (let index = 0; index < localStorage.length; index++) {
     const key = localStorage.key(index);
     if (!key?.startsWith(prefix)) continue;
-    try { lists.push(readList(key.slice(prefix.length))); }
+    try { lists.push(readWordList(key.slice(prefix.length))); }
     catch { invalidCount++; }
   }
   return { lists: lists.sort((a, b) => a.createdAt.localeCompare(b.createdAt)), invalidCount };
@@ -84,7 +85,7 @@ export function createWordList(name: string, draft: WordDraft) {
 
 export function saveWordToList(listId: string, draft: WordDraft) {
   const word = enrichWord(draft);
-  const list = readList(listId);
+  const list = readWordList(listId);
   const duplicate = list.words.some((saved) => saved.language === word.language &&
     saved.text.normalize("NFC").toLocaleLowerCase(word.language) === word.text.normalize("NFC").toLocaleLowerCase(word.language));
   if (!duplicate) {
@@ -97,7 +98,7 @@ export function saveWordToList(listId: string, draft: WordDraft) {
 export function renameWordList(id: string, name: string) {
   const parsed = listNameSchema.safeParse(name);
   if (!parsed.success) throw new Error(parsed.error.issues[0].message);
-  const list = readList(id);
+  const list = readWordList(id);
   if (listWordLists().lists.some((other) => other.id !== id && nameKey(other.name) === nameKey(parsed.data))) {
     throw new Error("A list with this name already exists. Use another name.");
   }
@@ -105,18 +106,14 @@ export function renameWordList(id: string, name: string) {
 }
 
 export function removeSavedWord(listId: string, wordId: string) {
-  const list = readList(listId);
+  const list = readWordList(listId);
   writeList({ ...list, words: list.words.filter((word) => word.id !== wordId) });
 }
 
 export function deleteWordList(id: string) {
-  readList(id);
+  readWordList(id);
   localStorage.removeItem(prefix + id);
   if (typeof window !== "undefined") window.dispatchEvent(new Event(SAVED_WORDS_CHANGED_EVENT));
-}
-
-function escapeMarkdown(value: string) {
-  return value.replace(/\r?\n/g, " ").replace(/([\\`*_{}\[\]<>()#+.!|~-])/g, "\\$1");
 }
 
 export function wordListMarkdown(list: WordList) {

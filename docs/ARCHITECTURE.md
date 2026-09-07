@@ -127,7 +127,8 @@ events, and an app event updates the current reader immediately.
 `apps/web/src/lib/saved-word-matching.ts` matches complete tokens by language and
 lemma/POS when available, otherwise by normalized surface form. The reader
 overlays semantic saved-word spans without mutating session-only formatting.
-`/saved-words` displays the library.
+`/saved-words` links to dedicated `/saved-words/[id]` pages. Each page loads its
+validated list from browser storage and refreshes on vocabulary and storage events.
 
 ## Preferences
 

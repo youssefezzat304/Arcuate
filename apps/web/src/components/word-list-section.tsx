@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteWordList, removeSavedWord, renameWordList, wordListMarkdown, type WordList } from "@/lib/saved-words";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
@@ -8,6 +9,7 @@ import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 const buttonClass = "min-h-11 rounded-md border border-border px-3 text-sm hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground";
 
 export function WordListSection({ list }: { list: WordList }) {
+  const router = useRouter();
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(list.name);
   const [error, setError] = useState<string | null>(null);
@@ -33,15 +35,15 @@ export function WordListSection({ list }: { list: WordList }) {
   }
 
   return (
-    <details className="rounded-xl border border-border bg-paper p-5 sm:p-6">
-      <summary className="cursor-pointer break-words font-serif text-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground">{list.name}</summary>
+    <section className="rounded-xl border border-border bg-paper p-5 sm:p-6">
+      <h1 className="break-words font-serif text-3xl sm:text-4xl">{list.name}</h1>
       <div className="mt-5 border-t border-border pt-4">
         <div className="mb-5 flex flex-wrap gap-2">
           <button type="button" onClick={copy} className={buttonClass}>Copy as Markdown</button>
           <button type="button" onClick={() => { setName(list.name); setRenaming(true); setError(null); setNotice(null); }} className={buttonClass}>Rename list</button>
           <button type="button" onClick={() => {
             if (window.confirm(`Delete “${list.name}” and all its saved words? This cannot be undone.`)) {
-              mutate(() => deleteWordList(list.id), "List deleted.");
+              if (mutate(() => deleteWordList(list.id), "List deleted.")) router.replace("/saved-words");
             }
           }} className={buttonClass}>Delete list</button>
         </div>
@@ -71,6 +73,6 @@ export function WordListSection({ list }: { list: WordList }) {
           </li>)}
         </ul>}
       </div>
-    </details>
+    </section>
   );
 }

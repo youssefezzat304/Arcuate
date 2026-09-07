@@ -51,8 +51,8 @@ an existing list or create a list while saving. Saved words shows each list and
 its words, with language and links to the source reading. Lists are saved on the
 current browser without an account.
 
-The library initially shows only list names. Clicking a name opens its words and
-actions to copy the list as Markdown, rename it, or delete it after confirmation.
+The library shows only list names. Clicking a name opens a dedicated list page
+at `/saved-words/[id]` with its words and actions to copy the list as Markdown, rename it, or delete it after confirmation.
 Individual words can be removed; removing the final word keeps the empty list.
 
 Saved words receive a bold, warm-underlined treatment everywhere they appear in
@@ -62,6 +62,9 @@ part-of-speech annotations also allow inflected forms to match. Translation,
 pronunciation, and grammar details remain planned uses of the same token data.
 
 ## Text annotations
+
+Each reading has a Copy as Markdown button beside Clear annotations. It copies
+the title and original paragraphs, without reader annotations or saved-word styling.
 
 Reader highlights, text colors, bold, italic, underline, and strikethrough are
 saved with each text in the current browser and restored when the reading is
