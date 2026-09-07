@@ -74,9 +74,15 @@ Use a versioned token record as the shared foundation for saved-word recognition
 2026-09-07 [CODE] `packages/language` owns provider-neutral token/lexeme schemas and contracts. Locale-aware exact analysis is always available; an optional private Stanza service adds lemma/POS/morphology data without coupling it to the reader.
 Reason: one validated offset-based representation prevents separate, conflicting text parsing implementations for each language feature.
 
+D017 ACTIVE — 2026-09-07 [USER]
+Add Control-key shortcuts for bold, last-color highlighting, underline, and strikethrough. Keep the selection toolbar black in every appearance mode and use deeper, muted annotation colors in dark mode.
+2026-09-07 [CODE] Shortcuts act only on an active reader selection and do not intercept editable form controls. The last highlight choice is retained for the current reader session.
+Reason: frequent formatting actions should remain fast while annotations stay legible against both light and dark reading surfaces.
+
 [PROGRESS]
 
 - 2026-09-07 [CODE] Added exact and Stanza-backed language analysis, lazy text enrichment, linguistic saved-word identity, and reactive cross-text highlighting.
+- 2026-09-07 [CODE] Added reader formatting shortcuts, strikethrough, a theme-invariant black toolbar, and dark-mode annotation colors.
 - 2026-09-07 [CODE] Replaced the Settings placeholder with persistent three-mode appearance, app language, and numeric reader font-size preferences.
 - 2026-09-03 [CODE] Consolidated workspace ownership at the repository root.
 - 2026-09-03 [CODE] Added repository-wide and web-workspace typecheck commands.
@@ -101,6 +107,7 @@ Reason: one validated offset-based representation prevents separate, conflicting
 
 [OUTCOMES]
 
+- 2026-09-07 [CODE] Reader selections now support Ctrl+B bold, Ctrl+H last-color highlighting, Ctrl+U underline, and Ctrl+Y strikethrough. The toolbar remains black across themes, while highlight fills and text colors use dark-mode-specific muted variants.
 - 2026-09-07 [CODE] Saved words now appear bold with a warm underline across same-language texts. Exact forms work without services; lemma-inflected forms activate when Stanza annotations are available.
 - 2026-09-07 [CODE] Added validated browser-local preferences with an accessible Settings interface, system-aware dark theme, and reader-only pixel sizing.
 - 2026-09-07 [CODE] Added word bookmarking with list creation/selection, local persistence, source-text links, and Saved words/Settings routes. Preserved the user’s separate Gemini master prompt file.
@@ -119,17 +126,17 @@ Reason: one validated offset-based representation prevents separate, conflicting
 [WORKING SET]
 
 - `packages/language/src/schema.ts`
-- `packages/language/src/index.ts`
 - `services/language/server.py`
 - `apps/web/src/app/api/language/analyze/route.ts`
-- `apps/web/src/app/api/texts/route.ts`
 - `apps/web/src/lib/saved-texts.ts`
 - `apps/web/src/lib/saved-words.ts`
 - `apps/web/src/lib/saved-word-matching.ts`
+- `apps/web/src/lib/text-formatting.ts`
+- `apps/web/src/components/app-shell.tsx`
 - `apps/web/src/components/formattable-reader.tsx`
 - `apps/web/src/components/saved-reader.tsx`
-- `apps/web/tests/language-analysis.test.mjs`
-- `docs/PRODUCT.md`
+- `apps/web/src/app/globals.css`
+- `apps/web/tests/text-formatting.test.mjs`
 
 [RECEIPTS]
 
@@ -154,3 +161,4 @@ Reason: one validated offset-based representation prevents separate, conflicting
 - 2026-09-07 [TOOL] Bookmarking: all 14 tests, lint, typecheck, and build passed. Browser verified list creation, adding a second word to an existing list, reopening the saved list in a new tab, and Settings navigation.
 - 2026-09-07 [TOOL] Preferences: all 18 tests, lint, typecheck, and build passed. Browser verified three appearance choices, a 14px default, and persisted system/18px selections after reload.
 - 2026-09-07 [TOOL] Language analysis: 23 tests, lint, typecheck, and build passed; Python service syntax parsed. Browser verified legacy text upgrade and saved exact forms styled across repeated title/body occurrences.
+- 2026-09-07 [TOOL] Formatting shortcuts: all 25 tests, lint, typecheck, build, and diff validation passed. Browser accessibility checks confirmed Ctrl+B and Ctrl+Y state changes; visual checks confirmed the fixed black toolbar, muted dark palettes, and saved dark mode after a direct reader load.

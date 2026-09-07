@@ -18,6 +18,9 @@
   --highlight-green: #c4dcc6;
   --highlight-blue: #c8dced;
   --highlight-purple: #dccdea;
+  --toolbar-background: #161616;
+  --toolbar-foreground: #fcfbf7;
+  --toolbar-muted: #31312f;
   --border: #d8d8d4;
   --accent: #f6bf13;
   --accent-foreground: #161616;
@@ -37,6 +40,16 @@
   --warm-highlight: #665727;
   --accent: #e1ad12;
   --accent-foreground: #161616;
+  --color-yellow: #aa8735;
+  --color-rose: #cb737e;
+  --color-green: #639776;
+  --color-blue: #688fb8;
+  --color-purple: #a47dc0;
+  --highlight-yellow: #4d4326;
+  --highlight-rose: #512f35;
+  --highlight-green: #2f4936;
+  --highlight-blue: #2f4356;
+  --highlight-purple: #493650;
   color-scheme: dark;
 }
 
@@ -51,6 +64,10 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-toolbar: var(--toolbar-background);
+  --color-toolbar-foreground: var(--toolbar-foreground);
+  --color-toolbar-muted: var(--toolbar-muted);
+  --color-highlight-yellow: var(--highlight-yellow);
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);

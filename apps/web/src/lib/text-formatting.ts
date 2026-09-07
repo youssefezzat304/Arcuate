@@ -2,6 +2,7 @@ export type TextFormat = {
   bold?: boolean;
   italic?: boolean;
   underline?: boolean;
+  strikethrough?: boolean;
   color?: string;
   highlight?: string;
 };
@@ -47,4 +48,19 @@ export function selectionHasFormat(blocks: TextRun[][], selection: TextSelection
     offset += run.text.length;
     return offset <= selection.start || start >= selection.end || Boolean(run.format[key]);
   });
+}
+
+export function shortcutFormatPatch(
+  key: string,
+  blocks: TextRun[][],
+  selection: TextSelection,
+  lastHighlight: string,
+): TextFormat | null {
+  switch (key.toLocaleLowerCase()) {
+    case "b": return { bold: !selectionHasFormat(blocks, selection, "bold") };
+    case "h": return { highlight: lastHighlight };
+    case "u": return { underline: !selectionHasFormat(blocks, selection, "underline") };
+    case "y": return { strikethrough: !selectionHasFormat(blocks, selection, "strikethrough") };
+    default: return null;
+  }
 }

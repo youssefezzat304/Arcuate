@@ -2,14 +2,14 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { analyzeTextExact, normalizeToken, type TextAnalysis } from "@arcuate/language";
-import { formatSelection, selectionHasFormat, type TextFormat, type TextRun, type TextSelection } from "@/lib/text-formatting";
+import { formatSelection, selectionHasFormat, shortcutFormatPatch, type TextFormat, type TextRun, type TextSelection } from "@/lib/text-formatting";
 
 import { SaveWordDialog } from "@/components/save-word-dialog";
 import { listSavedWords, SAVED_WORDS_CHANGED_EVENT, type SavedWord, type WordDraft } from "@/lib/saved-words";
 import { findSavedWordRanges, type TextRange } from "@/lib/saved-word-matching";
 
 const colors = ["yellow", "rose", "green", "blue", "purple"] as const;
-const controlClass = "flex h-10 min-w-8 items-center justify-center rounded-md px-2 hover:bg-ink-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:bg-ink-secondary";
+const controlClass = "flex h-10 min-w-8 items-center justify-center rounded-md px-2 hover:bg-toolbar-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:bg-toolbar-muted";
 type SelectedText = TextSelection & { left: number; top: number; below: boolean };
 
 function restoreSelection(root: HTMLElement, selected: TextSelection) {
@@ -45,6 +45,7 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
   const [blocks, setBlocks] = useState<TextRun[][]>(() => [title, ...paragraphs].map((text) => [{ text, format: {} }]));
   const [selected, setSelected] = useState<SelectedText | null>(null);
   const [palette, setPalette] = useState<"color" | "highlight" | null>(null);
+  const [lastHighlight, setLastHighlight] = useState("var(--highlight-yellow)");
   const [word, setWord] = useState<WordDraft | null>(null);
   const [notice, setNotice] = useState("");
   const [savedWords, setSavedWords] = useState<SavedWord[]>([]);
@@ -146,6 +147,21 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
     setBlocks((current) => formatSelection(current, selected, patch));
   }
 
+  useEffect(() => {
+    function applyShortcut(event: KeyboardEvent) {
+      if (!event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || !selected) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName))) return;
+      const patch = shortcutFormatPatch(event.key, blocks, selected, lastHighlight);
+      if (!patch) return;
+      event.preventDefault();
+      pendingSelection.current = selected;
+      setBlocks((current) => formatSelection(current, selected, patch));
+    }
+    document.addEventListener("keydown", applyShortcut);
+    return () => document.removeEventListener("keydown", applyShortcut);
+  }, [blocks, lastHighlight, selected]);
+
   function bookmark() {
     if (!selected) return;
     const text = blocks.flat().map((run) => run.text).join("").slice(selected.start, selected.end).trim();
@@ -199,7 +215,8 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
         return <span key={`${runStart}:${start}`} data-saved-word={saved || undefined}
           className={saved ? "font-bold underline decoration-accent decoration-2 underline-offset-4" : undefined}
           style={{ fontWeight: format.bold ? 700 : undefined, fontStyle: format.italic ? "italic" : undefined,
-            textDecorationLine: format.underline ? "underline" : undefined, color: format.color, backgroundColor: format.highlight }}>{text.slice(start, end)}</span>;
+            textDecorationLine: [(format.underline || saved) && "underline", format.strikethrough && "line-through"].filter(Boolean).join(" ") || undefined,
+            color: format.color, backgroundColor: format.highlight }}>{text.slice(start, end)}</span>;
       });
     });
   }
@@ -213,20 +230,29 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
     </div>
     {selected && <div ref={toolbarRef} role="group" aria-label="Text formatting"
       onPointerDown={(event) => event.preventDefault()}
-      className="fixed z-50 flex w-80 max-w-[calc(100vw-16px)] items-center justify-between gap-1 rounded-xl border border-ink-secondary bg-foreground p-1.5 font-sans text-sm text-paper shadow-sm"
+      className="fixed z-50 flex w-96 max-w-[calc(100vw-16px)] items-center justify-between gap-1 rounded-xl border border-toolbar-muted bg-toolbar p-1.5 font-sans text-sm text-toolbar-foreground shadow-sm"
       style={{ left: selected.left, top: selected.top, transform: `translate(-50%, ${selected.below ? "0" : "-100%"})` }}>
       {palette ? <>
         <button type="button" className={controlClass} aria-label="Back to formatting" onClick={() => setPalette(null)}>←</button>
         <span className="sr-only">{palette === "color" ? "Text color" : "Highlight color"}</span>
         <button type="button" className={controlClass} aria-label={palette === "color" ? "Default text color" : "Remove highlight"} onClick={() => apply({ [palette]: undefined })}>∅</button>
-        {colors.map((color) => <button key={color} type="button" className={controlClass} aria-label={`${color} ${palette === "color" ? "text" : "highlight"}`} onClick={() => apply({ [palette]: `var(--${palette}-${color})` })}>
-          <span className="size-6 rounded-md border border-paper/30" style={{ backgroundColor: `var(--${palette}-${color})` }} />
+        {colors.map((color) => <button key={color} type="button" className={controlClass} aria-label={`${color} ${palette === "color" ? "text" : "highlight"}`} onClick={() => {
+          const value = `var(--${palette}-${color})`;
+          if (palette === "highlight") setLastHighlight(value);
+          apply({ [palette]: value });
+        }}>
+          <span className="size-6 rounded-md border border-toolbar-foreground/30" style={{ backgroundColor: `var(--${palette}-${color})` }} />
         </button>)}
       </> : <>
-        <button type="button" className={controlClass} aria-label="Highlight text" onClick={() => setPalette("highlight")}><span className="border-b-4 border-warm-highlight">Highlight</span></button>
-        {(["bold", "italic", "underline"] as const).map((key) => <button key={key} type="button" className={controlClass} aria-label={key[0]!.toUpperCase() + key.slice(1)} aria-pressed={selectionHasFormat(blocks, selected, key)} onClick={() => apply({ [key]: !selectionHasFormat(blocks, selected, key) })}>
+        <button type="button" className={controlClass} aria-label="Highlight text" title="Highlight text (Ctrl+H)" onClick={() => setPalette("highlight")}><span className="border-b-4 border-highlight-yellow">Highlight</span></button>
+        {(["bold", "italic", "underline"] as const).map((key) => <button key={key} type="button" className={controlClass} aria-label={key[0]!.toUpperCase() + key.slice(1)}
+          title={key === "bold" ? "Bold (Ctrl+B)" : key === "underline" ? "Underline (Ctrl+U)" : "Italic"}
+          aria-pressed={selectionHasFormat(blocks, selected, key)} onClick={() => apply({ [key]: !selectionHasFormat(blocks, selected, key) })}>
           <span className={key === "bold" ? "text-xl font-bold" : key === "italic" ? "font-serif text-xl italic" : "text-xl underline"}>{key[0]!.toUpperCase()}</span>
         </button>)}
+        <button type="button" className={controlClass} aria-label="Strikethrough" aria-pressed={selectionHasFormat(blocks, selected, "strikethrough")} title="Strikethrough (Ctrl+Y)" onClick={() => apply({ strikethrough: !selectionHasFormat(blocks, selected, "strikethrough") })}>
+          <span className="text-xl line-through">S</span>
+        </button>
         <button type="button" className={controlClass} aria-label="Save word" title="Save word to a list" onClick={bookmark}>
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" className="size-5"><path d="M6 3h12v18l-6-4-6 4V3Z" /></svg>
         </button>

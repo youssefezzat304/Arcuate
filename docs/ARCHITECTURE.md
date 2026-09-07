@@ -87,8 +87,7 @@ Corrupt records are reported and retained; storage failures allow retrying the
 save without another generation request. Clearing site data removes the library.
 
 The CEFR validation/rewrite pipeline above remains planned. Current levels and
-character counts are prompt targets; `Intl.Segmenter` with grapheme granularity measures the returned body, including spaces and paragraph breaks but excluding the title. Counts are derived on validation, so older word-count records remain readable. Reader formatting remains session-only. Authentication, cloud
-persistence, translation, and distributed abuse controls remain unimplemented.
+character counts are prompt targets; `Intl.Segmenter` with grapheme granularity measures the returned body, including spaces and paragraph breaks but excluding the title. Counts are derived on validation, so older word-count records remain readable. Reader formatting remains session-only. Selection formatting supports Control-key shortcuts for bold, last-color highlighting, underline, and strikethrough; shortcut handling is scoped to active reader selections. Authentication, cloud persistence, translation, and distributed abuse controls remain unimplemented.
 
 ## Local setup and verification
 

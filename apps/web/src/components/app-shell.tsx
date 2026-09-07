@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { PREFERENCES_STORAGE_KEY, applyPreferences, readPreferences } from "@/lib/preferences";
 
 const focusClass = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground";
 const labelClass = "hidden whitespace-nowrap md:inline md:group-data-[collapsed=true]:hidden max-md:group-data-[mobile-open=true]:inline";
@@ -25,6 +26,22 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const mobileToggleRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const colorScheme = window.matchMedia("(prefers-color-scheme: dark)");
+    const applySavedPreferences = () => applyPreferences(readPreferences(), document.documentElement, colorScheme.matches);
+    const followStoredPreferences = (event: StorageEvent) => {
+      if (event.key === PREFERENCES_STORAGE_KEY) applySavedPreferences();
+    };
+
+    applySavedPreferences();
+    colorScheme.addEventListener("change", applySavedPreferences);
+    window.addEventListener("storage", followStoredPreferences);
+    return () => {
+      colorScheme.removeEventListener("change", applySavedPreferences);
+      window.removeEventListener("storage", followStoredPreferences);
+    };
+  }, []);
 
   function closeMobileSidebar() {
     setMobileOpen(false);

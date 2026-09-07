@@ -123,6 +123,19 @@ Use dark text or icons over the yellow accent.
 
 ---
 
+## Reader annotations and selection toolbar
+
+The reader selection toolbar uses a fixed ink-black surface with warm white
+controls in every appearance mode. This keeps the transient formatting surface
+visually stable while the reading page changes theme.
+
+Highlight fills and annotation text colors must have theme-specific variants.
+In dark mode, use deeper, desaturated highlight fills behind light reader text;
+keep colored text muted but sufficiently light to remain readable. Avoid reusing
+the bright light-mode annotation palette directly on dark reading surfaces.
+
+---
+
 ## Border / divider
 
 ```css
