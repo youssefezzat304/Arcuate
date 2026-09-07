@@ -96,6 +96,9 @@ D021 ACTIVE — 2026-09-07 [USER]
 Open saved-word lists on dedicated `/saved-words/[id]` pages instead of expanding them inline. Retain list copy/rename/delete and word removal. Add Copy as Markdown beside Clear annotations on each reading.
 2026-09-07 [CODE] Reading exports contain the original title and paragraphs, with literal Markdown escaped and annotations omitted. Successful list deletion returns to Saved words.
 
+2026-09-07 [USER] List action menus are also available in the Saved words library, with in-place name editing. Reading language/level/character-count metadata appears below the title and is included in Markdown copies.
+2026-09-07 [CODE] Metadata is excluded from annotation offsets and selection restoration to preserve saved formatting.
+
 [PROGRESS]
 
 - 2026-09-07 [CODE] Added exact and Stanza-backed language analysis, lazy text enrichment, linguistic saved-word identity, and reactive cross-text highlighting.

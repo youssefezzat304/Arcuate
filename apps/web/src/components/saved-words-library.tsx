@@ -1,5 +1,6 @@
 "use client";
 
+import { WordListSection } from "@/components/word-list-section";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { listWordLists, SAVED_WORDS_CHANGED_EVENT, type WordList } from "@/lib/saved-words";
@@ -34,7 +35,7 @@ export function SavedWordsLibrary() {
         <Link href="/texts" className="inline-flex min-h-11 items-center rounded-lg bg-accent px-5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2">Open My texts</Link>
       </section>
     ) : <div className="space-y-6">
-      {state.lists.map((list) => <Link key={list.id} href={`/saved-words/${list.id}`} className="block break-words rounded-xl border border-border bg-paper p-5 font-serif text-2xl hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground sm:p-6">{list.name}</Link>)}
+      {state.lists.map((list) => <WordListSection key={list.id} list={list} preview />)}
     </div>}
   </>;
 }

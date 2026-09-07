@@ -1,5 +1,8 @@
 "use client";
 
+import { useNotice } from "@/hooks/use-notice";
+import { StatusNotice } from "@/components/status-notice";
+
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { analyzeTextExact, normalizeToken, type TextAnalysis } from "@arcuate/language";
 import { annotationsToBlocks, blocksHaveAnnotations, blocksToAnnotations, formatSelection, selectionHasFormat, shortcutFormatPatch, type TextAnnotation, type TextFormat, type TextRun, type TextSelection } from "@/lib/text-formatting";
@@ -14,8 +17,16 @@ const colors = ["yellow", "rose", "green", "blue", "purple"] as const;
 const controlClass = "flex h-10 min-w-8 items-center justify-center rounded-md px-2 hover:bg-toolbar-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:bg-toolbar-muted";
 type SelectedText = TextSelection & { left: number; top: number; below: boolean };
 
+function selectionText(range: Range) {
+  const content = range.cloneContents();
+  content.querySelectorAll("[data-reader-metadata]").forEach((node) => node.remove());
+  return content.textContent ?? "";
+}
+
 function restoreSelection(root: HTMLElement, selected: TextSelection) {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => node.parentElement?.closest("[data-reader-metadata]") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+  });
   const range = document.createRange();
   let offset = 0;
   let hasStart = false;
@@ -37,8 +48,9 @@ function restoreSelection(root: HTMLElement, selected: TextSelection) {
   }
 }
 
-export function FormattableReader({ title, paragraphs, textId, language, analysis, annotations, onAnnotationsChange }: {
+export function FormattableReader({ title, paragraphs, metadata, textId, language, analysis, annotations, onAnnotationsChange }: {
   title: string;
+  metadata: string;
   paragraphs: string[];
   textId: string;
   language: WordDraft["language"];
@@ -53,7 +65,7 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
   const [lastHighlight, setLastHighlight] = useState<NonNullable<TextFormat["highlight"]>>("var(--highlight-yellow)");
   const [confirmClear, setConfirmClear] = useState(false);
   const [word, setWord] = useState<WordDraft | null>(null);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useNotice();
   const [savedWords, setSavedWords] = useState<SavedWord[]>([]);
   const rootRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -102,7 +114,7 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
         return;
       }
       const range = selection.getRangeAt(0);
-      if (!root.contains(range.startContainer) || !root.contains(range.endContainer) || !range.toString().trim()) {
+      if (!root.contains(range.startContainer) || !root.contains(range.endContainer) || !selectionText(range).trim()) {
         setSelected(null);
         setPalette(null);
         return;
@@ -110,11 +122,11 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
       const prefix = document.createRange();
       prefix.selectNodeContents(root);
       prefix.setEnd(range.startContainer, range.startOffset);
-      const start = prefix.toString().length;
+      const start = selectionText(prefix).length;
       const rect = range.getBoundingClientRect();
       const below = rect.top < window.innerHeight * 0.25;
       const halfWidth = Math.min(160, (window.innerWidth - 16) / 2);
-      setSelected({ start, end: start + range.toString().length,
+      setSelected({ start, end: start + selectionText(range).length,
         left: Math.max(halfWidth + 8, Math.min(window.innerWidth - halfWidth - 8, rect.left + rect.width / 2)),
         top: below ? rect.bottom + 10 : rect.top - 10, below });
     }
@@ -156,7 +168,7 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
     } catch {
       setNotice("This annotation change is visible now, but could not be saved in your browser.");
     }
-  }, [onAnnotationsChange]);
+  }, [onAnnotationsChange, setNotice]);
 
   function apply(patch: TextFormat) {
     if (!selected) return;
@@ -256,7 +268,7 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
     <div dir="ltr" className="mb-6 flex flex-wrap justify-end gap-2">
     <button type="button" onClick={async () => {
       try {
-        await navigator.clipboard.writeText(readingMarkdown(title, paragraphs));
+        await navigator.clipboard.writeText(readingMarkdown(title, paragraphs, metadata));
         setNotice("Copied as Markdown.");
       } catch { setNotice("Could not copy. Allow clipboard access and try again."); }
     }} className="min-h-9 rounded-lg border border-border bg-paper px-3 py-2 font-sans text-xs font-semibold text-muted-foreground hover:bg-background hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground">
@@ -268,7 +280,8 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
     </button>
     </div>
     <div ref={rootRef} tabIndex={-1} className="focus:outline-none">
-      <h1 className="mb-10 border-b border-border pb-8 font-serif text-4xl leading-tight tracking-[-0.04em] sm:text-5xl">{renderRuns(blocks[0]!, savedRanges[0]!)}</h1>
+      <h1 className="mb-4 font-serif text-4xl leading-tight tracking-[-0.04em] sm:text-5xl">{renderRuns(blocks[0]!, savedRanges[0]!)}</h1>
+      <p data-reader-metadata dir="ltr" lang="en" className="mb-10 select-none border-b border-border pb-8 font-sans text-xs font-semibold tracking-[0.08em] text-muted-foreground">{metadata}</p>
       <div className="space-y-7 font-serif leading-[1.75] text-ink-secondary" style={{ fontSize: "var(--reader-font-size)" }}>
         {blocks.slice(1).map((runs, index) => <p key={index}>{renderRuns(runs, savedRanges[index + 1]!)}</p>)}
       </div>
@@ -310,6 +323,6 @@ export function FormattableReader({ title, paragraphs, textId, language, analysi
     </div>}
     {confirmClear && <ClearAnnotationsDialog onClose={closeClearDialog} onConfirm={clearAnnotations} />}
     {word && <SaveWordDialog word={word} onSaved={setNotice} onClose={() => { setWord(null); rootRef.current?.focus({ preventScroll: true }); }} />}
-    {notice && <p role="status" className="fixed bottom-5 left-1/2 z-50 max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-lg border border-border bg-paper px-4 py-3 font-sans text-sm text-foreground shadow-sm">{notice}</p>}
+    <StatusNotice message={notice} />
   </>;
 }

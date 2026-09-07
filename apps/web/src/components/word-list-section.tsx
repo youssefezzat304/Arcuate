@@ -1,6 +1,10 @@
 "use client";
 
+import { useNotice } from "@/hooks/use-notice";
+import { StatusNotice } from "@/components/status-notice";
+
 import Link from "next/link";
+import { ListActionsMenu } from "@/components/list-actions-menu";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteWordList, removeSavedWord, renameWordList, wordListMarkdown, type WordList } from "@/lib/saved-words";
@@ -8,12 +12,12 @@ import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 
 const buttonClass = "min-h-11 rounded-md border border-border px-3 text-sm hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground";
 
-export function WordListSection({ list }: { list: WordList }) {
+export function WordListSection({ list, preview = false }: { list: WordList; preview?: boolean }) {
   const router = useRouter();
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(list.name);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useNotice();
 
   function mutate(action: () => void, message: string) {
     setError(null);
@@ -36,30 +40,31 @@ export function WordListSection({ list }: { list: WordList }) {
 
   return (
     <section className="rounded-xl border border-border bg-paper p-5 sm:p-6">
-      <h1 className="break-words font-serif text-3xl sm:text-4xl">{list.name}</h1>
-      <div className="mt-5 border-t border-border pt-4">
-        <div className="mb-5 flex flex-wrap gap-2">
-          <button type="button" onClick={copy} className={buttonClass}>Copy as Markdown</button>
-          <button type="button" onClick={() => { setName(list.name); setRenaming(true); setError(null); setNotice(null); }} className={buttonClass}>Rename list</button>
-          <button type="button" onClick={() => {
-            if (window.confirm(`Delete “${list.name}” and all its saved words? This cannot be undone.`)) {
-              if (mutate(() => deleteWordList(list.id), "List deleted.")) router.replace("/saved-words");
-            }
-          }} className={buttonClass}>Delete list</button>
-        </div>
-        {renaming && <form onSubmit={(event) => {
+      <div className="flex items-start justify-between gap-4">
+        {renaming ? <form onSubmit={(event) => {
           event.preventDefault();
           if (mutate(() => renameWordList(list.id, name), "List renamed.")) setRenaming(false);
-        }} className="mb-5 flex flex-wrap items-end gap-2">
+        }} className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
           <label className="flex min-w-0 flex-1 flex-col gap-2 text-sm">
-            List name
-            <input autoFocus required maxLength={60} value={name} onChange={(event) => setName(event.target.value)} className="min-h-11 min-w-0 rounded-md border border-border bg-background px-3 outline-offset-2" />
+            <span className="sr-only">List name</span>
+            <input autoFocus required maxLength={60} value={name} onChange={(event) => setName(event.target.value)} className="min-h-11 min-w-0 rounded-md border border-border bg-background px-3 font-serif text-2xl outline-offset-2" />
           </label>
           <button type="submit" className={buttonClass}>Save name</button>
           <button type="button" onClick={() => setRenaming(false)} className={buttonClass}>Cancel</button>
-        </form>}
-        {error && <p role="alert" className="mb-4 text-sm">{error}</p>}
-        {notice && <p role="status" className="mb-4 text-sm text-muted-foreground">{notice}</p>}
+        </form> : preview ? <Link href={`/saved-words/${list.id}`} className="min-w-0 flex-1 break-words font-serif text-2xl focus-visible:outline-2 focus-visible:outline-offset-2">{list.name}</Link> : <h1 className="min-w-0 break-words font-serif text-3xl sm:text-4xl">{list.name}</h1>}
+        <ListActionsMenu actions={[
+          { label: "Copy as Markdown", onSelect: copy },
+          { label: "Rename list", onSelect: () => { setName(list.name); setRenaming(true); setError(null); setNotice(null); } },
+          { label: "Delete list", onSelect: () => {
+            if (window.confirm(`Delete “${list.name}” and all its saved words? This cannot be undone.`)) {
+              if (mutate(() => deleteWordList(list.id), "List deleted.") && !preview) router.replace("/saved-words");
+            }
+          } },
+        ]} />
+      </div>
+      {error && <p role="alert" className="mb-4 text-sm">{error}</p>}
+      <StatusNotice message={notice} />
+      {!preview && <div className="mt-5 border-t border-border pt-4">
         {list.words.length === 0 ? <p className="text-sm text-muted-foreground">This list has no saved words yet.</p> : <ul className="divide-y divide-border">
           {list.words.map((word) => <li key={word.id} className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0">
             <div className="min-w-0">
@@ -72,7 +77,7 @@ export function WordListSection({ list }: { list: WordList }) {
             <button type="button" aria-label={`Remove ${word.text}`} onClick={() => mutate(() => removeSavedWord(list.id, word.id), `Removed “${word.text}”.`)} className={`${buttonClass} shrink-0`}>Remove</button>
           </li>)}
         </ul>}
-      </div>
+      </div>}
     </section>
   );
 }

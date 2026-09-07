@@ -59,11 +59,8 @@ export function SavedReader({ id, enrichmentAvailable }: { id: string; enrichmen
   }
   return (
     <article className="relative rounded-xl border border-border bg-paper px-6 py-10 sm:px-12 sm:py-14 lg:px-16">
-      <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        {language} · {text.settings.level} · {text.characterCount.toLocaleString()} characters
-      </p>
       <div lang={text.settings.language} dir={text.settings.language === "ar" || text.settings.language === "he" ? "rtl" : "ltr"}>
-        <FormattableReader key={text.id} textId={text.id} language={text.settings.language} title={text.title} paragraphs={text.paragraphs} analysis={text.analysis} annotations={text.annotations} onAnnotationsChange={persistAnnotations} />
+        <FormattableReader metadata={`${language} · ${text.settings.level} · ${text.characterCount.toLocaleString("en-US")} characters`} key={text.id} textId={text.id} language={text.settings.language} title={text.title} paragraphs={text.paragraphs} analysis={text.analysis} annotations={text.annotations} onAnnotationsChange={persistAnnotations} />
       </div>
     </article>
   );

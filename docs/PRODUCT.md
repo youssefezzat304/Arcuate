@@ -53,7 +53,10 @@ current browser without an account.
 
 The library shows only list names. Clicking a name opens a dedicated list page
 at `/saved-words/[id]` with its words and actions to copy the list as Markdown, rename it, or delete it after confirmation.
+List actions are grouped in a three-dot menu beside the name on both the library
+and dedicated list page. Renaming replaces the name with an inline field.
 Individual words can be removed; removing the final word keeps the empty list.
+Reader and list status popups use the yellow accent and disappear after three seconds.
 
 Saved words receive a bold, warm-underlined treatment everywhere they appear in
 texts of the same language. Locale-aware exact-token matching is always
@@ -64,7 +67,8 @@ pronunciation, and grammar details remain planned uses of the same token data.
 ## Text annotations
 
 Each reading has a Copy as Markdown button beside Clear annotations. It copies
-the title and original paragraphs, without reader annotations or saved-word styling.
+the title, language/CEFR/character-count metadata, and original paragraphs, without
+reader annotations or saved-word styling. The same metadata appears below the title.
 
 Reader highlights, text colors, bold, italic, underline, and strikethrough are
 saved with each text in the current browser and restored when the reading is
