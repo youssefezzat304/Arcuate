@@ -43,3 +43,10 @@ not independently enforced yet. Translation is deferred and has no current UI
 or generation input.
 
 Character counts include spaces, punctuation, and paragraph breaks, exclude the title, and count Unicode grapheme clusters (user-perceived characters).
+
+## Saved words
+
+Readers can bookmark a selected word or short phrase (up to 200 characters) into
+an existing list or create a list while saving. Saved words shows each list and
+its words, with language and links to the source reading. Lists are saved on the
+current browser without an account. Settings is currently a placeholder.

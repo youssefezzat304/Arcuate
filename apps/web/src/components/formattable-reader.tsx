@@ -3,6 +3,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { formatSelection, selectionHasFormat, type TextFormat, type TextRun, type TextSelection } from "@/lib/text-formatting";
 
+import { SaveWordDialog } from "@/components/save-word-dialog";
+import type { WordDraft } from "@/lib/saved-words";
+
 const colors = ["yellow", "rose", "green", "blue", "purple"] as const;
 const controlClass = "flex h-10 min-w-8 items-center justify-center rounded-md px-2 hover:bg-ink-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:bg-ink-secondary";
 type SelectedText = TextSelection & { left: number; top: number; below: boolean };
@@ -30,10 +33,12 @@ function restoreSelection(root: HTMLElement, selected: TextSelection) {
   }
 }
 
-export function FormattableReader({ title, paragraphs }: { title: string; paragraphs: string[] }) {
+export function FormattableReader({ title, paragraphs, textId, language }: { title: string; paragraphs: string[]; textId: string; language: WordDraft["language"] }) {
   const [blocks, setBlocks] = useState<TextRun[][]>(() => [title, ...paragraphs].map((text) => [{ text, format: {} }]));
   const [selected, setSelected] = useState<SelectedText | null>(null);
   const [palette, setPalette] = useState<"color" | "highlight" | null>(null);
+  const [word, setWord] = useState<WordDraft | null>(null);
+  const [notice, setNotice] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const pendingSelection = useRef<TextSelection | null>(null);
@@ -108,6 +113,18 @@ export function FormattableReader({ title, paragraphs }: { title: string; paragr
     setBlocks((current) => formatSelection(current, selected, patch));
   }
 
+  function bookmark() {
+    if (!selected) return;
+    const text = blocks.flat().map((run) => run.text).join("").slice(selected.start, selected.end).trim();
+    if (!text || text.length > 200) {
+      setNotice("Select a word or short phrase of up to 200 characters.");
+      return;
+    }
+    setWord({ text, language, sourceTextId: textId, sourceTitle: title });
+    setSelected(null);
+    setNotice("");
+  }
+
   function renderRuns(runs: TextRun[]) {
     let offset = 0;
     return runs.map(({ text, format }) => {
@@ -141,8 +158,13 @@ export function FormattableReader({ title, paragraphs }: { title: string; paragr
         {(["bold", "italic", "underline"] as const).map((key) => <button key={key} type="button" className={controlClass} aria-label={key[0]!.toUpperCase() + key.slice(1)} aria-pressed={selectionHasFormat(blocks, selected, key)} onClick={() => apply({ [key]: !selectionHasFormat(blocks, selected, key) })}>
           <span className={key === "bold" ? "text-xl font-bold" : key === "italic" ? "font-serif text-xl italic" : "text-xl underline"}>{key[0]!.toUpperCase()}</span>
         </button>)}
+        <button type="button" className={controlClass} aria-label="Save word" title="Save word to a list" onClick={bookmark}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" className="size-5"><path d="M6 3h12v18l-6-4-6 4V3Z" /></svg>
+        </button>
         <button type="button" className={controlClass} aria-label="Text color" onClick={() => setPalette("color")}><span className="border-b-2 border-warm-highlight text-xl">A</span></button>
       </>}
     </div>}
+    {word && <SaveWordDialog word={word} onSaved={setNotice} onClose={() => { setWord(null); rootRef.current?.focus({ preventScroll: true }); }} />}
+    {notice && <p role="status" className="fixed bottom-5 left-1/2 z-50 max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-lg border border-border bg-paper px-4 py-3 font-sans text-sm text-foreground shadow-sm">{notice}</p>}
   </>;
 }

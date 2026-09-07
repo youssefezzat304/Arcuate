@@ -77,3 +77,17 @@ in pnpm because this HTTP generation path does not require them.
 Run `pnpm test`, `pnpm lint`, `pnpm typecheck`, and `pnpm build` from the root.
 Tests use Node's built-in runner and mocked provider responses, never real keys.
 The web TypeScript/build checks also check the imported AI package source.
+
+## Word bookmarks
+
+`apps/web/src/lib/saved-words.ts` validates and persists one record per list under
+`arcuate:word-list:v1:<uuid>`. Entries contain the selected text, language, source
+text ID/title, UUID, and creation time. The reader captures the selection before
+opening a native modal dialog, which supports selecting a list or creating and
+saving atomically. Duplicate words are compared using Unicode NFC and
+language-aware case folding within each list. Storage failures are surfaced;
+invalid records are retained and reported. Lists refresh on cross-tab storage
+events. `/saved-words` displays the library; `/settings` is a placeholder.
+
+The Gemini master prompt is maintained separately in `packages/ai/src/prompt.ts`
+and imported by the provider in `packages/ai/src/index.ts`.

@@ -3,7 +3,7 @@
 - 2026-09-03 [CODE] Goal: build a small functional MVP for an AI-powered graded reader.
 - 2026-09-06 [CODE] Current state: Next.js at `apps/web` and provider/structured generation in `packages/ai`.
 - 2026-09-06 [CODE] Current state: Gemini generation replaces mock content; validated texts are saved in browser localStorage and listed in My texts.
-- 2026-09-06 [CODE] Now: a shared collapsible sidebar links the composer and My texts placeholder; the reader supports session-only selection formatting.
+- 2026-09-07 [CODE] Now: the reader supports formatting and word bookmarks; the sidebar links New text, My texts, Saved words, and a Settings placeholder.
 - 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
 - 2026-09-06 [USER] Provider: Gemini; short/medium/long request 2,000/4,000/5,500 characters with no translation.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
@@ -42,7 +42,7 @@ D008 ACTIVE — 2026-09-03 [USER]
 Assign each newly created text an opaque UUID and expose it at `/texts/[id]`.
 Reason: stable identifiers support direct navigation now and persisted, shareable text records later without coupling identity to mutable titles.
 
-D009 ACTIVE — 2026-09-06 [USER]
+D009 SUPERSEDED BY D014 — 2026-09-06 [USER]
 Show a reader selection toolbar with only highlight, bold, italic, underline, and text color controls. Place it above the selection unless the selection starts in the top 25% of the viewport, in which case place it below.
 Reason: support focused text annotation while reading.
 
@@ -59,6 +59,10 @@ Use Node's built-in test runner with native TypeScript stripping for input, stor
 D013 ACTIVE — 2026-09-06 [USER]
 Use character targets instead of word targets: short 2,000, medium 4,000, long 5,500. Other generation settings remain unchanged.
 2026-09-06 [CODE] Count Unicode grapheme clusters including spaces, punctuation, and paragraph breaks, excluding the title. Derive counts from saved bodies to keep existing records readable.
+
+D014 ACTIVE — 2026-09-07 [USER]
+Extend the selection toolbar with a bookmark button that saves a word into an existing or newly created list. Keep its formatting controls and above/below placement rule. Add Saved words and Settings navigation.
+2026-09-07 [CODE] Lists persist in browser localStorage; duplicate text/language entries within one list are suppressed. Settings is a placeholder until preferences are specified.
 
 [PROGRESS]
 
@@ -85,6 +89,8 @@ Use character targets instead of word targets: short 2,000, medium 4,000, long 5
 
 [OUTCOMES]
 
+- 2026-09-07 [CODE] Added word bookmarking with list creation/selection, local persistence, source-text links, and Saved words/Settings routes. Preserved the user’s separate Gemini master prompt file.
+
 - 2026-09-06 [CODE] Completed Gemini generation, local per-text persistence, library listing, saved reader loading, pending/error UI, and save retry. Translation removed from current inputs; exact word count and CEFR enforcement remain deferred.
 
 - 2026-09-06 [CODE] Added the shared responsive sidebar, active navigation, and `/texts` placeholder. Desktop collapse survives client navigation; mobile starts collapsed and expands over content. Login is disabled and marked coming soon.
@@ -98,18 +104,18 @@ Use character targets instead of word targets: short 2,000, medium 4,000, long 5
 
 [WORKING SET]
 
-- `packages/ai/src/index.ts`
-- `packages/ai/src/schema.ts`
-- `apps/web/src/app/api/texts/route.ts`
-- `apps/web/src/components/generation-form.tsx`
+- `apps/web/src/lib/saved-words.ts`
+- `apps/web/src/components/save-word-dialog.tsx`
+- `apps/web/src/components/saved-words-library.tsx`
+- `apps/web/src/components/formattable-reader.tsx`
 - `apps/web/src/components/saved-reader.tsx`
-- `apps/web/src/components/text-library.tsx`
-- `apps/web/src/lib/saved-texts.ts`
-- `apps/web/src/lib/reading-settings.ts`
-- `apps/web/tests/generation.test.mjs`
-- `docs/ARCHITECTURE.md`
+- `apps/web/src/components/app-shell.tsx`
+- `apps/web/src/app/saved-words/page.tsx`
+- `apps/web/src/app/settings/page.tsx`
+- `apps/web/tests/saved-words.test.mjs`
+- `packages/ai/src/prompt.ts`
 - `docs/PRODUCT.md`
-- `docs/DECISIONS.md`
+- `docs/ARCHITECTURE.md`
 
 [RECEIPTS]
 
@@ -130,3 +136,5 @@ Use character targets instead of word targets: short 2,000, medium 4,000, long 5
 - 2026-09-06 [TOOL] Gemini integration: seven Node tests, lint, typecheck, and build passed. Live German A2 short request returned 2,194 words; browser verified saving, reload, library listing, and reopening. Client build scan found no API key.
 
 - 2026-09-06 [TOOL] Character-length update: nine tests, lint, typecheck, and build passed. Tests cover Unicode grapheme counting and compatibility with existing saved word-count records.
+
+- 2026-09-07 [TOOL] Bookmarking: all 14 tests, lint, typecheck, and build passed. Browser verified list creation, adding a second word to an existing list, reopening the saved list in a new tab, and Settings navigation.

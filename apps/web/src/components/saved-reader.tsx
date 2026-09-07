@@ -34,7 +34,7 @@ export function SavedReader({ id }: { id: string }) {
         {language} · {text.settings.level} · {text.characterCount.toLocaleString()} characters
       </p>
       <div lang={text.settings.language} dir={text.settings.language === "ar" || text.settings.language === "he" ? "rtl" : "ltr"}>
-        <FormattableReader key={text.id} title={text.title} paragraphs={text.paragraphs} />
+        <FormattableReader key={text.id} textId={text.id} language={text.settings.language} title={text.title} paragraphs={text.paragraphs} />
       </div>
     </article>
   );

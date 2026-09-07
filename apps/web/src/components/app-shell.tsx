@@ -7,12 +7,14 @@ import { useRef, useState, type ReactNode } from "react";
 const focusClass = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground";
 const labelClass = "hidden whitespace-nowrap md:inline md:group-data-[collapsed=true]:hidden max-md:group-data-[mobile-open=true]:inline";
 
-function SidebarIcon({ name }: { name: "new" | "texts" | "login" | "collapse" }) {
+function SidebarIcon({ name }: { name: "new" | "texts" | "login" | "collapse" | "words" | "settings" }) {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0">
       {name === "new" && <><path d="M14 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9" /><path d="m17 3 4 4-10 10-5 1 1-5L17 3Z" /></>}
       {name === "texts" && <><path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-2H4V4Z" /><path d="M13 7a3 3 0 0 1 3-3h5v15h-4a4 4 0 0 0-4 2" /></>}
       {name === "login" && <><path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M3 12h12m-4-4 4 4-4 4" /></>}
+      {name === "words" && <path d="M6 3h12v18l-6-4-6 4V3Z" />}
+      {name === "settings" && <><path d="M4 6h16M4 12h16M4 18h16" /><circle cx="8" cy="6" r="2" fill="var(--paper)" /><circle cx="16" cy="12" r="2" fill="var(--paper)" /><circle cx="10" cy="18" r="2" fill="var(--paper)" /></>}
       {name === "collapse" && <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16m7-11-3 3 3 3" /></>}
     </svg>
   );
@@ -94,6 +96,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           {([
             { href: "/", label: "New text", icon: "new" },
             { href: "/texts", label: "My texts", icon: "texts" },
+            { href: "/saved-words", label: "Saved words", icon: "words" },
+            { href: "/settings", label: "Settings", icon: "settings" },
           ] as const).map(({ href, label, icon }) => (
             <Link
               key={href}
