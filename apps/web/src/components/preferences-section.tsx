@@ -108,7 +108,7 @@ export function PreferencesSection() {
         </label>
       </div>
 
-      {storageError && <p role="alert" className="mt-4 text-sm text-[var(--color-rose)]">{storageError}</p>}
+      {storageError && <p role="alert" className="mt-4 text-sm text-(--color-rose)">{storageError}</p>}
       <p className="mt-4 text-xs leading-5 text-muted-foreground">Preferences are saved in this browser.</p>
     </section>
   );

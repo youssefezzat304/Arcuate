@@ -51,6 +51,12 @@ an existing list or create a list while saving. Saved words shows each list and
 its words, with language and links to the source reading. Lists are saved on the
 current browser without an account.
 
+Saved words receive a bold, warm-underlined treatment everywhere they appear in
+texts of the same language. Locale-aware exact-token matching is always
+available. When the optional language-analysis service is configured, lemma and
+part-of-speech annotations also allow inflected forms to match. Translation,
+pronunciation, and grammar details remain planned uses of the same token data.
+
 ## Preferences
 
 Settings includes browser-local preferences for light, dark, or system-matched

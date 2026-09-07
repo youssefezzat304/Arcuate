@@ -18,6 +18,8 @@ test("creates a list and bookmarks the first word in one persistent record", () 
   assert.equal(data.size, 1);
   assert.deepEqual(listWordLists().lists, [list]);
   assert.equal(list.words[0].sourceTextId, word.sourceTextId);
+  assert.equal(list.words[0].normalizedText, "sonne");
+  assert.deepEqual(list.words[0].lemmas, []);
 });
 
 test("adds to existing lists without losing words, avoids duplicates per language", () => {

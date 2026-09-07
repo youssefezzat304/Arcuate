@@ -16,7 +16,7 @@ const settings = { topic: "Solar energy", language: "de", level: "A2", length: "
 const record = { id: "123e4567-e89b-42d3-a456-426614174000", createdAt: "2026-09-06T12:00:00.000Z", settings, title: "Die Sonne", paragraphs: ["Die Sonne scheint."], characterCount: 18 };
 
 test("validates inputs and exact requested length mapping without translation", () => {
-  assert.deepEqual(CHARACTER_TARGETS, { short: 2000, medium: 4000, long: 5500 });
+  assert.deepEqual(CHARACTER_TARGETS, { short: 2000, medium: 4000, long: 7000 });
   assert.equal(createTextRequestSchema.safeParse(settings).success, true);
   for (const patch of [{topic:" "}, {topic:"a".repeat(501)}, {language:"invalid"}, {level:"A3"}, {length:"tiny"}]) {
     assert.equal(createTextRequestSchema.safeParse({...settings,...patch}).success, false);
@@ -27,8 +27,12 @@ test("saved records survive reads, remain isolated, and sort newest first", () =
   saveText(record);
   const second = {...record,id:"223e4567-e89b-42d3-a456-426614174000",createdAt:"2026-09-07T12:00:00.000Z"};
   saveText(second);
-  assert.deepEqual(readText(record.id), record);
-  assert.deepEqual(listTexts().texts, [second,record]);
+  const saved = readText(record.id);
+  assert.deepEqual(saved, { ...record, analysis: saved.analysis });
+  assert.deepEqual(listTexts().texts.map(({ id, createdAt }) => ({ id, createdAt })), [
+    { id: second.id, createdAt: second.createdAt },
+    { id: record.id, createdAt: record.createdAt },
+  ]);
   assert.equal(readText("323e4567-e89b-42d3-a456-426614174000"),null);
 });
 
@@ -83,7 +87,11 @@ test("character counts include spaces and paragraph breaks without splitting Uni
 test("existing word-count records remain readable with a derived character count", () => {
   const { characterCount, ...legacy } = record;
   data.set(`arcuate:text:v1:${record.id}`, JSON.stringify({ ...legacy, wordCount: 3 }));
-  assert.deepEqual(readText(record.id), record);
-  assert.equal(readText(record.id).characterCount, characterCount);
+  const upgraded = readText(record.id);
+  const { analysis, ...upgradedText } = upgraded;
+  assert.deepEqual(upgradedText, record);
+  assert.equal(upgraded.characterCount, characterCount);
+  assert.equal(analysis.analyzer, "intl-segmenter");
+  assert.equal(JSON.parse(data.get(`arcuate:text:v1:${record.id}`)).analysis.analyzer, "intl-segmenter");
   assert.equal(listTexts().invalidCount, 0);
 });

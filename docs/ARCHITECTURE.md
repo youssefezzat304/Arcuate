@@ -41,6 +41,36 @@ Responsible for:
 
 Must not depend on a particular LLM provider.
 
+### packages/language
+Responsible for:
+- validated token, lexeme, and text-analysis types
+- locale-aware exact tokenization and normalization
+- provider-neutral analyzer, translation, and pronunciation contracts
+- the optional Stanza HTTP adapter
+
+Must not contain React UI, persistence, or provider credentials.
+
+## Language analysis
+
+Generated paragraphs are analyzed before they are returned. By default,
+`Intl.Segmenter` supplies word/sentence boundaries and UTF-16 offsets with an
+identity lemma. If `LANGUAGE_ANALYZER_URL` is configured, the server calls the
+private Stanza service for tokenization, multi-word expansion, POS, morphology,
+and lemmatization; failures fall back to exact analysis and never fail text
+generation.
+
+Analysis is stored with each text as compact paragraph-relative offsets and
+lexemes. Stored analysis is checked against the language, paragraph count, and
+text bounds before use. Legacy text records receive exact analysis on first read
+and are upgraded in localStorage when possible. When Stanza becomes available,
+the reader can enrich exact-analyzed records through `POST /api/language/analyze`
+without delaying their initial render.
+
+`services/language` is an optional private Python sidecar. It caches up to eight
+Stanza language pipelines, loads only tokenize/MWT/POS/lemma processors, limits
+request size, and converts Python character indices to JavaScript UTF-16 offsets.
+It binds to localhost by default and is not exposed directly to browsers.
+
 ## Current generation and storage
 
 `POST /api/texts` validates topic, supported language, CEFR level, and length with
@@ -69,6 +99,11 @@ pnpm version. Run `pnpm install`, then put `GEMINI_API_KEY` in
 Keep the project on Gemini's free tier if zero API charges are required; quota
 exhaustion is shown as an error, with no automatic retries or paid fallback.
 
+For lemma-aware matching, follow `services/language/README.md` to install Stanza
+in an isolated Python environment and download only the intended language
+models, then set `LANGUAGE_ANALYZER_URL`. Without it, the application remains
+fully usable with exact-token matching.
+
 Generation has a four-minute provider timeout and a five-minute route budget;
 a deployed host must permit that duration. The current local implementation is
 not a production rate limiter. The SDK's optional install scripts are disabled
@@ -82,12 +117,17 @@ The web TypeScript/build checks also check the imported AI package source.
 
 `apps/web/src/lib/saved-words.ts` validates and persists one record per list under
 `arcuate:word-list:v1:<uuid>`. Entries contain the selected text, language, source
-text ID/title, UUID, and creation time. The reader captures the selection before
+text ID/title, UUID, creation time, normalized text, and optional lemma/POS
+identity derived from the source analysis. The reader captures the selection before
 opening a native modal dialog, which supports selecting a list or creating and
 saving atomically. Duplicate words are compared using Unicode NFC and
 language-aware case folding within each list. Storage failures are surfaced;
 invalid records are retained and reported. Lists refresh on cross-tab storage
-events. `/saved-words` displays the library.
+events, and an app event updates the current reader immediately.
+`apps/web/src/lib/saved-word-matching.ts` matches complete tokens by language and
+lemma/POS when available, otherwise by normalized surface form. The reader
+overlays semantic saved-word spans without mutating session-only formatting.
+`/saved-words` displays the library.
 
 ## Preferences
 

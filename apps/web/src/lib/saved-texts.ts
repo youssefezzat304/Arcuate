@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { generatedTextSchema } from "@arcuate/ai/schema";
+import { analysisFitsText, analyzeTextExact } from "@arcuate/language";
+import { textAnalysisSchema } from "@arcuate/language/schema";
 import { createTextRequestSchema } from "./reading-settings.ts";
 
 export function countCharacters(paragraphs: string[]) {
@@ -11,8 +13,12 @@ export const savedTextSchema = generatedTextSchema.extend({
   id: z.uuid(),
   createdAt: z.iso.datetime(),
   settings: createTextRequestSchema,
+  analysis: textAnalysisSchema.optional(),
 }).transform((text) => ({
   ...text,
+  analysis: text.analysis && analysisFitsText(text.analysis, text.paragraphs, text.settings.language)
+    ? text.analysis
+    : analyzeTextExact(text.paragraphs, text.settings.language),
   // Derive the count from the body so older word-count records remain readable.
   characterCount: countCharacters(text.paragraphs),
 }));
@@ -27,7 +33,14 @@ export function saveText(text: SavedText) {
 
 export function readText(id: string): SavedText | null {
   const raw = localStorage.getItem(prefix + id);
-  return raw === null ? null : savedTextSchema.parse(JSON.parse(raw));
+  if (raw === null) return null;
+  const stored: unknown = JSON.parse(raw);
+  const text = savedTextSchema.parse(stored);
+  if (typeof stored === "object" && stored !== null && !("analysis" in stored)) {
+    try { localStorage.setItem(prefix + id, JSON.stringify(text)); }
+    catch { /* A failed lazy upgrade must not make an existing text unreadable. */ }
+  }
+  return text;
 }
 
 export function listTexts() {

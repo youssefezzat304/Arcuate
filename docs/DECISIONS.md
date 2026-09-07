@@ -3,7 +3,7 @@
 - 2026-09-03 [CODE] Goal: build a small functional MVP for an AI-powered graded reader.
 - 2026-09-06 [CODE] Current state: Next.js at `apps/web` and provider/structured generation in `packages/ai`.
 - 2026-09-06 [CODE] Current state: Gemini generation replaces mock content; validated texts are saved in browser localStorage and listed in My texts.
-- 2026-09-07 [CODE] Now: the reader supports formatting and word bookmarks; Settings provides browser-local display preferences.
+- 2026-09-07 [CODE] Now: saved words are recognized and styled across readings through versioned token analysis; Settings provides browser-local display preferences.
 - 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
 - 2026-09-06 [USER] Provider: Gemini; short/medium/long request 2,000/4,000/5,500 characters with no translation.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
@@ -69,8 +69,14 @@ Provide Settings preferences for dark mode, app language, and font size.
 2026-09-07 [USER] Appearance supports light, dark, and system. Font size controls reader body text in pixels and defaults to 14px rather than scaling the full interface.
 2026-09-07 [CODE] Preferences persist in browser localStorage. System appearance follows live device changes; app language updates the document language while translated interface copy remains deferred.
 
+D016 ACTIVE — 2026-09-07 [USER]
+Use a versioned token record as the shared foundation for saved-word recognition and future contextual translation, pronunciation, grammar, and vocabulary features.
+2026-09-07 [CODE] `packages/language` owns provider-neutral token/lexeme schemas and contracts. Locale-aware exact analysis is always available; an optional private Stanza service adds lemma/POS/morphology data without coupling it to the reader.
+Reason: one validated offset-based representation prevents separate, conflicting text parsing implementations for each language feature.
+
 [PROGRESS]
 
+- 2026-09-07 [CODE] Added exact and Stanza-backed language analysis, lazy text enrichment, linguistic saved-word identity, and reactive cross-text highlighting.
 - 2026-09-07 [CODE] Replaced the Settings placeholder with persistent three-mode appearance, app language, and numeric reader font-size preferences.
 - 2026-09-03 [CODE] Consolidated workspace ownership at the repository root.
 - 2026-09-03 [CODE] Added repository-wide and web-workspace typecheck commands.
@@ -95,6 +101,7 @@ Provide Settings preferences for dark mode, app language, and font size.
 
 [OUTCOMES]
 
+- 2026-09-07 [CODE] Saved words now appear bold with a warm underline across same-language texts. Exact forms work without services; lemma-inflected forms activate when Stanza annotations are available.
 - 2026-09-07 [CODE] Added validated browser-local preferences with an accessible Settings interface, system-aware dark theme, and reader-only pixel sizing.
 - 2026-09-07 [CODE] Added word bookmarking with list creation/selection, local persistence, source-text links, and Saved words/Settings routes. Preserved the user’s separate Gemini master prompt file.
 
@@ -111,14 +118,18 @@ Provide Settings preferences for dark mode, app language, and font size.
 
 [WORKING SET]
 
-- `apps/web/src/app/globals.css`
-- `apps/web/src/app/layout.tsx`
-- `apps/web/src/app/settings/page.tsx`
-- `apps/web/src/components/preferences-section.tsx`
-- `apps/web/src/lib/preferences.ts`
-- `apps/web/tests/preferences.test.mjs`
+- `packages/language/src/schema.ts`
+- `packages/language/src/index.ts`
+- `services/language/server.py`
+- `apps/web/src/app/api/language/analyze/route.ts`
+- `apps/web/src/app/api/texts/route.ts`
+- `apps/web/src/lib/saved-texts.ts`
+- `apps/web/src/lib/saved-words.ts`
+- `apps/web/src/lib/saved-word-matching.ts`
+- `apps/web/src/components/formattable-reader.tsx`
+- `apps/web/src/components/saved-reader.tsx`
+- `apps/web/tests/language-analysis.test.mjs`
 - `docs/PRODUCT.md`
-- `docs/ARCHITECTURE.md`
 
 [RECEIPTS]
 
@@ -142,3 +153,4 @@ Provide Settings preferences for dark mode, app language, and font size.
 
 - 2026-09-07 [TOOL] Bookmarking: all 14 tests, lint, typecheck, and build passed. Browser verified list creation, adding a second word to an existing list, reopening the saved list in a new tab, and Settings navigation.
 - 2026-09-07 [TOOL] Preferences: all 18 tests, lint, typecheck, and build passed. Browser verified three appearance choices, a 14px default, and persisted system/18px selections after reload.
+- 2026-09-07 [TOOL] Language analysis: 23 tests, lint, typecheck, and build passed; Python service syntax parsed. Browser verified legacy text upgrade and saved exact forms styled across repeated title/body occurrences.

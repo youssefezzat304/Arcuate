@@ -22,7 +22,7 @@ export default async function TextPage({ params }: PageProps<"/texts/[id]">) {
   return (
     <main className="min-h-dvh bg-background px-5 py-5 text-foreground sm:px-8 sm:py-8">
       <div className="mx-auto max-w-4xl">
-        <SavedReader key={id} id={id} />
+        <SavedReader key={id} id={id} enrichmentAvailable={Boolean(process.env.LANGUAGE_ANALYZER_URL)} />
       </div>
     </main>
   );

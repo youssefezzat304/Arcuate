@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { analyzeTextExact, normalizeToken, type TextAnalysis } from "@arcuate/language";
 import { formatSelection, selectionHasFormat, type TextFormat, type TextRun, type TextSelection } from "@/lib/text-formatting";
 
 import { SaveWordDialog } from "@/components/save-word-dialog";
-import type { WordDraft } from "@/lib/saved-words";
+import { listSavedWords, SAVED_WORDS_CHANGED_EVENT, type SavedWord, type WordDraft } from "@/lib/saved-words";
+import { findSavedWordRanges, type TextRange } from "@/lib/saved-word-matching";
 
 const colors = ["yellow", "rose", "green", "blue", "purple"] as const;
 const controlClass = "flex h-10 min-w-8 items-center justify-center rounded-md px-2 hover:bg-ink-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:bg-ink-secondary";
@@ -33,12 +35,19 @@ function restoreSelection(root: HTMLElement, selected: TextSelection) {
   }
 }
 
-export function FormattableReader({ title, paragraphs, textId, language }: { title: string; paragraphs: string[]; textId: string; language: WordDraft["language"] }) {
+export function FormattableReader({ title, paragraphs, textId, language, analysis }: {
+  title: string;
+  paragraphs: string[];
+  textId: string;
+  language: WordDraft["language"];
+  analysis: TextAnalysis;
+}) {
   const [blocks, setBlocks] = useState<TextRun[][]>(() => [title, ...paragraphs].map((text) => [{ text, format: {} }]));
   const [selected, setSelected] = useState<SelectedText | null>(null);
   const [palette, setPalette] = useState<"color" | "highlight" | null>(null);
   const [word, setWord] = useState<WordDraft | null>(null);
   const [notice, setNotice] = useState("");
+  const [savedWords, setSavedWords] = useState<SavedWord[]>([]);
   const rootRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const pendingSelection = useRef<TextSelection | null>(null);
@@ -49,6 +58,30 @@ export function FormattableReader({ title, paragraphs, textId, language }: { tit
       pendingSelection.current = null;
     }
   }, [blocks]);
+
+  useEffect(() => {
+    function loadSavedWords() {
+      try { setSavedWords(listSavedWords().filter((saved) => saved.language === language)); }
+      catch { setSavedWords([]); }
+    }
+    loadSavedWords();
+    window.addEventListener("storage", loadSavedWords);
+    window.addEventListener(SAVED_WORDS_CHANGED_EVENT, loadSavedWords);
+    return () => {
+      window.removeEventListener("storage", loadSavedWords);
+      window.removeEventListener(SAVED_WORDS_CHANGED_EVENT, loadSavedWords);
+    };
+  }, [language]);
+
+  const savedRanges = useMemo(() => {
+    const titleTokens = analyzeTextExact([title], language).paragraphs[0] ?? [];
+    return [
+      findSavedWordRanges(title, titleTokens, savedWords, language),
+      ...paragraphs.map((paragraph, index) => findSavedWordRanges(
+        paragraph, analysis.paragraphs[index] ?? analyzeTextExact([paragraph], language).paragraphs[0]!, savedWords, language,
+      )),
+    ];
+  }, [analysis, language, paragraphs, savedWords, title]);
 
   useEffect(() => {
     function updateSelection(event: Event) {
@@ -120,26 +153,62 @@ export function FormattableReader({ title, paragraphs, textId, language }: { tit
       setNotice("Select a word or short phrase of up to 200 characters.");
       return;
     }
-    setWord({ text, language, sourceTextId: textId, sourceTitle: title });
+    let blockStart = 0;
+    let identity: Pick<WordDraft, "lemmas" | "partOfSpeech" | "analysisVersion"> = {};
+    for (let blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
+      const blockText = blocks[blockIndex]!.map((run) => run.text).join("");
+      const localStart = selected.start - blockStart;
+      const localEnd = selected.end - blockStart;
+      if (blockIndex > 0 && localStart >= 0 && localEnd <= blockText.length) {
+        const selectedTokens = (analysis.paragraphs[blockIndex - 1] ?? []).filter(
+          (token) => token.start >= localStart && token.end <= localEnd,
+        );
+        const lexemes = selectedTokens.flatMap((token) => token.lexemes);
+        if (lexemes.length) identity = {
+          lemmas: lexemes.map((lexeme) => lexeme.lemma),
+          partOfSpeech: lexemes.length === 1 ? lexemes[0]!.partOfSpeech : undefined,
+          analysisVersion: analysis.version,
+        };
+        break;
+      }
+      blockStart += blockText.length;
+    }
+    setWord({ text, language, sourceTextId: textId, sourceTitle: title,
+      normalizedText: normalizeToken(text, language), ...identity });
     setSelected(null);
     setNotice("");
   }
 
-  function renderRuns(runs: TextRun[]) {
+  function renderRuns(runs: TextRun[], ranges: TextRange[]) {
     let offset = 0;
-    return runs.map(({ text, format }) => {
-      const key = offset;
+    return runs.flatMap(({ text, format }) => {
+      const runStart = offset;
       offset += text.length;
-      return <span key={key} style={{ fontWeight: format.bold ? 700 : undefined, fontStyle: format.italic ? "italic" : undefined,
-        textDecoration: format.underline ? "underline" : undefined, color: format.color, backgroundColor: format.highlight }}>{text}</span>;
+      const boundaries = new Set([0, text.length]);
+      for (const range of ranges) {
+        if (range.start < offset && range.end > runStart) {
+          boundaries.add(Math.max(0, range.start - runStart));
+          boundaries.add(Math.min(text.length, range.end - runStart));
+        }
+      }
+      const sorted = [...boundaries].sort((left, right) => left - right);
+      return sorted.slice(0, -1).map((start, index) => {
+        const end = sorted[index + 1]!;
+        const absoluteStart = runStart + start;
+        const saved = ranges.some((range) => range.start <= absoluteStart && range.end >= runStart + end);
+        return <span key={`${runStart}:${start}`} data-saved-word={saved || undefined}
+          className={saved ? "font-bold underline decoration-accent decoration-2 underline-offset-4" : undefined}
+          style={{ fontWeight: format.bold ? 700 : undefined, fontStyle: format.italic ? "italic" : undefined,
+            textDecorationLine: format.underline ? "underline" : undefined, color: format.color, backgroundColor: format.highlight }}>{text.slice(start, end)}</span>;
+      });
     });
   }
 
   return <>
     <div ref={rootRef} tabIndex={-1} className="focus:outline-none">
-      <h1 className="mb-10 border-b border-border pb-8 font-serif text-4xl leading-tight tracking-[-0.04em] sm:text-5xl">{renderRuns(blocks[0]!)}</h1>
+      <h1 className="mb-10 border-b border-border pb-8 font-serif text-4xl leading-tight tracking-[-0.04em] sm:text-5xl">{renderRuns(blocks[0]!, savedRanges[0]!)}</h1>
       <div className="space-y-7 font-serif leading-[1.75] text-ink-secondary" style={{ fontSize: "var(--reader-font-size)" }}>
-        {blocks.slice(1).map((runs, index) => <p key={index}>{renderRuns(runs)}</p>)}
+        {blocks.slice(1).map((runs, index) => <p key={index}>{renderRuns(runs, savedRanges[index + 1]!)}</p>)}
       </div>
     </div>
     {selected && <div ref={toolbarRef} role="group" aria-label="Text formatting"

@@ -1,20 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { analysisFitsText } from "@arcuate/language";
+import { textAnalysisSchema } from "@arcuate/language/schema";
 import { FormattableReader } from "@/components/formattable-reader";
-import { readText, type SavedText } from "@/lib/saved-texts";
+import { readText, saveText, type SavedText } from "@/lib/saved-texts";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 
 type ReaderState = { status: "loading" } | { status: "ready"; text: SavedText } | { status: "error"; message: string };
 
-export function SavedReader({ id }: { id: string }) {
+export function SavedReader({ id, enrichmentAvailable }: { id: string; enrichmentAvailable: boolean }) {
   const [state, setState] = useState<ReaderState>({ status: "loading" });
+  const enrichmentStarted = useRef(false);
   useEffect(() => {
+    async function enrich(text: SavedText) {
+      if (!enrichmentAvailable || enrichmentStarted.current || text.analysis.analyzer === "stanza") return;
+      enrichmentStarted.current = true;
+      try {
+        const response = await fetch("/api/language/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ language: text.settings.language, paragraphs: text.paragraphs }),
+          signal: AbortSignal.timeout(40_000),
+        });
+        if (!response.ok) return;
+        const parsed = textAnalysisSchema.safeParse(await response.json());
+        if (!parsed.success || parsed.data.analyzer !== "stanza" ||
+          !analysisFitsText(parsed.data, text.paragraphs, text.settings.language)) return;
+        const enriched = { ...text, analysis: parsed.data };
+        try { saveText(enriched); } catch { /* Enrichment may remain session-only when storage is unavailable. */ }
+        setState({ status: "ready", text: enriched });
+      } catch { /* Exact token matching remains active when enrichment is unavailable. */ }
+    }
+
     function load() {
       try {
         const text = readText(id);
         setState(text ? { status: "ready", text } : { status: "error", message: "This text is not saved in this browser. Open it on the device where you created it, or create a new text." });
+        if (text) void enrich(text);
       } catch {
         setState({ status: "error", message: "This text could not be read. Browser storage may be blocked or the saved record may be damaged." });
       }
@@ -22,7 +46,7 @@ export function SavedReader({ id }: { id: string }) {
     load();
     window.addEventListener("storage", load);
     return () => window.removeEventListener("storage", load);
-  }, [id]);
+  }, [enrichmentAvailable, id]);
 
   if (state.status === "loading") return <p role="status">Loading your text…</p>;
   if (state.status === "error") return <div><p role="alert" className="mb-4 leading-7">{state.message}</p><Link href="/" className="underline">Create a new text</Link></div>;
@@ -34,7 +58,7 @@ export function SavedReader({ id }: { id: string }) {
         {language} · {text.settings.level} · {text.characterCount.toLocaleString()} characters
       </p>
       <div lang={text.settings.language} dir={text.settings.language === "ar" || text.settings.language === "he" ? "rtl" : "ltr"}>
-        <FormattableReader key={text.id} textId={text.id} language={text.settings.language} title={text.title} paragraphs={text.paragraphs} />
+        <FormattableReader key={text.id} textId={text.id} language={text.settings.language} title={text.title} paragraphs={text.paragraphs} analysis={text.analysis} />
       </div>
     </article>
   );

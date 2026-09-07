@@ -1,4 +1,5 @@
 import { generateText, GenerationError } from "@arcuate/ai";
+import { analyzeText } from "@arcuate/language";
 import { createTextRequestSchema, CHARACTER_TARGETS } from "@/lib/reading-settings";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 import { savedTextSchema } from "@/lib/saved-texts";
@@ -29,8 +30,11 @@ export async function POST(request: Request) {
       level: settings.level,
       characterTarget: CHARACTER_TARGETS[settings.length],
     }, { apiKey, model: process.env.GEMINI_MODEL || "gemini-3.6-flash" });
+    const analysis = await analyzeText(generated.paragraphs, settings.language, {
+      stanzaEndpoint: process.env.LANGUAGE_ANALYZER_URL,
+    });
     return Response.json(savedTextSchema.parse({
-      ...generated, id: crypto.randomUUID(), createdAt: new Date().toISOString(), settings,
+      ...generated, analysis, id: crypto.randomUUID(), createdAt: new Date().toISOString(), settings,
     }), { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     return Response.json({ error: error instanceof GenerationError ? error.message : "Unable to generate a valid text. Please try again." },
