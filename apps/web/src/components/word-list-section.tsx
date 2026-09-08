@@ -4,9 +4,10 @@ import { useNotice } from "@/hooks/use-notice";
 import { StatusNotice } from "@/components/status-notice";
 
 import Link from "next/link";
+import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { ListActionsMenu } from "@/components/list-actions-menu";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { deleteWordList, removeSavedWord, renameWordList, wordListMarkdown, type WordList } from "@/lib/saved-words";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
 
@@ -14,6 +15,12 @@ const buttonClass = "min-h-11 rounded-md border border-border px-3 text-sm hover
 
 export function WordListSection({ list, preview = false }: { list: WordList; preview?: boolean }) {
   const router = useRouter();
+  const sectionRef = useRef<HTMLElement>(null);
+  function closeDelete() {
+    setConfirmDelete(false);
+    requestAnimationFrame(() => sectionRef.current?.querySelector<HTMLButtonElement>('button[aria-haspopup="menu"]')?.focus());
+  }
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(list.name);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +46,7 @@ export function WordListSection({ list, preview = false }: { list: WordList; pre
   }
 
   return (
-    <section className="rounded-xl border border-border bg-paper p-5 sm:p-6">
+    <section ref={sectionRef} className="rounded-xl border border-border bg-paper p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         {renaming ? <form onSubmit={(event) => {
           event.preventDefault();
@@ -55,15 +62,16 @@ export function WordListSection({ list, preview = false }: { list: WordList; pre
         <ListActionsMenu actions={[
           { label: "Copy as Markdown", onSelect: copy },
           { label: "Rename list", onSelect: () => { setName(list.name); setRenaming(true); setError(null); setNotice(null); } },
-          { label: "Delete list", onSelect: () => {
-            if (window.confirm(`Delete “${list.name}” and all its saved words? This cannot be undone.`)) {
-              if (mutate(() => deleteWordList(list.id), "List deleted.") && !preview) router.replace("/saved-words");
-            }
-          } },
+          { label: "Delete list", onSelect: () => setConfirmDelete(true) },
         ]} />
       </div>
       {error && <p role="alert" className="mb-4 text-sm">{error}</p>}
       <StatusNotice message={notice} />
+      {confirmDelete && <ConfirmationDialog title="Delete list?" description={`This deletes “${list.name}” and all its saved words. This cannot be undone.`} confirmLabel="Delete list" onClose={closeDelete} onConfirm={() => {
+        closeDelete();
+        if (mutate(() => deleteWordList(list.id), "List deleted.") && !preview) router.replace("/saved-words");
+      }} />}
+
       {!preview && <div className="mt-5 border-t border-border pt-4">
         {list.words.length === 0 ? <p className="text-sm text-muted-foreground">This list has no saved words yet.</p> : <ul className="divide-y divide-border">
           {list.words.map((word) => <li key={word.id} className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0">

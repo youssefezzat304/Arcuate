@@ -1,5 +1,6 @@
 import { GenerationForm } from "@/components/generation-form";
 import { PromptTextarea } from "@/components/prompt-textarea";
+import { SettingsDropdown } from "@/components/settings-dropdown";
 import { TextLengthSlider } from "@/components/text-length-slider";
 import { CEFR_LEVELS } from "@/lib/reading-settings";
 import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
@@ -46,39 +47,8 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <label className="flex flex-col gap-2 rounded-lg border border-border bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
-                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  Language
-                </span>
-                <select
-                  name="language"
-                  defaultValue="de"
-                  className="min-w-0 bg-transparent text-left text-sm font-medium sm:text-right outline-none"
-                >
-                  {SUPPORTED_LANGUAGES.map((language) => (
-                    <option key={language.code} value={language.code}>
-                      {language.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="flex flex-col gap-2 rounded-lg border border-border bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground">
-                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  CEFR level
-                </span>
-                <select
-                  name="level"
-                  defaultValue="A2"
-                  className="min-w-0 bg-transparent text-left text-sm font-medium sm:text-right outline-none"
-                >
-                  {CEFR_LEVELS.map((level) => (
-                    <option key={level} value={level}>
-                      {level}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <SettingsDropdown name="language" label="Language" defaultValue="de" options={SUPPORTED_LANGUAGES.map((language) => ({ value: language.code, label: language.name }))} />
+              <SettingsDropdown name="level" label="CEFR level" defaultValue="A2" options={CEFR_LEVELS.map((level) => ({ value: level, label: level }))} />
 
               <TextLengthSlider />
             </div>

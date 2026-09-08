@@ -63,7 +63,7 @@ export function GenerationForm({ children }: { children: ReactNode }) {
 
   return (
     <div>
-      <form onSubmit={submit} aria-busy={pending} className="overflow-hidden rounded-xl border border-border bg-paper">
+      <form onSubmit={submit} aria-busy={pending} className="rounded-xl border border-border bg-paper">
         <fieldset disabled={pending || Boolean(unsaved)} className="min-w-0 disabled:opacity-60">
           {children}
         </fieldset>

@@ -1,3 +1,4 @@
+import { READER_SHORTCUTS } from "./reader-shortcuts.ts";
 import { z } from "zod";
 
 export const TEXT_COLOR_VALUES = [
@@ -113,11 +114,8 @@ export function shortcutFormatPatch(
   selection: TextSelection,
   lastHighlight: NonNullable<TextFormat["highlight"]>,
 ): TextFormat | null {
-  switch (key.toLocaleLowerCase()) {
-    case "b": return { bold: !selectionHasFormat(blocks, selection, "bold") };
-    case "h": return { highlight: lastHighlight };
-    case "u": return { underline: !selectionHasFormat(blocks, selection, "underline") };
-    case "y": return { strikethrough: !selectionHasFormat(blocks, selection, "strikethrough") };
-    default: return null;
-  }
+  const shortcut = READER_SHORTCUTS.find((item) => item.key === key.toLocaleLowerCase());
+  if (!shortcut) return null;
+  if (shortcut.format === "highlight") return { highlight: lastHighlight };
+  return { [shortcut.format]: !selectionHasFormat(blocks, selection, shortcut.format) };
 }

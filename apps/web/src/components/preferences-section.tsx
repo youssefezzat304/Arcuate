@@ -61,7 +61,6 @@ export function PreferencesSection() {
         <div className="flex min-h-24 flex-col items-stretch justify-between gap-3 py-5 sm:flex-row sm:items-center sm:gap-6">
           <div>
             <h3 className="text-sm font-semibold">Dark mode</h3>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">Choose a light or dark palette, or follow your device.</p>
           </div>
           <div role="radiogroup" aria-label="Dark mode" className="flex shrink-0 rounded-md border border-border bg-background p-1">
             {THEME_MODES.map((mode) => (
@@ -82,7 +81,6 @@ export function PreferencesSection() {
         <label className="flex min-h-24 flex-col items-stretch justify-between gap-3 py-5 sm:flex-row sm:items-center sm:gap-6">
           <span>
             <span className="block text-sm font-semibold">App language</span>
-            <span className="mt-1 block text-sm leading-6 text-muted-foreground">Used for accessibility and future interface translations.</span>
           </span>
           <select
             value={preferences.appLanguage}

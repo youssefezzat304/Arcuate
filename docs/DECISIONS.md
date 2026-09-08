@@ -99,6 +99,16 @@ Open saved-word lists on dedicated `/saved-words/[id]` pages instead of expandin
 2026-09-07 [USER] List action menus are also available in the Saved words library, with in-place name editing. Reading language/level/character-count metadata appears below the title and is included in Markdown copies.
 2026-09-07 [CODE] Metadata is excluded from annotation offsets and selection restoration to preserve saved formatting.
 
+D022 ACTIVE — 2026-09-08 [USER]
+Use the shared in-app confirmation dialog for list deletion and annotation clearing. Replace composer language/CEFR native selects with custom dropdowns. Add a bottom-right reader info button for shortcut help.
+2026-09-08 [CODE] The guide and formatting handler share a shortcut registry for future additions; the guide lists only implemented shortcuts.
+
+D023 ACTIVE — 2026-09-08 [USER]
+Sidebar toggling must leave every page centered and stationary. Add a collapsible per-reading timer with start/pause, restart, stop/save, best time, and ten recent sessions.
+2026-09-08 [ASSUMPTION] Best means the shortest completed session for that reading. Completed history persists locally; unfinished timer state lasts while the reading remains open.
+2026-09-08 [CODE] Closed mobile navigation is a compact floating control; expanded navigation overlays the page.
+2026-09-08 [CODE] The timer uses monotonic elapsed intervals, keeps all-time best beyond the recent-ten window, and falls above the article when the right margin is too narrow.
+
 [PROGRESS]
 
 - 2026-09-07 [CODE] Added exact and Stanza-backed language analysis, lazy text enrichment, linguistic saved-word identity, and reactive cross-text highlighting.

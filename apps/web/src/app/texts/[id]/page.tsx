@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
+import { ReaderShortcuts } from "@/components/reader-shortcuts";
 import { SavedReader } from "@/components/saved-reader";
 
 const textIdSchema = z.uuid();
@@ -24,6 +25,7 @@ export default async function TextPage({ params }: PageProps<"/texts/[id]">) {
       <div className="mx-auto max-w-4xl">
         <SavedReader key={id} id={id} enrichmentAvailable={Boolean(process.env.LANGUAGE_ANALYZER_URL)} />
       </div>
+      <ReaderShortcuts />
     </main>
   );
 }

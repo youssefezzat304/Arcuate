@@ -72,14 +72,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside
         id="app-sidebar"
         aria-label="Sidebar"
-        className="fixed inset-y-4 left-3 z-30 flex w-16 flex-col overflow-y-auto rounded-xl border border-border bg-paper px-2 py-5 md:left-5 md:w-60 md:px-3 md:group-data-[collapsed=true]:w-16 md:group-data-[collapsed=true]:px-2 max-md:group-data-[mobile-open=true]:w-60"
+        className="fixed inset-y-4 left-3 z-30 flex w-16 flex-col overflow-y-auto rounded-xl border border-border bg-paper px-2 py-5 md:left-5 md:w-60 md:px-3 md:group-data-[collapsed=true]:w-16 md:group-data-[collapsed=true]:px-2 max-md:group-data-[mobile-open=true]:w-60 max-md:group-data-[mobile-open=false]:bottom-auto max-md:group-data-[mobile-open=false]:py-2"
       >
         <Link
           href="/"
           aria-label="Arcuate home"
           title="Arcuate"
           onClick={() => setMobileOpen(false)}
-          className={`mb-5 flex h-12 shrink-0 items-center gap-0 rounded-lg px-3 font-serif text-2xl font-semibold tracking-[-0.04em] ${focusClass}`}
+          className={`max-md:hidden max-md:group-data-[mobile-open=true]:flex mb-5 flex h-12 shrink-0 items-center gap-0 rounded-lg px-3 font-serif text-2xl font-semibold tracking-[-0.04em] ${focusClass}`}
         >
           <span>A</span><span className={labelClass}>rcuate</span>
         </Link>
@@ -103,13 +103,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           aria-expanded={mobileOpen}
           aria-controls="app-sidebar"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className={`mb-7 flex h-11 shrink-0 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-background md:hidden ${focusClass}`}
+          className={`mb-0 group-data-[mobile-open=true]:mb-7 flex h-11 shrink-0 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-background md:hidden ${focusClass}`}
         >
           <span className={mobileOpen ? "" : "rotate-180"}><SidebarIcon name="collapse" /></span>
           <span className={labelClass}>Collapse</span>
         </button>
 
-        <nav aria-label="Main navigation" className="space-y-2">
+        <nav aria-label="Main navigation" className="space-y-2 max-md:hidden max-md:group-data-[mobile-open=true]:block">
           {([
             { href: "/", label: "New text", icon: "new" },
             { href: "/texts", label: "My texts", icon: "texts" },
@@ -131,7 +131,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        <div className="mt-auto pt-8">
+        <div className="mt-auto pt-8 max-md:hidden max-md:group-data-[mobile-open=true]:block">
           <div className="border-t border-border pt-4">
             <button
               type="button"
@@ -147,7 +147,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </aside>
-      <div id="main-content" tabIndex={-1} className="min-h-dvh pl-20 outline-none md:pl-68 md:group-data-[collapsed=true]:pl-24">
+      <div id="main-content" tabIndex={-1} className="min-h-dvh pt-20 outline-none md:px-24 md:pt-0">
         {children}
       </div>
     </div>

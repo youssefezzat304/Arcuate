@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { analysisFitsText } from "@arcuate/language";
 import { textAnalysisSchema } from "@arcuate/language/schema";
+import { ReadingTimer } from "@/components/reading-timer";
 import { FormattableReader } from "@/components/formattable-reader";
 import { readText, saveText, saveTextAnnotations, type SavedText } from "@/lib/saved-texts";
 import type { TextAnnotation } from "@/lib/text-formatting";
@@ -58,10 +59,13 @@ export function SavedReader({ id, enrichmentAvailable }: { id: string; enrichmen
     saveTextAnnotations(text.id, annotations);
   }
   return (
+    <>
+    <ReadingTimer key={text.id} textId={text.id} />
     <article className="relative rounded-xl border border-border bg-paper px-6 py-10 sm:px-12 sm:py-14 lg:px-16">
       <div lang={text.settings.language} dir={text.settings.language === "ar" || text.settings.language === "he" ? "rtl" : "ltr"}>
         <FormattableReader metadata={`${language} · ${text.settings.level} · ${text.characterCount.toLocaleString("en-US")} characters`} key={text.id} textId={text.id} language={text.settings.language} title={text.title} paragraphs={text.paragraphs} analysis={text.analysis} annotations={text.annotations} onAnnotationsChange={persistAnnotations} />
       </div>
     </article>
+    </>
   );
 }

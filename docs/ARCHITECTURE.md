@@ -143,3 +143,13 @@ boolean/theme-size record shape is migrated when read.
 
 The Gemini master prompt is maintained separately in `packages/ai/src/prompt.ts`
 and imported by the provider in `packages/ai/src/index.ts`.
+
+## Reading timer
+
+`apps/web/src/lib/reading-timer.ts` validates per-reading timer history stored at
+`arcuate:timer:v1:<uuid>`. Stop saves a positive duration, timestamp, and session
+UUID, retaining ten recent records plus the all-time shortest duration. The
+widget measures active intervals with `performance.now()` so delayed rendering
+does not slow the stopwatch. Pause excludes inactive time; the active timer is
+component-local. Storage failures preserve the paused session for another save
+attempt, and invalid histories are reported without overwriting them.
