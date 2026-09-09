@@ -1,16 +1,18 @@
-import type { Metadata } from "next";
-import { AppShell } from "@/components/app-shell";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { AppShell } from '@/components/app-shell';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Arcuate",
-  description: "AI-generated reading material for language learners.",
+  title: 'Arcuate',
+  description: 'AI-generated reading material for language learners.',
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <body className="min-h-full flex flex-col"><AppShell>{children}</AppShell></body>
+      <body className="min-h-full flex flex-col">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

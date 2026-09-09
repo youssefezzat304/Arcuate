@@ -25,17 +25,17 @@ The core MVP flow is:
 
 Future features may include:
 
-* CEFR validation and automatic rewriting
-* vocabulary explanations
-* sentence-level explanations
-* saved vocabulary
-* user accounts
-* saved texts
-* sharing
-* likes and social features
-* browser-local inference through WebGPU
-* alternative AI providers
-* self-hosted inference
+- CEFR validation and automatic rewriting
+- vocabulary explanations
+- sentence-level explanations
+- saved vocabulary
+- user accounts
+- saved texts
+- sharing
+- likes and social features
+- browser-local inference through WebGPU
+- alternative AI providers
+- self-hosted inference
 
 Do not prematurely implement future features unless explicitly requested.
 
@@ -45,22 +45,22 @@ Do not prematurely implement future features unless explicitly requested.
 
 The repository uses:
 
-* TypeScript
-* pnpm workspaces
-* Turborepo
-* Next.js
-* React
-* Next.js App Router
-* Tailwind CSS
-* shadcn/ui
-* Zod
+- TypeScript
+- pnpm workspaces
+- Turborepo
+- Next.js
+- React
+- Next.js App Router
+- Tailwind CSS
+- shadcn/ui
+- Zod
 
 Expected future technologies include:
 
-* PostgreSQL
-* Drizzle ORM
-* cloud LLM APIs
-* browser-local WebGPU inference
+- PostgreSQL
+- Drizzle ORM
+- cloud LLM APIs
+- browser-local WebGPU inference
 
 Do not introduce an alternative framework, package manager, styling system, ORM, or runtime without a clear reason and user approval.
 
@@ -70,9 +70,9 @@ Do not introduce an alternative framework, package manager, styling system, ORM,
 
 Before making non-trivial changes, read the relevant project documentation:
 
-* `docs/PRODUCT.md` — product goals, MVP scope, UX principles, and planned features.
-* `docs/ARCHITECTURE.md` — repository structure, package responsibilities, technology choices, and system architecture.
-* `docs/DECISIONS.md` — durable decisions and current implementation state.
+- `docs/PRODUCT.md` — product goals, MVP scope, UX principles, and planned features.
+- `docs/ARCHITECTURE.md` — repository structure, package responsibilities, technology choices, and system architecture.
+- `docs/DECISIONS.md` — durable decisions and current implementation state.
 
 Treat these files as the canonical sources of project-specific information.
 
@@ -86,42 +86,42 @@ If implementation and documentation disagree, inspect the code and flag the inco
 
 ## General rules
 
-* Use TypeScript unless there is a strong technical reason not to.
-* Prefer simple code over premature abstraction.
-* Make the smallest safe change that solves the task.
-* Preserve existing repository conventions.
-* Avoid unrelated refactors.
-* Avoid adding dependencies unless they materially simplify the implementation.
-* Use existing dependencies and components where practical.
-* Delete dead code created by the change.
-* Do not leave commented-out implementations.
-* Do not silently swallow errors.
+- Use TypeScript unless there is a strong technical reason not to.
+- Prefer simple code over premature abstraction.
+- Make the smallest safe change that solves the task.
+- Preserve existing repository conventions.
+- Avoid unrelated refactors.
+- Avoid adding dependencies unless they materially simplify the implementation.
+- Use existing dependencies and components where practical.
+- Delete dead code created by the change.
+- Do not leave commented-out implementations.
+- Do not silently swallow errors.
 
 ## React
 
-* Prefer Server Components where appropriate.
-* Add `"use client"` only when client-side behavior is actually required.
-* Keep business/domain logic outside presentation components.
-* Prefer composition over large configurable components.
-* Avoid unnecessary `useEffect`.
-* Do not introduce global state management unless local/server state is insufficient.
+- Prefer Server Components where appropriate.
+- Add `"use client"` only when client-side behavior is actually required.
+- Keep business/domain logic outside presentation components.
+- Prefer composition over large configurable components.
+- Avoid unnecessary `useEffect`.
+- Do not introduce global state management unless local/server state is insufficient.
 
 ## TypeScript
 
-* Avoid `any` unless unavoidable and documented.
-* Prefer explicit domain types.
-* Prefer discriminated unions when modeling states.
-* Do not duplicate types that can be inferred from Zod or existing APIs.
+- Avoid `any` unless unavoidable and documented.
+- Prefer explicit domain types.
+- Prefer discriminated unions when modeling states.
+- Do not duplicate types that can be inferred from Zod or existing APIs.
 
 ## Validation
 
 Treat all external input as untrusted, including:
 
-* HTTP requests
-* LLM responses
-* database data crossing trust boundaries
-* URL parameters
-* user-generated content
+- HTTP requests
+- LLM responses
+- database data crossing trust boundaries
+- URL parameters
+- user-generated content
 
 Use Zod where runtime validation is appropriate.
 
@@ -189,14 +189,14 @@ Do not manually edit generated lockfile contents.
 
 When a request depends materially on current information such as:
 
-* current package APIs
-* framework behavior
-* latest versions
-* deployment limits
-* provider pricing
-* cloud platform behavior
-* current security advisories
-* deprecated APIs
+- current package APIs
+- framework behavior
+- latest versions
+- deployment limits
+- provider pricing
+- cloud platform behavior
+- current security advisories
+- deprecated APIs
 
 establish the current date first.
 
@@ -227,10 +227,10 @@ Use Context7 when accurate library or API documentation is needed.
 
 When possible:
 
-* identify the exact library,
-* target the installed version,
-* fetch only the relevant documentation,
-* summarize rather than dumping large documentation sections.
+- identify the exact library,
+- target the installed version,
+- fetch only the relevant documentation,
+- summarize rather than dumping large documentation sections.
 
 Repository source code and installed package metadata take precedence when determining the version actually in use.
 
@@ -242,13 +242,13 @@ Default to read-only operations against remote services.
 
 Do not:
 
-* delete production resources,
-* mutate production databases,
-* deploy to production,
-* send emails/messages,
-* modify remote repositories,
-* change cloud infrastructure,
-* make paid API actions,
+- delete production resources,
+- mutate production databases,
+- deploy to production,
+- send emails/messages,
+- modify remote repositories,
+- change cloud infrastructure,
+- make paid API actions,
 
 unless explicitly requested.
 
@@ -267,12 +267,12 @@ Keep ordinary code edits workspace-scoped.
 
 Never print or commit:
 
-* API keys
-* access tokens
-* passwords
-* private keys
-* database credentials
-* session secrets
+- API keys
+- access tokens
+- passwords
+- private keys
+- database credentials
+- session secrets
 
 Never ask the user to paste secrets into chat when a safer authenticated workflow exists.
 
@@ -298,11 +298,11 @@ Use the project's native pnpm/Node.js workflow by default.
 
 Prefer containers when:
 
-* the repository already has a container workflow,
-* a service genuinely requires one,
-* reproducible infrastructure is needed,
-* native dependencies are difficult to isolate,
-* or the user explicitly requests containerization.
+- the repository already has a container workflow,
+- a service genuinely requires one,
+- reproducible infrastructure is needed,
+- native dependencies are difficult to isolate,
+- or the user explicitly requests containerization.
 
 Do not create Dockerfiles, Compose files, or container infrastructure merely because none currently exists.
 
@@ -365,16 +365,16 @@ Do not treat chat history as authoritative when an applicable decision has been 
 
 Update `docs/DECISIONS.md` when there is a meaningful change in:
 
-* product goals
-* success criteria
-* architectural decisions
-* package boundaries
-* important constraints
-* project state
-* current implementation direction
-* significant discoveries
-* unresolved architectural questions
-* major tool outcomes
+- product goals
+- success criteria
+- architectural decisions
+- package boundaries
+- important constraints
+- project state
+- current implementation direction
+- significant discoveries
+- unresolved architectural questions
+- major tool outcomes
 
 Do not update it for routine formatting changes or trivial bug fixes unless they reveal a durable constraint.
 
@@ -398,11 +398,11 @@ Keep to approximately 25 lines or fewer.
 
 Capture:
 
-* Goal
-* Current state
-* Now
-* Next
-* Important open questions
+- Goal
+- Current state
+- Now
+- Next
+- Important open questions
 
 ### `[DECISIONS]`
 
@@ -432,12 +432,12 @@ Record meaningful implementation milestones or changes in direction.
 
 Record findings that affect future implementation, such as:
 
-* framework behavior
-* API limitations
-* performance characteristics
-* unexpected bugs
-* model limitations
-* CEFR evaluation findings
+- framework behavior
+- API limitations
+- performance characteristics
+- unexpected bugs
+- model limitations
+- CEFR evaluation findings
 
 Include concise evidence where useful.
 
@@ -447,9 +447,9 @@ Use when completing a significant feature or implementation plan.
 
 Capture:
 
-* what was achieved,
-* what remains,
-* important lessons.
+- what was achieved,
+- what remains,
+- important lessons.
 
 ### `[WORKING SET]`
 
@@ -465,8 +465,8 @@ Do not paste raw logs.
 
 Every durable ledger entry should include:
 
-* ISO date or timestamp
-* provenance tag
+- ISO date or timestamp
+- provenance tag
 
 Allowed provenance tags:
 
@@ -487,9 +487,9 @@ Never guess.
 
 Keep:
 
-* recent completed items to roughly 7 bullets,
-* working paths to roughly 12,
-* receipts to approximately 10–20 entries.
+- recent completed items to roughly 7 bullets,
+- working paths to roughly 12,
+- receipts to approximately 10–20 entries.
 
 Compress older history into `[MILESTONE]` entries when needed.
 
@@ -550,9 +550,9 @@ Do not claim verification succeeded unless the command actually ran successfully
 
 If verification cannot run:
 
-* state why,
-* report the exact limitation,
-* distinguish it from a successful result.
+- state why,
+- report the exact limitation,
+- distinguish it from a successful result.
 
 Warnings introduced by the change should be addressed where practical.
 
@@ -564,12 +564,12 @@ Existing unrelated warnings should not trigger unrelated refactoring.
 
 Update documentation when a change affects:
 
-* architecture
-* developer setup
-* public APIs
-* environment configuration
-* important behavior
-* durable project decisions
+- architecture
+- developer setup
+- public APIs
+- environment configuration
+- important behavior
+- durable project decisions
 
 Do not update documentation exhaustively for implementation details that users or future contributors do not need.
 
@@ -579,11 +579,11 @@ Avoid duplicating the same architectural truth across several files unless each 
 
 Canonical ownership is:
 
-* `docs/PRODUCT.md` for product goals, scope, UX principles, and planned features.
-* `docs/ARCHITECTURE.md` for repository structure, technology choices, package boundaries, and system architecture.
-* `docs/DECISIONS.md` for durable decisions and current project state.
-* `docs/STYLE.md` — canonical visual language, typography, color palette, layout principles, and UI implementation guidance. Read it before making UI or styling changes.
-* `AGENTS.md` for Codex working rules.
+- `docs/PRODUCT.md` for product goals, scope, UX principles, and planned features.
+- `docs/ARCHITECTURE.md` for repository structure, technology choices, package boundaries, and system architecture.
+- `docs/DECISIONS.md` for durable decisions and current project state.
+- `docs/STYLE.md` — canonical visual language, typography, color palette, layout principles, and UI implementation guidance. Read it before making UI or styling changes.
+- `AGENTS.md` for Codex working rules.
 
 ---
 
@@ -600,10 +600,10 @@ A coding task is complete when:
 7. `docs/DECISIONS.md` is updated if the task changes durable project state.
 8. The final response clearly states:
 
-   * what changed,
-   * where it changed,
-   * verification performed,
-   * anything intentionally left unresolved.
+   - what changed,
+   - where it changed,
+   - verification performed,
+   - anything intentionally left unresolved.
 
 Do not claim a task is fully complete when required verification failed.
 
@@ -615,10 +615,10 @@ Do not duplicate detailed product or architectural decisions here.
 
 Follow:
 
-* `docs/PRODUCT.md` for product direction and MVP scope.
-* `docs/ARCHITECTURE.md` for technology and architecture.
-* `docs/DECISIONS.md` for active and superseded durable decisions.
-* `docs/STYLE.md` — canonical visual language, typography, color palette, layout principles, and UI implementation guidance. Read it before making UI or styling changes.
+- `docs/PRODUCT.md` for product direction and MVP scope.
+- `docs/ARCHITECTURE.md` for technology and architecture.
+- `docs/DECISIONS.md` for active and superseded durable decisions.
+- `docs/STYLE.md` — canonical visual language, typography, color palette, layout principles, and UI implementation guidance. Read it before making UI or styling changes.
 
 Do not replace established project technologies or architectural decisions without explicit approval.
 
@@ -634,14 +634,14 @@ Use the format:
 
 Common types include:
 
-* `feat` — new functionality
-* `fix` — bug fix
-* `refactor` — code restructuring without behavior changes
-* `docs` — documentation changes
-* `test` — test-related changes
-* `chore` — maintenance, tooling, or configuration changes
-* `style` — formatting or styling changes
-* `perf` — performance improvements
+- `feat` — new functionality
+- `fix` — bug fix
+- `refactor` — code restructuring without behavior changes
+- `docs` — documentation changes
+- `test` — test-related changes
+- `chore` — maintenance, tooling, or configuration changes
+- `style` — formatting or styling changes
+- `perf` — performance improvements
 
 Keep the subject concise, imperative, and specific to the completed change.
 
@@ -655,4 +655,3 @@ chore: configure Turborepo workspace
 ```
 
 Provide only one recommended commit message unless multiple commits are clearly warranted.
-

@@ -1,22 +1,63 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { PREFERENCES_STORAGE_KEY, applyPreferences, readPreferences } from "@/lib/preferences";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { PREFERENCES_STORAGE_KEY, applyPreferences, readPreferences } from '@/lib/preferences';
 
-const focusClass = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground";
-const labelClass = "hidden whitespace-nowrap md:inline md:group-data-[collapsed=true]:hidden max-md:group-data-[mobile-open=true]:inline";
+const focusClass =
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground';
+const labelClass =
+  'hidden whitespace-nowrap md:inline md:group-data-[collapsed=true]:hidden max-md:group-data-[mobile-open=true]:inline';
 
-function SidebarIcon({ name }: { name: "new" | "texts" | "login" | "collapse" | "words" | "settings" }) {
+function SidebarIcon({
+  name,
+}: {
+  name: 'new' | 'texts' | 'login' | 'collapse' | 'words' | 'settings';
+}) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0">
-      {name === "new" && <><path d="M14 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9" /><path d="m17 3 4 4-10 10-5 1 1-5L17 3Z" /></>}
-      {name === "texts" && <><path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-2H4V4Z" /><path d="M13 7a3 3 0 0 1 3-3h5v15h-4a4 4 0 0 0-4 2" /></>}
-      {name === "login" && <><path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M3 12h12m-4-4 4 4-4 4" /></>}
-      {name === "words" && <path d="M6 3h12v18l-6-4-6 4V3Z" />}
-      {name === "settings" && <><path d="M4 6h16M4 12h16M4 18h16" /><circle cx="8" cy="6" r="2" fill="var(--paper)" /><circle cx="16" cy="12" r="2" fill="var(--paper)" /><circle cx="10" cy="18" r="2" fill="var(--paper)" /></>}
-      {name === "collapse" && <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16m7-11-3 3 3 3" /></>}
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-5 shrink-0"
+    >
+      {name === 'new' && (
+        <>
+          <path d="M14 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9" />
+          <path d="m17 3 4 4-10 10-5 1 1-5L17 3Z" />
+        </>
+      )}
+      {name === 'texts' && (
+        <>
+          <path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-2H4V4Z" />
+          <path d="M13 7a3 3 0 0 1 3-3h5v15h-4a4 4 0 0 0-4 2" />
+        </>
+      )}
+      {name === 'login' && (
+        <>
+          <path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M3 12h12m-4-4 4 4-4 4" />
+        </>
+      )}
+      {name === 'words' && <path d="M6 3h12v18l-6-4-6 4V3Z" />}
+      {name === 'settings' && (
+        <>
+          <path d="M4 6h16M4 12h16M4 18h16" />
+          <circle cx="8" cy="6" r="2" fill="var(--paper)" />
+          <circle cx="16" cy="12" r="2" fill="var(--paper)" />
+          <circle cx="10" cy="18" r="2" fill="var(--paper)" />
+        </>
+      )}
+      {name === 'collapse' && (
+        <>
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M9 4v16m7-11-3 3 3 3" />
+        </>
+      )}
     </svg>
   );
 }
@@ -28,18 +69,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   const mobileToggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const colorScheme = window.matchMedia("(prefers-color-scheme: dark)");
-    const applySavedPreferences = () => applyPreferences(readPreferences(), document.documentElement, colorScheme.matches);
+    const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    const applySavedPreferences = () =>
+      applyPreferences(readPreferences(), document.documentElement, colorScheme.matches);
     const followStoredPreferences = (event: StorageEvent) => {
       if (event.key === PREFERENCES_STORAGE_KEY) applySavedPreferences();
     };
 
     applySavedPreferences();
-    colorScheme.addEventListener("change", applySavedPreferences);
-    window.addEventListener("storage", followStoredPreferences);
+    colorScheme.addEventListener('change', applySavedPreferences);
+    window.addEventListener('storage', followStoredPreferences);
     return () => {
-      colorScheme.removeEventListener("change", applySavedPreferences);
-      window.removeEventListener("storage", followStoredPreferences);
+      colorScheme.removeEventListener('change', applySavedPreferences);
+      window.removeEventListener('storage', followStoredPreferences);
     };
   }, []);
 
@@ -54,10 +96,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       data-collapsed={collapsed}
       data-mobile-open={mobileOpen}
       onKeyDown={(event) => {
-        if (event.key === "Escape" && mobileOpen) closeMobileSidebar();
+        if (event.key === 'Escape' && mobileOpen) closeMobileSidebar();
       }}
     >
-      <a href="#main-content" className={`sr-only fixed top-4 left-4 z-50 rounded-lg bg-accent px-4 py-3 focus:not-sr-only ${focusClass}`}>
+      <a
+        href="#main-content"
+        className={`sr-only fixed top-4 left-4 z-50 rounded-lg bg-accent px-4 py-3 focus:not-sr-only ${focusClass}`}
+      >
         Skip to content
       </a>
       {mobileOpen && (
@@ -81,46 +126,56 @@ export function AppShell({ children }: { children: ReactNode }) {
           onClick={() => setMobileOpen(false)}
           className={`max-md:hidden max-md:group-data-[mobile-open=true]:flex mb-5 flex h-12 shrink-0 items-center gap-0 rounded-lg px-3 font-serif text-2xl font-semibold tracking-[-0.04em] ${focusClass}`}
         >
-          <span>A</span><span className={labelClass}>rcuate</span>
+          <span>A</span>
+          <span className={labelClass}>rcuate</span>
         </Link>
 
         <button
           type="button"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-expanded={!collapsed}
           aria-controls="app-sidebar"
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           onClick={() => setCollapsed(!collapsed)}
           className={`mb-7 hidden h-11 shrink-0 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-background hover:text-foreground md:flex ${focusClass}`}
         >
-          <span className={collapsed ? "rotate-180" : ""}><SidebarIcon name="collapse" /></span>
+          <span className={collapsed ? 'rotate-180' : ''}>
+            <SidebarIcon name="collapse" />
+          </span>
           <span className={labelClass}>Collapse</span>
         </button>
         <button
           ref={mobileToggleRef}
           type="button"
-          aria-label={mobileOpen ? "Collapse sidebar" : "Expand sidebar"}
+          aria-label={mobileOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           aria-expanded={mobileOpen}
           aria-controls="app-sidebar"
           onClick={() => setMobileOpen(!mobileOpen)}
           className={`mb-0 group-data-[mobile-open=true]:mb-7 flex h-11 shrink-0 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-background md:hidden ${focusClass}`}
         >
-          <span className={mobileOpen ? "" : "rotate-180"}><SidebarIcon name="collapse" /></span>
+          <span className={mobileOpen ? '' : 'rotate-180'}>
+            <SidebarIcon name="collapse" />
+          </span>
           <span className={labelClass}>Collapse</span>
         </button>
 
-        <nav aria-label="Main navigation" className="space-y-2 max-md:hidden max-md:group-data-[mobile-open=true]:block">
-          {([
-            { href: "/", label: "New text", icon: "new" },
-            { href: "/texts", label: "My texts", icon: "texts" },
-            { href: "/saved-words", label: "Saved words", icon: "words" },
-            { href: "/settings", label: "Settings", icon: "settings" },
-          ] as const).map(({ href, label, icon }) => (
+        <nav
+          aria-label="Main navigation"
+          className="space-y-2 max-md:hidden max-md:group-data-[mobile-open=true]:block"
+        >
+          {(
+            [
+              { href: '/', label: 'New text', icon: 'new' },
+              { href: '/texts', label: 'My texts', icon: 'texts' },
+              { href: '/saved-words', label: 'Saved words', icon: 'words' },
+              { href: '/settings', label: 'Settings', icon: 'settings' },
+            ] as const
+          ).map(({ href, label, icon }) => (
             <Link
               key={href}
               href={href}
               aria-label={label}
-              aria-current={pathname === href ? "page" : undefined}
+              aria-current={pathname === href ? 'page' : undefined}
               title={label}
               onClick={() => setMobileOpen(false)}
               className={`flex h-12 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors hover:bg-background aria-[current=page]:bg-warm-highlight aria-[current=page]:text-foreground ${focusClass}`}
@@ -147,7 +202,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </aside>
-      <div id="main-content" tabIndex={-1} className="min-h-dvh pt-20 outline-none md:px-24 md:pt-0">
+      <div
+        id="main-content"
+        tabIndex={-1}
+        className="min-h-dvh pt-20 outline-none md:px-24 md:pt-0"
+      >
         {children}
       </div>
     </div>

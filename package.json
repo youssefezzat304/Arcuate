@@ -6,9 +6,12 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
-    "test": "pnpm --filter web test"
+    "test": "pnpm --filter web test",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "devDependencies": {
+    "prettier": "^3.9.6",
     "turbo": "^2"
   },
   "packageManager": "pnpm@11.25.0"

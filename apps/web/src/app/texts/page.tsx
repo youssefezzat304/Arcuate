@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
-import { TextLibrary } from "@/components/text-library";
+import type { Metadata } from 'next';
+import { TextLibrary } from '@/components/text-library';
 
 export const metadata: Metadata = {
-  title: "My texts · Arcuate",
-  description: "Your personal reading collection.",
+  title: 'My texts · Arcuate',
+  description: 'Your personal reading collection.',
 };
 
 export default function MyTextsPage() {

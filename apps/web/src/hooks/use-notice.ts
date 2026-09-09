@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 
 export function useNotice() {
   const [notice, setNotice] = useState<{ message: string } | null>(null);

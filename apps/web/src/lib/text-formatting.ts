@@ -1,39 +1,45 @@
-import { READER_SHORTCUTS } from "./reader-shortcuts.ts";
-import { z } from "zod";
+import { READER_SHORTCUTS } from './reader-shortcuts.ts';
+import { z } from 'zod';
 
 export const TEXT_COLOR_VALUES = [
-  "var(--color-yellow)",
-  "var(--color-rose)",
-  "var(--color-green)",
-  "var(--color-blue)",
-  "var(--color-purple)",
+  'var(--color-yellow)',
+  'var(--color-rose)',
+  'var(--color-green)',
+  'var(--color-blue)',
+  'var(--color-purple)',
 ] as const;
 
 export const HIGHLIGHT_COLOR_VALUES = [
-  "var(--highlight-yellow)",
-  "var(--highlight-rose)",
-  "var(--highlight-green)",
-  "var(--highlight-blue)",
-  "var(--highlight-purple)",
+  'var(--highlight-yellow)',
+  'var(--highlight-rose)',
+  'var(--highlight-green)',
+  'var(--highlight-blue)',
+  'var(--highlight-purple)',
 ] as const;
 
-export const textFormatSchema = z.object({
-  bold: z.boolean().optional(),
-  italic: z.boolean().optional(),
-  underline: z.boolean().optional(),
-  strikethrough: z.boolean().optional(),
-  color: z.enum(TEXT_COLOR_VALUES).optional(),
-  highlight: z.enum(HIGHLIGHT_COLOR_VALUES).optional(),
-}).strict();
+export const textFormatSchema = z
+  .object({
+    bold: z.boolean().optional(),
+    italic: z.boolean().optional(),
+    underline: z.boolean().optional(),
+    strikethrough: z.boolean().optional(),
+    color: z.enum(TEXT_COLOR_VALUES).optional(),
+    highlight: z.enum(HIGHLIGHT_COLOR_VALUES).optional(),
+  })
+  .strict();
 
 export type TextFormat = z.infer<typeof textFormatSchema>;
 
-export const textAnnotationSchema = z.object({
-  start: z.number().int().nonnegative(),
-  end: z.number().int().positive(),
-  format: textFormatSchema,
-}).refine(({ start, end }) => end > start, { message: "Annotation end must follow its start." })
-  .refine(({ format }) => Object.values(format).some(Boolean), { message: "Annotation formatting cannot be empty." });
+export const textAnnotationSchema = z
+  .object({
+    start: z.number().int().nonnegative(),
+    end: z.number().int().positive(),
+    format: textFormatSchema,
+  })
+  .refine(({ start, end }) => end > start, { message: 'Annotation end must follow its start.' })
+  .refine(({ format }) => Object.values(format).some(Boolean), {
+    message: 'Annotation formatting cannot be empty.',
+  });
 
 export type TextAnnotation = z.infer<typeof textAnnotationSchema>;
 
@@ -58,7 +64,8 @@ export function blocksToAnnotations(blocks: TextRun[][]): TextAnnotation[] {
     if (run.format.strikethrough) format.strikethrough = true;
     if (run.format.color) format.color = run.format.color;
     if (run.format.highlight) format.highlight = run.format.highlight;
-    if (Object.keys(format).length > 0) annotations.push({ start: offset, end: offset + run.text.length, format });
+    if (Object.keys(format).length > 0)
+      annotations.push({ start: offset, end: offset + run.text.length, format });
     offset += run.text.length;
   }
   return annotations;
@@ -90,8 +97,12 @@ export function formatSelection(
     }
     return result.reduce<TextRun[]>((merged, run) => {
       const previous = merged.at(-1);
-      if (previous && (Object.keys({ ...previous.format, ...run.format }) as (keyof TextFormat)[])
-        .every((key) => previous.format[key] === run.format[key])) {
+      if (
+        previous &&
+        (Object.keys({ ...previous.format, ...run.format }) as (keyof TextFormat)[]).every(
+          (key) => previous.format[key] === run.format[key],
+        )
+      ) {
         merged[merged.length - 1] = { ...previous, text: previous.text + run.text };
       } else merged.push(run);
       return merged;
@@ -99,7 +110,11 @@ export function formatSelection(
   });
 }
 
-export function selectionHasFormat(blocks: TextRun[][], selection: TextSelection, key: keyof TextFormat) {
+export function selectionHasFormat(
+  blocks: TextRun[][],
+  selection: TextSelection,
+  key: keyof TextFormat,
+) {
   let offset = 0;
   return blocks.flat().every((run) => {
     const start = offset;
@@ -112,10 +127,10 @@ export function shortcutFormatPatch(
   key: string,
   blocks: TextRun[][],
   selection: TextSelection,
-  lastHighlight: NonNullable<TextFormat["highlight"]>,
+  lastHighlight: NonNullable<TextFormat['highlight']>,
 ): TextFormat | null {
   const shortcut = READER_SHORTCUTS.find((item) => item.key === key.toLocaleLowerCase());
   if (!shortcut) return null;
-  if (shortcut.format === "highlight") return { highlight: lastHighlight };
+  if (shortcut.format === 'highlight') return { highlight: lastHighlight };
   return { [shortcut.format]: !selectionHasFormat(blocks, selection, shortcut.format) };
 }

@@ -1,9 +1,9 @@
-import { GenerationForm } from "@/components/generation-form";
-import { PromptTextarea } from "@/components/prompt-textarea";
-import { SettingsDropdown } from "@/components/settings-dropdown";
-import { TextLengthSlider } from "@/components/text-length-slider";
-import { CEFR_LEVELS } from "@/lib/reading-settings";
-import { SUPPORTED_LANGUAGES } from "@/lib/supported-languages";
+import { GenerationForm } from '@/components/generation-form';
+import { PromptTextarea } from '@/components/prompt-textarea';
+import { SettingsDropdown } from '@/components/settings-dropdown';
+import { TextLengthSlider } from '@/components/text-length-slider';
+import { CEFR_LEVELS } from '@/lib/reading-settings';
+import { SUPPORTED_LANGUAGES } from '@/lib/supported-languages';
 
 export default function Home() {
   return (
@@ -47,9 +47,31 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <SettingsDropdown name="language" label="Language" defaultValue="de" options={SUPPORTED_LANGUAGES.map((language) => ({ value: language.code, label: language.name }))} />
-              <SettingsDropdown name="level" label="CEFR level" defaultValue="A2" options={CEFR_LEVELS.map((level) => ({ value: level, label: level }))} />
+              <SettingsDropdown
+                name="language"
+                label="Language"
+                defaultValue="de"
+                options={SUPPORTED_LANGUAGES.map((language) => ({
+                  value: language.code,
+                  label: language.name,
+                }))}
+              />
+              <SettingsDropdown
+                name="level"
+                label="CEFR level"
+                defaultValue="A2"
+                options={CEFR_LEVELS.map((level) => ({ value: level, label: level }))}
+              />
 
+              <SettingsDropdown
+                name="translationLanguage"
+                label="Translation"
+                defaultValue="en"
+                options={SUPPORTED_LANGUAGES.map((language) => ({
+                  value: language.code,
+                  label: language.name,
+                }))}
+              />
               <TextLengthSlider />
             </div>
           </div>

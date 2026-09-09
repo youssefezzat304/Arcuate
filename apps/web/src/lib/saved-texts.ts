@@ -1,35 +1,50 @@
-import { z } from "zod";
-import { generatedTextSchema } from "@arcuate/ai/schema";
-import { analysisFitsText, analyzeTextExact } from "@arcuate/language";
-import { textAnalysisSchema } from "@arcuate/language/schema";
-import { createTextRequestSchema } from "./reading-settings.ts";
-import { textAnnotationSchema, type TextAnnotation } from "./text-formatting.ts";
+import { z } from 'zod';
+import { generatedTextSchema, translationFitsText } from '@arcuate/ai/schema';
+import { analysisFitsText, analyzeTextExact } from '@arcuate/language';
+import { textAnalysisSchema } from '@arcuate/language/schema';
+import { createTextRequestSchema } from './reading-settings.ts';
+import { textAnnotationSchema, type TextAnnotation } from './text-formatting.ts';
 
 export function countCharacters(paragraphs: string[]) {
-  const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
-  return Array.from(segmenter.segment(paragraphs.join("\n\n"))).length;
+  const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+  return Array.from(segmenter.segment(paragraphs.join('\n\n'))).length;
 }
 
-export const savedTextSchema = generatedTextSchema.extend({
-  id: z.uuid(),
-  createdAt: z.iso.datetime(),
-  // Preserve the original preset on older readings without accepting it for new requests.
-  settings: createTextRequestSchema.extend({
-    length: z.union([createTextRequestSchema.shape.length, z.enum(["short", "medium", "long"])]),
-  }),
-  analysis: textAnalysisSchema.optional(),
-  annotations: z.array(textAnnotationSchema).max(20_000).optional().default([]),
-}).transform((text) => ({
-  ...text,
-  analysis: text.analysis && analysisFitsText(text.analysis, text.paragraphs, text.settings.language)
-    ? text.analysis
-    : analyzeTextExact(text.paragraphs, text.settings.language),
-  annotations: text.annotations.filter(({ end }) => end <= text.title.length + text.paragraphs.reduce((length, paragraph) => length + paragraph.length, 0)),
-  // Derive the count from the body so older word-count records remain readable.
-  characterCount: countCharacters(text.paragraphs),
-}));
+export const savedTextSchema = generatedTextSchema
+  .extend({
+    id: z.uuid(),
+    createdAt: z.iso.datetime(),
+    // Preserve the original preset on older readings without accepting it for new requests.
+    settings: createTextRequestSchema.extend({
+      length: z.union([createTextRequestSchema.shape.length, z.enum(['short', 'medium', 'long'])]),
+    }),
+    analysis: textAnalysisSchema.optional(),
+    annotations: z.array(textAnnotationSchema).max(20_000).optional().default([]),
+  })
+  .refine(
+    (text) =>
+      !text.translation ||
+      (translationFitsText(text.translation, text.paragraphs) &&
+        text.translation.language === text.settings.translationLanguage),
+    'Translation must align with the original text and selected language.',
+  )
+  .transform((text) => ({
+    ...text,
+    analysis:
+      text.analysis && analysisFitsText(text.analysis, text.paragraphs, text.settings.language)
+        ? text.analysis
+        : analyzeTextExact(text.paragraphs, text.settings.language),
+    annotations: text.annotations.filter(
+      ({ end }) =>
+        end <=
+        text.title.length +
+          text.paragraphs.reduce((length, paragraph) => length + paragraph.length, 0),
+    ),
+    // Derive the count from the body so older word-count records remain readable.
+    characterCount: countCharacters(text.paragraphs),
+  }));
 export type SavedText = z.infer<typeof savedTextSchema>;
-const prefix = "arcuate:text:v1:";
+const prefix = 'arcuate:text:v1:';
 
 export function saveText(text: SavedText) {
   const validated = savedTextSchema.parse(text);
@@ -42,16 +57,23 @@ export function readText(id: string): SavedText | null {
   if (raw === null) return null;
   const stored: unknown = JSON.parse(raw);
   const text = savedTextSchema.parse(stored);
-  if (typeof stored === "object" && stored !== null && (!("analysis" in stored) || !("annotations" in stored))) {
-    try { localStorage.setItem(prefix + id, JSON.stringify(text)); }
-    catch { /* A failed lazy upgrade must not make an existing text unreadable. */ }
+  if (
+    typeof stored === 'object' &&
+    stored !== null &&
+    (!('analysis' in stored) || !('annotations' in stored))
+  ) {
+    try {
+      localStorage.setItem(prefix + id, JSON.stringify(text));
+    } catch {
+      /* A failed lazy upgrade must not make an existing text unreadable. */
+    }
   }
   return text;
 }
 
 export function saveTextAnnotations(id: string, annotations: TextAnnotation[]) {
   const text = readText(id);
-  if (!text) throw new Error("This text is no longer saved in this browser.");
+  if (!text) throw new Error('This text is no longer saved in this browser.');
   const updated = savedTextSchema.parse({ ...text, annotations });
   saveText(updated);
   return updated;

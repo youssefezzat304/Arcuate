@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export type Lexeme = {
   lemma: string;
@@ -26,12 +26,14 @@ export const lexemeSchema: z.ZodType<Lexeme> = z.object({
   morphology: z.record(z.string(), z.string()).optional(),
 });
 
-export const analyzedTokenSchema: z.ZodType<AnalyzedToken> = z.object({
-  start: z.number().int().nonnegative(),
-  end: z.number().int().positive(),
-  sentenceIndex: z.number().int().nonnegative(),
-  lexemes: z.array(lexemeSchema).min(1),
-}).refine(({ start, end }) => end > start, "Token end must follow its start.");
+export const analyzedTokenSchema: z.ZodType<AnalyzedToken> = z
+  .object({
+    start: z.number().int().nonnegative(),
+    end: z.number().int().positive(),
+    sentenceIndex: z.number().int().nonnegative(),
+    lexemes: z.array(lexemeSchema).min(1),
+  })
+  .refine(({ start, end }) => end > start, 'Token end must follow its start.');
 
 export const textAnalysisSchema: z.ZodType<TextAnalysis> = z.object({
   language: z.string().min(1),

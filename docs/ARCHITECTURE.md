@@ -3,37 +3,42 @@
 ## Generation
 
 apps/web
-    ↓
+↓
 Next.js route handler
-    ↓
+↓
 packages/ai
-    ↓
+↓
 LLM provider
 
 ## Validation
 
 LLM output
-    ↓
+↓
 packages/cefr
-    ↓
+↓
 valid
-    ├─ yes → return
-    └─ no  → rewrite
+├─ yes → return
+└─ no → rewrite
 
 ## Package boundaries
 
 ### packages/ai
+
 Responsible for:
+
 - prompts
 - providers
 - structured generation
 
 Must not contain:
+
 - React UI
 - database logic
 
 ### packages/cefr
+
 Responsible for:
+
 - vocabulary analysis
 - grammar analysis
 - readability
@@ -42,7 +47,9 @@ Responsible for:
 Must not depend on a particular LLM provider.
 
 ### packages/language
+
 Responsible for:
+
 - validated token, lexeme, and text-analysis types
 - locale-aware exact tokenization and normalization
 - provider-neutral analyzer, translation, and pronunciation contracts
@@ -88,7 +95,7 @@ Corrupt records are reported and retained; storage failures allow retrying the
 save without another generation request. Clearing site data removes the library.
 
 The CEFR validation/rewrite pipeline above remains planned. Current levels and
-character counts are prompt targets; `Intl.Segmenter` with grapheme granularity measures the returned body, including spaces and paragraph breaks but excluding the title. Counts are derived on validation, so older word-count records remain readable. Reader formatting is stored per text in localStorage and restored from validated offset annotations. Clearing annotations writes an empty annotation set without changing saved-word records or their independent rendering overlay. Selection formatting supports Control-key shortcuts for bold, last-color highlighting, underline, and strikethrough; shortcut handling is scoped to active reader selections. Authentication, cloud persistence, translation, and distributed abuse controls remain unimplemented.
+character counts are prompt targets; `Intl.Segmenter` with grapheme granularity measures the returned body, including spaces and paragraph breaks but excluding the title. Counts are derived on validation, so older word-count records remain readable. Reader formatting is stored per text in localStorage and restored from validated offset annotations. Clearing annotations writes an empty annotation set without changing saved-word records or their independent rendering overlay. Selection formatting supports Control-key shortcuts for bold, last-color highlighting, underline, and strikethrough; shortcut handling is scoped to active reader selections. Authentication, cloud persistence, and distributed abuse controls remain unimplemented.
 
 ## Local setup and verification
 
@@ -153,3 +160,31 @@ widget measures active intervals with `performance.now()` so delayed rendering
 does not slow the stopwatch. Pause excludes inactive time; the active timer is
 component-local. Storage failures preserve the paused session for another save
 attempt, and invalid histories are reported without overwriting them.
+
+## Bilingual generation and contextual lookups
+
+When `translationLanguage` is supplied, `packages/ai` requests a translated title
+and paragraphs of source/translation sentence pairs in the same Gemini response.
+Code assembles canonical source paragraphs and computes UTF-16 sentence offsets;
+the model does not generate offsets. Saved records optionally contain
+`translation: { language, title, paragraphs: [{ sentences: [{ start, end, text }] }] }`.
+Validation requires complete, ordered alignment and matching translation language.
+Legacy records can omit translation. Source counts and annotations remain attached
+to the original text. The reader keeps hidden original runs while showing translated
+spans, excludes translation/metadata from selection offsets, and rejects annotation
+selections crossing a revealed translation.
+
+`POST /api/words/explain` validates the selected surface against its offsets in a
+bounded source paragraph, language pair, and CEFR level. `packages/ai` owns the
+Flash-Lite prompt and structured output for meaning, context, grammar, and three
+translated examples. `GEMINI_LOOKUP_MODEL` defaults to `gemini-3.5-flash-lite` and
+uses the existing server-only `GEMINI_API_KEY`. No dictionary or local model is used.
+
+Lookups have a 30-second provider timeout, a 35-second client timeout, no automatic
+retries, and a bounded output. Closing or changing a popover aborts the browser
+request and suppresses stale results; provider work already started may continue.
+Browser memory caches 100 contextual results. The server process caches 100 results
+for 30 minutes, keyed by input, model, and prompt version, and limits work to four
+concurrent calls and 60 uncached requests per minute. These limits are local to one
+process, not production authentication or distributed abuse prevention. Cache hits
+never reuse an explanation solely because the surface word matches.

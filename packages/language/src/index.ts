@@ -1,16 +1,24 @@
-import { textAnalysisSchema, type AnalyzedToken, type LanguageAnalyzer, type TextAnalysis } from "./schema.ts";
+import {
+  textAnalysisSchema,
+  type AnalyzedToken,
+  type LanguageAnalyzer,
+  type TextAnalysis,
+} from './schema.ts';
 
-export * from "./schema.ts";
+export * from './schema.ts';
 
 export const TEXT_ANALYSIS_VERSION = 1;
 
 export function normalizeToken(value: string, language?: string) {
-  return value.normalize("NFC").toLocaleLowerCase(language);
+  return value.normalize('NFC').toLocaleLowerCase(language);
 }
 
 function sentenceStarts(text: string, language: string) {
   try {
-    return Array.from(new Intl.Segmenter(language, { granularity: "sentence" }).segment(text), ({ index }) => index);
+    return Array.from(
+      new Intl.Segmenter(language, { granularity: 'sentence' }).segment(text),
+      ({ index }) => index,
+    );
   } catch {
     return [0];
   }
@@ -26,7 +34,7 @@ export function analyzeTextExact(paragraphs: string[], language: string): TextAn
   const analyzed = paragraphs.map((paragraph) => {
     const starts = sentenceStarts(paragraph, language);
     try {
-      return Array.from(new Intl.Segmenter(language, { granularity: "word" }).segment(paragraph))
+      return Array.from(new Intl.Segmenter(language, { granularity: 'word' }).segment(paragraph))
         .filter(({ isWordLike }) => isWordLike)
         .map<AnalyzedToken>(({ segment, index }) => ({
           start: index,
@@ -39,8 +47,12 @@ export function analyzeTextExact(paragraphs: string[], language: string): TextAn
       const matcher = /[\p{L}\p{N}\p{M}]+/gu;
       for (const match of paragraph.matchAll(matcher)) {
         const start = match.index;
-        tokens.push({ start, end: start + match[0].length, sentenceIndex: 0,
-          lexemes: [{ lemma: normalizeToken(match[0], language) }] });
+        tokens.push({
+          start,
+          end: start + match[0].length,
+          sentenceIndex: 0,
+          lexemes: [{ lemma: normalizeToken(match[0], language) }],
+        });
       }
       return tokens;
     }
@@ -48,31 +60,36 @@ export function analyzeTextExact(paragraphs: string[], language: string): TextAn
 
   return textAnalysisSchema.parse({
     language,
-    analyzer: "intl-segmenter",
+    analyzer: 'intl-segmenter',
     version: TEXT_ANALYSIS_VERSION,
     paragraphs: analyzed,
   });
 }
 
 export function analysisFitsText(analysis: TextAnalysis, paragraphs: string[], language: string) {
-  if (analysis.language !== language || analysis.paragraphs.length !== paragraphs.length) return false;
+  if (analysis.language !== language || analysis.paragraphs.length !== paragraphs.length)
+    return false;
   return analysis.paragraphs.every((tokens, paragraphIndex) => {
     const paragraph = paragraphs[paragraphIndex]!;
     let previousEnd = 0;
     return tokens.every((token) => {
-      const valid = token.start >= previousEnd && token.end <= paragraph.length && token.end > token.start;
+      const valid =
+        token.start >= previousEnd && token.end <= paragraph.length && token.end > token.start;
       previousEnd = token.end;
       return valid;
     });
   });
 }
 
-export function createStanzaAnalyzer(endpoint: string, fetcher: typeof fetch = fetch): LanguageAnalyzer {
+export function createStanzaAnalyzer(
+  endpoint: string,
+  fetcher: typeof fetch = fetch,
+): LanguageAnalyzer {
   return {
     async analyze(paragraphs, language) {
-      const response = await fetcher(new URL("/analyze", endpoint), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetcher(new URL('/analyze', endpoint), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ paragraphs, language }),
         signal: AbortSignal.timeout(30_000),
       });
@@ -89,7 +106,10 @@ export async function analyzeText(
 ) {
   if (options.stanzaEndpoint) {
     try {
-      return await createStanzaAnalyzer(options.stanzaEndpoint, options.fetcher).analyze(paragraphs, language);
+      return await createStanzaAnalyzer(options.stanzaEndpoint, options.fetcher).analyze(
+        paragraphs,
+        language,
+      );
     } catch {
       // Linguistic enrichment must never make a generated text unreadable.
     }

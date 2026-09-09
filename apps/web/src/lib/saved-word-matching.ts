@@ -1,16 +1,24 @@
-import { normalizeToken, type AnalyzedToken } from "@arcuate/language";
-import type { SavedWord } from "./saved-words.ts";
+import { normalizeToken, type AnalyzedToken } from '@arcuate/language';
+import type { SavedWord } from './saved-words.ts';
 
 export type TextRange = { start: number; end: number };
 
-function lemmaMatches(token: AnalyzedToken, lemma: string, partOfSpeech: string | undefined, language: string) {
+function lemmaMatches(
+  token: AnalyzedToken,
+  lemma: string,
+  partOfSpeech: string | undefined,
+  language: string,
+) {
   const normalizedLemma = normalizeToken(lemma, language);
-  return token.lexemes.some((lexeme) => normalizeToken(lexeme.lemma, language) === normalizedLemma &&
-    (!partOfSpeech || !lexeme.partOfSpeech || lexeme.partOfSpeech === partOfSpeech));
+  return token.lexemes.some(
+    (lexeme) =>
+      normalizeToken(lexeme.lemma, language) === normalizedLemma &&
+      (!partOfSpeech || !lexeme.partOfSpeech || lexeme.partOfSpeech === partOfSpeech),
+  );
 }
 
 function normalizePhrase(value: string, language: string) {
-  return normalizeToken(value, language).replace(/\s+/g, " ").trim();
+  return normalizeToken(value, language).replace(/\s+/g, ' ').trim();
 }
 
 export function findSavedWordRanges(
@@ -27,9 +35,16 @@ export function findSavedWordRanges(
 
     if (lemmas.length) {
       for (let index = 0; index <= tokens.length - lemmas.length; index++) {
-        if (lemmas.every((lemma, lemmaIndex) => lemmaMatches(
-          tokens[index + lemmaIndex]!, lemma, lemmas.length === 1 ? saved.partOfSpeech : undefined, language,
-        ))) {
+        if (
+          lemmas.every((lemma, lemmaIndex) =>
+            lemmaMatches(
+              tokens[index + lemmaIndex]!,
+              lemma,
+              lemmas.length === 1 ? saved.partOfSpeech : undefined,
+              language,
+            ),
+          )
+        ) {
           ranges.push({ start: tokens[index]!.start, end: tokens[index + lemmas.length - 1]!.end });
         }
       }
@@ -49,5 +64,8 @@ export function findSavedWordRanges(
 
   return ranges
     .sort((left, right) => left.start - right.start || left.end - right.end)
-    .filter((range, index, all) => index === 0 || range.start !== all[index - 1]!.start || range.end !== all[index - 1]!.end);
+    .filter(
+      (range, index, all) =>
+        index === 0 || range.start !== all[index - 1]!.start || range.end !== all[index - 1]!.end,
+    );
 }

@@ -5,7 +5,7 @@
 - 2026-09-06 [CODE] Current state: Gemini generation replaces mock content; validated texts are saved in browser localStorage and listed in My texts.
 - 2026-09-07 [CODE] Now: saved words are recognized across readings, reader annotations persist per text, and Settings provides browser-local display preferences.
 - 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
-- 2026-09-06 [USER] Provider: Gemini; a slider requests 2,000–20,000 characters in steps of 2,000 with no translation.
+- 2026-09-08 [CODE] Provider: Gemini generation with optional aligned translations; Flash-Lite supplies contextual word explanations.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
 
 [DECISIONS]
@@ -109,6 +109,11 @@ Sidebar toggling must leave every page centered and stationary. Add a collapsibl
 2026-09-08 [CODE] Closed mobile navigation is a compact floating control; expanded navigation overlays the page.
 2026-09-08 [CODE] The timer uses monotonic elapsed intervals, keeps all-time best beyond the recent-ten window, and falls above the article when the right margin is too narrow.
 
+D024 ACTIVE — 2026-09-08 [USER]
+Generate source text and selected-language translation in one Gemini response. Reveal sentence translations with a draggable circle; double-click changes to paragraph mode; single-click restores originals. Clicking a source word opens meaning, context, grammar, and three examples from Gemini Flash-Lite.
+2026-09-08 [CODE] Source sentences are assembled into canonical paragraphs and translations use code-derived offsets. Bounded contextual caches, request limits, and server-only credentials support the first version. Existing texts remain readable; they use English for word explanations and need regeneration for aligned translations. No dictionary or local model is introduced.
+2026-09-08 [USER] The circle is symbol-only and behaves like an inventory item: press and hold to move it, highlight the sentence or paragraph under it, reveal that target immediately on release, and return the circle home after every drop.
+
 [PROGRESS]
 
 - 2026-09-07 [CODE] Added exact and Stanza-backed language analysis, lazy text enrichment, linguistic saved-word identity, and reactive cross-text highlighting.
@@ -127,6 +132,7 @@ Sidebar toggling must leave every page centered and stationary. Add a collapsibl
 
 [DISCOVERIES]
 
+- 2026-09-08 [TOOL] Gemini 3.6 Flash rejected the bilingual structured-output schema with HTTP 400 when both nested array levels advertised `maxItems: 300`. Omitting provider-facing `maxItems` from the bilingual schema resolves the rejection; post-response Zod validation continues to enforce the limits.
 - 2026-09-06 [TOOL] Model listing included Gemini 2.5 Flash, but generation rejected it for new users and recommended Gemini 3.6 Flash. Default updated to 3.6 Flash; GEMINI_MODEL remains configurable.
 
 - 2026-09-03 [TOOL] The initial lint command passed.
@@ -170,6 +176,8 @@ Sidebar toggling must leave every page centered and stationary. Add a collapsibl
 
 [RECEIPTS]
 
+- 2026-09-09 [TOOL] Translation orb interaction: 47 tests, lint, typecheck, and production build passed. Browser checks verified symbol-only sentence/paragraph modes, automatic translation on drop, single-click restore, and return-to-home after both sentence and paragraph drops.
+- 2026-09-08 [TOOL] Bilingual generation fix: 47 tests, lint, typecheck, and production build passed. Lint retained one pre-existing unused-variable warning in `translation.test.mjs`. A live Gemini request returned three source paragraphs with three aligned translation paragraphs.
 - 2026-09-03 [TOOL] `pnpm lint` passed before foundation changes.
 - 2026-09-03 [TOOL] `pnpm build` failed before foundation changes because Google Fonts was unavailable.
 - 2026-09-03 [TOOL] `pnpm install` recognized both workspace projects and confirmed the root lockfile was current.

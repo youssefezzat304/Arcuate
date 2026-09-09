@@ -38,7 +38,7 @@ The colors are inspired by the provided reference palette and should be treated 
 ## Page background
 
 ```css
---background: #EAEDF2;
+--background: #eaedf2;
 ```
 
 A very light cool gray.
@@ -50,7 +50,7 @@ Avoid harsh pure white as the default application background when a softer neutr
 ## Paper / primary surface
 
 ```css
---paper: #FCFBF7;
+--paper: #fcfbf7;
 ```
 
 A warm off-white.
@@ -72,7 +72,7 @@ Use instead of pure black for most primary text and strong visual elements.
 ## Secondary dark
 
 ```css
---ink-secondary: #31312F;
+--ink-secondary: #31312f;
 ```
 
 A softer charcoal suitable for secondary text and subdued dark elements.
@@ -82,7 +82,7 @@ A softer charcoal suitable for secondary text and subdued dark elements.
 ## Muted warm neutral
 
 ```css
---muted-warm: #BBAF92;
+--muted-warm: #bbaf92;
 ```
 
 Use sparingly for muted information, subtle accents, and secondary visual details.
@@ -92,7 +92,7 @@ Use sparingly for muted information, subtle accents, and secondary visual detail
 ## Warm highlight
 
 ```css
---warm-highlight: #E8CF90;
+--warm-highlight: #e8cf90;
 ```
 
 A pale, desaturated warm yellow.
@@ -104,7 +104,7 @@ Suitable for subtle emphasis and highlighted content.
 ## Primary accent
 
 ```css
---accent: #F6BF13;
+--accent: #f6bf13;
 ```
 
 A warm printed yellow.
@@ -139,7 +139,7 @@ the bright light-mode annotation palette directly on dark reading surfaces.
 ## Border / divider
 
 ```css
---border: #D8D8D4;
+--border: #d8d8d4;
 ```
 
 A quiet neutral for subtle separators and control boundaries when needed.
@@ -167,16 +167,16 @@ Map these tokens into the Tailwind/shadcn theme where practical.
 Prefer semantic utilities such as:
 
 ```tsx
-className="bg-background text-foreground"
-className="bg-paper"
-className="border-border"
-className="bg-accent text-accent-foreground"
+className = 'bg-background text-foreground';
+className = 'bg-paper';
+className = 'border-border';
+className = 'bg-accent text-accent-foreground';
 ```
 
 rather than:
 
 ```tsx
-className="bg-[#FCFBF7] text-[#161616]"
+className = 'bg-[#FCFBF7] text-[#161616]';
 ```
 
 unless there is a strong reason to do otherwise.
@@ -546,13 +546,13 @@ The color palette and visual system should be represented through shared theme t
 Prefer:
 
 ```tsx
-bg-background
-bg-paper
-text-foreground
-text-muted-foreground
-bg-accent
-text-accent-foreground
-border-border
+bg - background;
+bg - paper;
+text - foreground;
+text - muted - foreground;
+bg - accent;
+text - accent - foreground;
+border - border;
 ```
 
 instead of repeating literal colors.
@@ -630,3 +630,9 @@ Before considering a UI implementation visually complete, ask:
 The target is:
 
 **elegant serif typography, understated sans-serif utility text, muted print-like colors, flat graphics, restrained effects, and a calm retro-editorial atmosphere.**
+
+The reader translation circle uses the yellow accent for sentence mode and a
+muted teal (`--translation-paragraph`) for paragraph mode, with explicit symbols
+and labels so color is not the only mode indicator. Word explanations use the
+paper surface with a bounded, scrollable popover placed above the word when space
+permits, otherwise clamped within the viewport.

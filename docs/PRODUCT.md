@@ -10,23 +10,22 @@ The generated text should respect the selected language and CEFR level while rem
 
 Example:
 
-* Target language: German
-* Level: A2
-* Topic: How the Internet works
-* Length: 4,000-character target
-* Words to use: optional list of vocabulary the learner wants included
+- Target language: German
+- Level: A2
+- Topic: How the Internet works
+- Length: 4,000-character target
+- Words to use: optional list of vocabulary the learner wants included
 
 ## MVP
 
 The MVP includes:
 
-* text generation from a user-provided topic
-* CEFR level selection (`A1`–`C2`)
-* target language selection
-* text length selection
-* optional vocabulary words to include
-* reader view
-
+- text generation from a user-provided topic
+- CEFR level selection (`A1`–`C2`)
+- target language selection
+- text length selection
+- optional vocabulary words to include
+- reader view
 
 ## Reading library
 
@@ -39,8 +38,9 @@ Account holders will eventually have cloud storage; authentication is deferred.
 Gemini generates the title and body in the selected language at the requested
 CEFR level. Length is selected with a slider from 2,000 to 20,000 characters in 2,000-character
 steps, defaulting to 4,000. Language and CEFR settings use custom, keyboard-accessible dropdowns. Actual counts are displayed; exact length and CEFR conformity are
-not independently enforced yet. Translation is deferred and has no current UI
-or generation input.
+not independently enforced yet. New text includes a translation-language dropdown,
+defaulting to English. Gemini returns the source and aligned sentence translations
+in one response; translations do not count toward the source length target.
 
 Character counts include spaces, punctuation, and paragraph breaks, exclude the title, and count Unicode grapheme clusters (user-perceived characters).
 
@@ -62,8 +62,8 @@ Reader and list status popups use the yellow accent and disappear after three se
 Saved words receive a bold, warm-underlined treatment everywhere they appear in
 texts of the same language. Locale-aware exact-token matching is always
 available. When the optional language-analysis service is configured, lemma and
-part-of-speech annotations also allow inflected forms to match. Translation,
-pronunciation, and grammar details remain planned uses of the same token data.
+part-of-speech annotations also allow inflected forms to match. Contextual word
+explanations are available on click; pronunciation remains planned.
 
 ## Text annotations
 
@@ -104,3 +104,26 @@ an expand control.
 The shortest completed session and ten most recent sessions persist per reading
 in this browser. Best time remains available even after its session leaves the
 recent ten. Unfinished sessions last only while the reading stays open.
+
+## Translation and word explanations
+
+New bilingual readings have a floating yellow translation circle. Drag and drop
+it onto a sentence to reveal that sentence's saved translation. The circle is
+symbol-only and follows a press-and-hold gesture. A sentence highlights while the
+yellow circle overlaps it; releasing reveals the translation and returns the circle
+to its original position. Double-click switches to teal paragraph mode, where the
+whole paragraph highlights and is revealed on drop. A single click restores all
+revealed source text. Keyboard controls are documented in the reader's info dialog.
+The circle can be dragged with a pointer or touch. Translation visibility is
+session-only; original text and saved annotations remain unchanged.
+
+Click a source word for a popover with its translation, general meaning, contextual
+meaning, grammar, and exactly three examples with translations. Explanations use
+Gemini Flash-Lite and appear in the selected translation language. They are AI
+generated, with loading, retry, and error states. Drag selection still opens the
+formatting toolbar; selections crossing revealed translations cannot be annotated
+until originals are restored.
+
+Earlier source-only readings remain readable and support word explanations in
+English. Generate a new reading with a translation language to use the circle;
+backfilling translations for existing texts is not part of this first version.

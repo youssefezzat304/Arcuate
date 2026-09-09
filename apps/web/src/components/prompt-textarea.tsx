@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import type { ComponentProps, KeyboardEvent } from "react";
+import type { ComponentProps, KeyboardEvent } from 'react';
 
-type PromptTextareaProps = ComponentProps<"textarea">;
+type PromptTextareaProps = ComponentProps<'textarea'>;
 
 export function PromptTextarea({ onKeyDown, ...props }: PromptTextareaProps) {
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -10,7 +10,7 @@ export function PromptTextarea({ onKeyDown, ...props }: PromptTextareaProps) {
 
     if (
       event.defaultPrevented ||
-      event.key !== "Enter" ||
+      event.key !== 'Enter' ||
       event.shiftKey ||
       event.nativeEvent.isComposing
     ) {
