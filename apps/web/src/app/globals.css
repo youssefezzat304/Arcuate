@@ -22,8 +22,6 @@
   --toolbar-foreground: #fcfbf7;
   --toolbar-muted: #31312f;
   --border: #d8d8d4;
-  --translation-paragraph: #315f68;
-  --translation-paragraph-foreground: #fcfbf7;
   --accent: #f6bf13;
   --accent-foreground: #161616;
   --app-font-sans: Arial, Helvetica, sans-serif;
@@ -64,8 +62,6 @@
   --color-muted-warm: var(--muted-warm);
   --color-warm-highlight: var(--warm-highlight);
   --color-border: var(--border);
-  --color-translation-paragraph: var(--translation-paragraph);
-  --color-translation-paragraph-foreground: var(--translation-paragraph-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-toolbar: var(--toolbar-background);

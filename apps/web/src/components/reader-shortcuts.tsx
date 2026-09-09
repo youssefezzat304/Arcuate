@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { READER_SHORTCUTS } from '@/lib/reader-shortcuts';
+import { READER_SHORTCUTS, TRANSLATION_SHORTCUTS } from '@/lib/reader-shortcuts';
 
 function ShortcutGuide({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -53,16 +53,25 @@ function ShortcutGuide({ onClose }: { onClose: () => void }) {
       <section className="mt-5 border-t border-border pt-4 text-sm leading-6">
         <h3 className="mb-2 font-semibold">Translation</h3>
         <p>
-          Click a source word for its meaning, grammar, and examples. Hold and drag the yellow
-          circle over a sentence; the sentence highlights, and releasing the circle reveals its
-          translation while the circle returns home. Double-click the circle to switch to teal
-          paragraph mode and target a whole paragraph. Click once to restore all originals.
+          Hover over source text and use the shortcuts below. Sentence and paragraph translations
+          stay visible only while you hold their shortcut, then return to the original text.
         </p>
         <p className="mt-2 text-muted-foreground">
-          With the circle focused: M switches mode, ↑/↓ selects a sentence, Enter translates, and
-          Escape restores originals. Sentence translations are available on readings generated with
-          a translation language.
+          Translation shortcuts are available on readings generated with a translation language.
         </p>
+        <dl className="mt-4 divide-y divide-border border-y border-border">
+          {TRANSLATION_SHORTCUTS.map((shortcut) => (
+            <div key={shortcut.key} className="flex items-center justify-between gap-4 py-3">
+              <dt>{shortcut.label}</dt>
+              <dd className="shrink-0">
+                <kbd className="rounded border border-border bg-background px-2 py-1 font-mono text-xs">
+                  Ctrl + {shortcut.hold ? 'hold ' : ''}
+                  {shortcut.key.toUpperCase()}
+                </kbd>
+              </dd>
+            </div>
+          ))}
+        </dl>
       </section>
       <div className="mt-5 flex justify-end">
         <button

@@ -3,7 +3,15 @@
 import { useNotice } from '@/hooks/use-notice';
 import { StatusNotice } from '@/components/status-notice';
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
 import { analyzeTextExact, normalizeToken, type TextAnalysis } from '@arcuate/language';
 import {
   annotationsToBlocks,
@@ -18,7 +26,6 @@ import {
   type TextSelection,
 } from '@/lib/text-formatting';
 
-import { TranslationOrb, type TranslationTarget } from '@/components/translation-orb';
 import { WordExplanationPopover, type WordLookup } from '@/components/word-explanation-popover';
 import { readingWords, sliceTextRuns } from '@/lib/reader-translation';
 import type { TextTranslation } from '@arcuate/ai/schema';
@@ -33,11 +40,15 @@ import {
   type WordDraft,
 } from '@/lib/saved-words';
 import { findSavedWordRanges, type TextRange } from '@/lib/saved-word-matching';
+import { translationShortcutAction } from '@/lib/reader-shortcuts';
 
 const colors = ['yellow', 'rose', 'green', 'blue', 'purple'] as const;
 const controlClass =
   'flex h-10 min-w-8 items-center justify-center rounded-md px-2 hover:bg-toolbar-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:bg-toolbar-muted';
 type SelectedText = TextSelection & { left: number; top: number; below: boolean };
+type TranslationRevealMode = 'sentence' | 'paragraph';
+type TranslationHoverTarget = { paragraph: number; sentence: number };
+type HeldTranslationTarget = TranslationHoverTarget & { mode: TranslationRevealMode };
 
 function selectionText(range: Range) {
   const content = range.cloneContents();
@@ -98,8 +109,7 @@ export function FormattableReader({
   annotations: TextAnnotation[];
   onAnnotationsChange: (annotations: TextAnnotation[]) => void;
 }) {
-  const [translated, setTranslated] = useState<Set<string>>(new Set());
-  const [translationTarget, setTranslationTarget] = useState<TranslationTarget | null>(null);
+  const [heldTranslations, setHeldTranslations] = useState<Set<string>>(new Set());
   const [lookup, setLookup] = useState<WordLookup | null>(null);
   const closeLookup = useCallback(() => setLookup(null), []);
   const texts = useMemo(() => [title, ...paragraphs], [paragraphs, title]);
@@ -120,6 +130,15 @@ export function FormattableReader({
   const toolbarRef = useRef<HTMLDivElement>(null);
   const pendingSelection = useRef<TextSelection | null>(null);
   const clearButtonRef = useRef<HTMLButtonElement>(null);
+  const hoveredTranslationUnit = useRef<TranslationHoverTarget | null>(null);
+  const hoveredWord = useRef<{
+    blockIndex: number;
+    start: number;
+    end: number;
+    element: HTMLElement;
+  } | null>(null);
+  const heldTranslationMode = useRef<TranslationRevealMode | null>(null);
+  const heldTranslationTarget = useRef<HeldTranslationTarget | null>(null);
 
   useLayoutEffect(() => {
     if (pendingSelection.current && rootRef.current) {
@@ -334,26 +353,154 @@ export function FormattableReader({
     setNotice('');
   }
 
-  function showWord(blockIndex: number, start: number, end: number, element: HTMLElement) {
-    if (window.getSelection()?.toString().trim()) return;
-    if (end - start > 200) {
-      setNotice('Select a shorter word for an explanation.');
-      return;
-    }
-    const rect = element.getBoundingClientRect();
-    setLookup({
-      input: {
-        surface: texts[blockIndex]!.slice(start, end),
-        paragraph: texts[blockIndex]!,
-        start,
-        end,
-        sourceLanguage: language,
-        targetLanguage: translationLanguage,
-        level,
-      },
-      rect: { left: rect.left, top: rect.top, bottom: rect.bottom, width: rect.width },
-    });
+  const showWord = useCallback(
+    (blockIndex: number, start: number, end: number, element: HTMLElement) => {
+      if (window.getSelection()?.toString().trim()) return;
+      if (end - start > 200) {
+        setNotice('Select a shorter word for an explanation.');
+        return;
+      }
+      const rect = element.getBoundingClientRect();
+      setLookup({
+        input: {
+          surface: texts[blockIndex]!.slice(start, end),
+          paragraph: texts[blockIndex]!,
+          start,
+          end,
+          sourceLanguage: language,
+          targetLanguage: translationLanguage,
+          level,
+        },
+        rect: { left: rect.left, top: rect.top, bottom: rect.bottom, width: rect.width },
+      });
+    },
+    [language, level, setNotice, texts, translationLanguage],
+  );
+
+  const revealHoveredTranslation = useCallback(
+    (mode: TranslationRevealMode | null, target: TranslationHoverTarget | null) => {
+      const previous = heldTranslationTarget.current;
+      if (
+        previous?.mode === mode &&
+        previous?.paragraph === target?.paragraph &&
+        (mode === 'paragraph' || previous?.sentence === target?.sentence)
+      ) {
+        return;
+      }
+
+      heldTranslationTarget.current = mode && target ? { ...target, mode } : null;
+      if (!translation || !mode || !target) {
+        setHeldTranslations(new Set());
+        return;
+      }
+
+      if (mode === 'sentence') {
+        setHeldTranslations(new Set([`${target.paragraph}:${target.sentence}`]));
+        return;
+      }
+
+      setHeldTranslations(
+        new Set(
+          translation.paragraphs[target.paragraph]?.sentences.map(
+            (_, sentence) => `${target.paragraph}:${sentence}`,
+          ) ?? [],
+        ),
+      );
+    },
+    [translation],
+  );
+
+  function updateHoveredReaderTarget(event: ReactPointerEvent<HTMLDivElement>) {
+    const element = event.target instanceof HTMLElement ? event.target : null;
+    const unit = element?.closest<HTMLElement>('[data-translation-unit]');
+    hoveredTranslationUnit.current = unit
+      ? {
+          paragraph: Number(unit.dataset.paragraph),
+          sentence: Number(unit.dataset.sentence),
+        }
+      : null;
+
+    const wordElement = element?.closest<HTMLElement>('[data-reader-word]');
+    hoveredWord.current = wordElement
+      ? {
+          blockIndex: Number(wordElement.dataset.blockIndex),
+          start: Number(wordElement.dataset.wordStart),
+          end: Number(wordElement.dataset.wordEnd),
+          element: wordElement,
+        }
+      : null;
+
+    if (heldTranslationMode.current)
+      revealHoveredTranslation(heldTranslationMode.current, hoveredTranslationUnit.current);
   }
+
+  useEffect(() => {
+    function clearHeldTranslation() {
+      heldTranslationMode.current = null;
+      revealHoveredTranslation(null, null);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (!event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName))
+      )
+        return;
+
+      const root = rootRef.current;
+      if (!root?.matches(':hover')) return;
+      const hoveredUnit = root.querySelector<HTMLElement>('[data-translation-unit]:hover');
+      hoveredTranslationUnit.current = hoveredUnit
+        ? {
+            paragraph: Number(hoveredUnit.dataset.paragraph),
+            sentence: Number(hoveredUnit.dataset.sentence),
+          }
+        : null;
+      const hoveredWordElement = root.querySelector<HTMLElement>('[data-reader-word]:hover');
+      hoveredWord.current = hoveredWordElement
+        ? {
+            blockIndex: Number(hoveredWordElement.dataset.blockIndex),
+            start: Number(hoveredWordElement.dataset.wordStart),
+            end: Number(hoveredWordElement.dataset.wordEnd),
+            element: hoveredWordElement,
+          }
+        : null;
+
+      const action = translationShortcutAction(event.key);
+      if (!action) return;
+
+      if (action === 'word') {
+        if (!hoveredWord.current) return;
+        event.preventDefault();
+        if (!event.repeat) {
+          const { blockIndex, start, end, element } = hoveredWord.current;
+          showWord(blockIndex, start, end, element);
+        }
+        return;
+      }
+
+      if (!translation || !hoveredTranslationUnit.current) return;
+      event.preventDefault();
+      heldTranslationMode.current = action;
+      revealHoveredTranslation(action, hoveredTranslationUnit.current);
+    }
+
+    function handleKeyUp(event: KeyboardEvent) {
+      if (event.key === 'Control' || ['r', 't'].includes(event.key.toLocaleLowerCase()))
+        clearHeldTranslation();
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', clearHeldTranslation);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', clearHeldTranslation);
+    };
+  }, [revealHoveredTranslation, showWord, translation]);
 
   function renderRuns(runs: TextRun[], ranges: TextRange[], blockIndex: number, baseOffset = 0) {
     let offset = baseOffset;
@@ -407,6 +554,10 @@ export function FormattableReader({
                 : undefined
             }
             key={`${runStart}:${start}`}
+            data-reader-word={token || undefined}
+            data-block-index={token ? blockIndex : undefined}
+            data-word-start={token?.start}
+            data-word-end={token?.end}
             data-saved-word={saved || undefined}
             className={`${token ? 'cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-foreground' : ''} ${saved ? 'font-bold underline decoration-accent decoration-2 underline-offset-4' : ''}`}
             style={{
@@ -455,7 +606,19 @@ export function FormattableReader({
           Clear annotations
         </button>
       </div>
-      <div ref={rootRef} tabIndex={-1} className="focus:outline-none">
+      <div
+        ref={rootRef}
+        tabIndex={-1}
+        className="focus:outline-none"
+        onPointerEnter={updateHoveredReaderTarget}
+        onPointerMove={updateHoveredReaderTarget}
+        onPointerLeave={() => {
+          hoveredTranslationUnit.current = null;
+          hoveredWord.current = null;
+          heldTranslationMode.current = null;
+          revealHoveredTranslation(null, null);
+        }}
+      >
         <h1 className="mb-4 font-serif text-4xl leading-tight tracking-[-0.04em] sm:text-5xl">
           {renderRuns(blocks[0]!, savedRanges[0]!, 0)}
         </h1>
@@ -472,23 +635,13 @@ export function FormattableReader({
           style={{ fontSize: 'var(--reader-font-size)' }}
         >
           {blocks.slice(1).map((runs, index) => {
-            const paragraphTargeted =
-              translationTarget?.mode === 'paragraph' && translationTarget.paragraph === index;
             return (
-              <p
-                key={index}
-                data-translation-targeted={paragraphTargeted || undefined}
-                className={`-mx-3 rounded-lg px-3 transition-colors ${paragraphTargeted ? 'bg-translation-paragraph/20' : ''}`}
-              >
+              <p key={index}>
                 {translation
                   ? translation.paragraphs[index]!.sentences.map(
                       (sentence, sentenceIndex, sentences) => {
                         const key = `${index}:${sentenceIndex}`;
-                        const revealed = translated.has(key);
-                        const sentenceTargeted =
-                          translationTarget?.mode === 'sentence' &&
-                          translationTarget.paragraph === index &&
-                          translationTarget.sentence === sentenceIndex;
+                        const revealed = heldTranslations.has(key);
                         const sourceEnd =
                           sentences[sentenceIndex + 1]?.start ?? paragraphs[index]!.length;
                         return (
@@ -498,8 +651,6 @@ export function FormattableReader({
                             data-paragraph={index}
                             data-sentence={sentenceIndex}
                             data-translated={revealed || undefined}
-                            data-translation-targeted={sentenceTargeted || undefined}
-                            className={`box-decoration-clone rounded-sm transition-colors ${sentenceTargeted ? 'bg-accent/35' : ''}`}
                           >
                             <span hidden={revealed}>
                               {renderRuns(
@@ -514,7 +665,7 @@ export function FormattableReader({
                                 data-reader-metadata
                                 lang={translation.language}
                                 dir="auto"
-                                className="rounded-sm bg-warm-highlight"
+                                className="underline decoration-accent decoration-2 underline-offset-4"
                               >
                                 {sentence.text}
                                 {sourceEnd > sentence.end ? ' ' : ''}
@@ -530,31 +681,6 @@ export function FormattableReader({
           })}
         </div>
       </div>
-      {translation && (
-        <TranslationOrb
-          rootRef={rootRef}
-          onTargetChange={setTranslationTarget}
-          onTranslate={(paragraph, sentence, mode) => {
-            window.getSelection()?.removeAllRanges();
-            setSelected(null);
-            setLookup(null);
-            setTranslated((previous) => {
-              const next = new Set(previous);
-              if (mode === 'paragraph')
-                translation.paragraphs[paragraph]?.sentences.forEach((_, index) =>
-                  next.add(`${paragraph}:${index}`),
-                );
-              else next.add(`${paragraph}:${sentence}`);
-              return next;
-            });
-          }}
-          onRestore={() => {
-            setTranslated(new Set());
-            window.getSelection()?.removeAllRanges();
-            setSelected(null);
-          }}
-        />
-      )}
       {lookup && <WordExplanationPopover lookup={lookup} onClose={closeLookup} />}
       {selected && (
         <div

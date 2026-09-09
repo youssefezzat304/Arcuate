@@ -107,15 +107,13 @@ recent ten. Unfinished sessions last only while the reading stays open.
 
 ## Translation and word explanations
 
-New bilingual readings have a floating yellow translation circle. Drag and drop
-it onto a sentence to reveal that sentence's saved translation. The circle is
-symbol-only and follows a press-and-hold gesture. A sentence highlights while the
-yellow circle overlaps it; releasing reveals the translation and returns the circle
-to its original position. Double-click switches to teal paragraph mode, where the
-whole paragraph highlights and is revealed on drop. A single click restores all
-revealed source text. Keyboard controls are documented in the reader's info dialog.
-The circle can be dragged with a pointer or touch. Translation visibility is
-session-only; original text and saved annotations remain unchanged.
+New bilingual readings use hover-based keyboard shortcuts for translation. Ctrl+E
+opens an explanation for the hovered word. Holding Ctrl+R reveals the hovered
+sentence, while holding Ctrl+T reveals the hovered paragraph. Sentence and paragraph
+translations return to the original source text when the shortcut is released, the
+pointer leaves the reader, or the window loses focus. Revealed translations use the
+normal reader treatment with a primary-color underline and no highlight background.
+Original text and saved annotations remain unchanged.
 
 Click a source word for a popover with its translation, general meaning, contextual
 meaning, grammar, and exactly three examples with translations. Explanations use
@@ -125,5 +123,6 @@ formatting toolbar; selections crossing revealed translations cannot be annotate
 until originals are restored.
 
 Earlier source-only readings remain readable and support word explanations in
-English. Generate a new reading with a translation language to use the circle;
-backfilling translations for existing texts is not part of this first version.
+English. Generate a new reading with a translation language to use sentence and
+paragraph translation shortcuts; backfilling translations for existing texts is
+not part of this first version.

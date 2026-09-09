@@ -7,6 +7,7 @@ import {
   formatSelection,
   shortcutFormatPatch,
 } from '../src/lib/text-formatting.ts';
+import { translationShortcutAction } from '../src/lib/reader-shortcuts.ts';
 
 const selection = { start: 0, end: 4 };
 const plain = [[{ text: 'Text', format: {} }]];
@@ -31,6 +32,14 @@ test('highlight shortcut applies the last selected highlight color', () => {
     highlight: 'var(--highlight-blue)',
   });
   assert.equal(shortcutFormatPatch('x', plain, selection, 'var(--highlight-blue)'), null);
+});
+
+test('translation shortcuts map hover actions without colliding with formatting', () => {
+  assert.equal(translationShortcutAction('e'), 'word');
+  assert.equal(translationShortcutAction('R'), 'sentence');
+  assert.equal(translationShortcutAction('t'), 'paragraph');
+  assert.equal(translationShortcutAction('I'), null);
+  assert.equal(translationShortcutAction('b'), null);
 });
 
 test('annotation ranges round-trip without persisting duplicate text', () => {

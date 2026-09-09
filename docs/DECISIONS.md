@@ -113,6 +113,11 @@ D024 ACTIVE — 2026-09-08 [USER]
 Generate source text and selected-language translation in one Gemini response. Reveal sentence translations with a draggable circle; double-click changes to paragraph mode; single-click restores originals. Clicking a source word opens meaning, context, grammar, and three examples from Gemini Flash-Lite.
 2026-09-08 [CODE] Source sentences are assembled into canonical paragraphs and translations use code-derived offsets. Bounded contextual caches, request limits, and server-only credentials support the first version. Existing texts remain readable; they use English for word explanations and need regeneration for aligned translations. No dictionary or local model is introduced.
 2026-09-08 [USER] The circle is symbol-only and behaves like an inventory item: press and hold to move it, highlight the sentence or paragraph under it, reveal that target immediately on release, and return the circle home after every drop.
+2026-09-09 [USER] Hover shortcuts use Ctrl+E for word translation, held Ctrl+R/Ctrl+T for momentary sentence/paragraph translation, and Ctrl+I to restore all originals. Revealed translations render as normal text without a highlight background.
+
+D025 ACTIVE — 2026-09-09 [USER]
+Translation interaction is shortcut-only: remove the translation orb and Ctrl+I, retain Ctrl+E for hovered-word explanations, and retain held Ctrl+R/Ctrl+T for momentary sentence/paragraph reveals. Revealed sentence and paragraph translations use the primary-color underline without a highlight background.
+This supersedes the orb and Ctrl+I interaction clauses in D024 while preserving its bilingual generation, storage, and word-explanation decisions.
 
 [PROGRESS]
 
@@ -176,6 +181,8 @@ Generate source text and selected-language translation in one Gemini response. R
 
 [RECEIPTS]
 
+- 2026-09-09 [TOOL] Shortcut-only translation: 48 tests, lint, typecheck, production build, and diff validation passed. Browser checks confirmed the orb is absent and Ctrl+E still opens the hovered-word explanation. Source inspection confirmed revealed sentence and paragraph spans use the accent underline and clear when the held shortcut ends.
+- 2026-09-09 [TOOL] Hover translation shortcuts: 48 tests, lint, typecheck, and production build passed. Browser checks verified Ctrl+E word lookup, Ctrl+I full restore, and revealed translation text without a highlight background; held Ctrl+R/Ctrl+T use temporary state cleared on key release, pointer exit, or window blur.
 - 2026-09-09 [TOOL] Translation orb interaction: 47 tests, lint, typecheck, and production build passed. Browser checks verified symbol-only sentence/paragraph modes, automatic translation on drop, single-click restore, and return-to-home after both sentence and paragraph drops.
 - 2026-09-08 [TOOL] Bilingual generation fix: 47 tests, lint, typecheck, and production build passed. Lint retained one pre-existing unused-variable warning in `translation.test.mjs`. A live Gemini request returned three source paragraphs with three aligned translation paragraphs.
 - 2026-09-03 [TOOL] `pnpm lint` passed before foundation changes.
