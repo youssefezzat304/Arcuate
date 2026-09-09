@@ -45,6 +45,12 @@ A very light cool gray.
 
 Avoid harsh pure white as the default application background when a softer neutral is appropriate.
 
+On pointer-based layouts, the full page background may carry softly faded,
+public-domain literary text in multiple languages. Reveal it only through a broad
+circular pointer-following mask; the typography should remain atmospheric rather
+than sharply readable. Cards, widgets, and primary content must always form an
+opaque layer above it. Disable the effect when there is no hover-capable pointer.
+
 ---
 
 ## Paper / primary surface
@@ -143,6 +149,10 @@ the bright light-mode annotation palette directly on dark reading surfaces.
 ```
 
 A quiet neutral for subtle separators and control boundaries when needed.
+
+Dialogs use a consistently dark backdrop in both light and dark appearance modes.
+Transient editorial cards may use a restrained double frame when it strengthens
+their separation from the page without adding decorative clutter.
 
 ---
 

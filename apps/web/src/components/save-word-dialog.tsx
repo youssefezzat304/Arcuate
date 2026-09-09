@@ -91,7 +91,7 @@ export function SaveWordDialog({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="m-auto max-h-[calc(100dvh-32px)] w-md max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl border border-border bg-paper p-0 font-sans text-foreground shadow-lg backdrop:bg-foreground/25"
+      className="m-auto max-h-[calc(100dvh-32px)] w-md max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl border border-border bg-paper p-0 font-sans text-foreground shadow-lg backdrop:bg-overlay/60"
     >
       <div className="p-6">
         <div className="mb-5 flex items-center justify-between gap-4">

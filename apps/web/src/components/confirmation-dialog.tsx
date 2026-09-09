@@ -36,7 +36,7 @@ export function ConfirmationDialog({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="m-auto w-md max-w-[calc(100vw-32px)] rounded-xl border border-border bg-paper p-0 font-sans text-foreground shadow-lg backdrop:bg-foreground/25"
+      className="m-auto w-md max-w-[calc(100vw-32px)] rounded-xl border border-border bg-paper p-0 font-sans text-foreground shadow-lg backdrop:bg-overlay/60"
     >
       <div className="p-6">
         <h2 id={`${id}-title`} className="font-serif text-2xl">

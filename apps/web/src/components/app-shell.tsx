@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { AmbientLiterature } from '@/components/ambient-literature';
 import { PREFERENCES_STORAGE_KEY, applyPreferences, readPreferences } from '@/lib/preferences';
 
 const focusClass =
@@ -92,13 +93,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className="group min-h-dvh"
+      className="group relative isolate min-h-dvh"
       data-collapsed={collapsed}
       data-mobile-open={mobileOpen}
       onKeyDown={(event) => {
         if (event.key === 'Escape' && mobileOpen) closeMobileSidebar();
       }}
     >
+      <AmbientLiterature />
       <a
         href="#main-content"
         className={`sr-only fixed top-4 left-4 z-50 rounded-lg bg-accent px-4 py-3 focus:not-sr-only ${focusClass}`}
@@ -111,7 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           aria-label="Close sidebar"
           tabIndex={-1}
           onClick={closeMobileSidebar}
-          className="fixed inset-0 z-20 bg-foreground/15 md:hidden"
+          className="fixed inset-0 z-20 bg-overlay/60 md:hidden"
         />
       )}
       <aside
@@ -205,7 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div
         id="main-content"
         tabIndex={-1}
-        className="min-h-dvh pt-20 outline-none md:px-24 md:pt-0"
+        className="relative z-10 min-h-dvh pt-20 outline-none md:px-24 md:pt-0"
       >
         {children}
       </div>

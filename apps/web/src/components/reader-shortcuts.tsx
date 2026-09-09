@@ -22,7 +22,7 @@ function ShortcutGuide({ onClose }: { onClose: () => void }) {
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="m-auto max-h-[calc(100dvh-32px)] w-md max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl border border-border bg-paper p-6 text-foreground shadow-lg backdrop:bg-foreground/25"
+      className="m-auto max-h-[calc(100dvh-32px)] w-md max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl border border-border bg-paper p-6 text-foreground shadow-lg backdrop:bg-overlay/60"
     >
       <h2 id="reader-shortcuts-title" className="font-serif text-2xl">
         Reader shortcuts

@@ -23,7 +23,7 @@ export function WordExplanationPopover({
 }) {
   const [state, setState] = useState<State>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
-  const [position, setPosition] = useState({ left: 16, top: 16, maxHeight: 480 });
+  const [position, setPosition] = useState({ left: 16, top: 16, maxHeight: 440 });
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const controller = new AbortController();
@@ -77,7 +77,10 @@ export function WordExplanationPopover({
     const panel = ref.current!;
     const bounds = panel.getBoundingClientRect();
     const { rect } = lookup;
-    const maxHeight = rect.top >= 220 ? Math.min(rect.top - 22, window.innerHeight - 24) : Math.min(480, window.innerHeight - 24);
+    const maxHeight =
+      rect.top >= 220
+        ? Math.min(rect.top - 22, window.innerHeight - 24)
+        : Math.min(440, window.innerHeight - 24);
     const height = Math.min(panel.scrollHeight, maxHeight);
     setPosition({
       maxHeight,
@@ -130,92 +133,95 @@ export function WordExplanationPopover({
       aria-label={`Explain ${lookup.input.surface}`}
       tabIndex={-1}
       dir="ltr"
-      className="fixed z-50 max-h-[calc(100dvh-24px)] w-96 max-w-[calc(100vw-24px)] overflow-y-auto rounded-xl border border-border bg-paper p-5 font-sans text-foreground shadow-lg outline-none"
+      className="fixed z-50 w-88 max-w-[calc(100vw-24px)] rounded-[18px] border-2 border-foreground/75 bg-paper p-1 font-sans text-foreground shadow-[0_18px_50px_rgba(0,0,0,0.22)] outline-none"
       style={position}
     >
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <h2
-          lang={lookup.input.sourceLanguage}
-          dir="auto"
-          className="break-words font-serif text-2xl"
-        >
-          {lookup.input.surface}
-        </h2>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close word explanation"
-          className="flex size-9 shrink-0 items-center justify-center rounded-md hover:bg-background focus-visible:outline-2"
-        >
-          ×
-        </button>
-      </div>
-      {state.status === 'loading' && (
-        <p role="status" className="text-sm text-muted-foreground">
-          Looking up this word in context…
-        </p>
-      )}
-      {state.status === 'error' && (
-        <>
-          <p role="alert" className="text-sm">
-            {state.message}
-          </p>
+      <div
+        className="overflow-y-auto rounded-xl border border-border px-3.5 py-3"
+        style={{ maxHeight: Math.max(160, position.maxHeight - 10) }}
+      >
+        <div className="mb-2 flex items-start justify-between gap-3">
+          <h2
+            lang={lookup.input.sourceLanguage}
+            dir="auto"
+            className="break-words font-serif text-xl leading-tight"
+          >
+            {lookup.input.surface}
+          </h2>
           <button
             type="button"
-            onClick={() => setAttempt((value) => value + 1)}
-            className="mt-3 min-h-10 rounded-md bg-accent px-3 text-sm text-accent-foreground"
+            onClick={onClose}
+            aria-label="Close word explanation"
+            className="flex size-7 shrink-0 items-center justify-center rounded-md hover:bg-background focus-visible:outline-2"
           >
-            Try again
+            ×
           </button>
-        </>
-      )}
-      {state.status === 'ready' && (
-        <div className="space-y-4 text-sm leading-6">
-          <p lang={lookup.input.targetLanguage} dir="auto" className="font-semibold">
-            {state.answer.translation}
-          </p>
-          {(
-            [
-              ['Meaning', state.answer.meaning],
-              ['In this context', state.answer.contextMeaning],
-              ['Grammar', state.answer.grammar],
-            ] as const
-          ).map(([label, value]) => (
-            <section key={label}>
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {label}
-              </h3>
-              <p lang={lookup.input.targetLanguage} dir="auto">
-                {value}
-              </p>
-            </section>
-          ))}
-          <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Examples
-            </h3>
-            <ol className="space-y-3">
-              {state.answer.examples.map((example, index) => (
-                <li key={index}>
-                  <p lang={lookup.input.sourceLanguage} dir="auto">
-                    {example.source}
-                  </p>
-                  <p
-                    lang={lookup.input.targetLanguage}
-                    dir="auto"
-                    className="text-muted-foreground"
-                  >
-                    {example.translation}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </section>
-          <p className="border-t border-border pt-3 text-xs text-muted-foreground">
-            AI-generated explanation
-          </p>
         </div>
-      )}
+        {state.status === 'loading' && (
+          <p role="status" className="text-sm text-muted-foreground">
+            Looking up this word in context…
+          </p>
+        )}
+        {state.status === 'error' && (
+          <>
+            <p role="alert" className="text-sm">
+              {state.message}
+            </p>
+            <button
+              type="button"
+              onClick={() => setAttempt((value) => value + 1)}
+              className="mt-3 min-h-9 rounded-md bg-accent px-3 text-sm text-accent-foreground"
+            >
+              Try again
+            </button>
+          </>
+        )}
+        {state.status === 'ready' && (
+          <div className="space-y-2.5 text-[13px] leading-5">
+            <p lang={lookup.input.targetLanguage} dir="auto" className="font-semibold">
+              {state.answer.translation}
+            </p>
+            {(
+              [
+                ['Meaning', state.answer.meaning],
+                ['In this context', state.answer.contextMeaning],
+                ['Grammar', state.answer.grammar],
+              ] as const
+            ).map(([label, value]) => (
+              <section key={label}>
+                <h3 className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  {label}
+                </h3>
+                <p lang={lookup.input.targetLanguage} dir="auto">
+                  {value}
+                </p>
+              </section>
+            ))}
+            <section className="rounded-lg bg-background px-3 py-2.5">
+              <h3 className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Examples
+              </h3>
+              <ol className="space-y-2">
+                {state.answer.examples.map((example, index) => (
+                  <li key={index}>
+                    <p lang={lookup.input.sourceLanguage} dir="auto">
+                      {example.source}
+                    </p>
+                    <p
+                      lang={lookup.input.targetLanguage}
+                      dir="auto"
+                      className="text-muted-foreground"
+                    >
+                      {example.translation}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+            <p className="pt-0.5 text-[10px] text-muted-foreground">AI-generated explanation</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

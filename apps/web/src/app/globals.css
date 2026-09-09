@@ -22,6 +22,7 @@
   --toolbar-foreground: #fcfbf7;
   --toolbar-muted: #31312f;
   --border: #d8d8d4;
+  --overlay: #0b0b0b;
   --accent: #f6bf13;
   --accent-foreground: #161616;
   --app-font-sans: Arial, Helvetica, sans-serif;
@@ -62,6 +63,7 @@
   --color-muted-warm: var(--muted-warm);
   --color-warm-highlight: var(--warm-highlight);
   --color-border: var(--border);
+  --color-overlay: var(--overlay);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-toolbar: var(--toolbar-background);
@@ -77,6 +79,81 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--app-font-sans);
+}
+
+.ambient-literature {
+  --torch-x: 50vw;
+  --torch-y: 50vh;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: none;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms ease-out;
+  -webkit-mask-image: radial-gradient(
+    circle 210px at var(--torch-x) var(--torch-y),
+    rgb(0 0 0 / 90%) 0,
+    rgb(0 0 0 / 58%) 52%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle 210px at var(--torch-x) var(--torch-y),
+    rgb(0 0 0 / 90%) 0,
+    rgb(0 0 0 / 58%) 52%,
+    transparent 100%
+  );
+}
+
+.ambient-literature[data-active='true'] {
+  opacity: 1;
+}
+
+.ambient-literature__page {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: clamp(1.5rem, 3vw, 3.5rem);
+  overflow: hidden;
+  padding: clamp(1.25rem, 3vw, 3rem);
+}
+
+.ambient-literature__copy {
+  color: var(--foreground);
+  font-family: var(--app-font-serif);
+  font-size: 13px;
+  line-height: 1.22;
+  text-align: justify;
+  opacity: 0.24;
+  filter: blur(0.2px);
+}
+
+.ambient-literature__copy section {
+  margin-bottom: 1.1rem;
+}
+
+.ambient-literature__title {
+  margin-bottom: 0.2rem;
+  font-size: 9px;
+  font-family: var(--app-font-sans);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: start;
+  text-transform: uppercase;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ambient-literature {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-literature {
+    transition: none;
+  }
 }
 
 button,

@@ -119,6 +119,12 @@ D025 ACTIVE — 2026-09-09 [USER]
 Translation interaction is shortcut-only: remove the translation orb and Ctrl+I, retain Ctrl+E for hovered-word explanations, and retain held Ctrl+R/Ctrl+T for momentary sentence/paragraph reveals. Revealed sentence and paragraph translations use the primary-color underline without a highlight background.
 This supersedes the orb and Ctrl+I interaction clauses in D024 while preserving its bilingual generation, storage, and word-explanation decisions.
 
+D026 ACTIVE — 2026-09-09 [USER]
+Make the word-explanation popover more compact, give its examples a darker grouped surface, and use a floating double frame. On wide pointer-based layouts, fill the outer gutters with faded multilingual public-domain literature revealed by a circular pointer-following torch. Use a dark overlay behind dialogs in every appearance mode.
+2026-09-09 [CODE] The ambient literature layer is decorative and hidden from assistive technology. It is disabled below 1,200px and on devices without a fine hover pointer so it does not compete with content where spare gutters are unavailable.
+2026-09-09 [USER] Extend the literature texture across the whole page, add more text and languages, and keep every card and widget above it. The background must never paint over the reading timer.
+2026-09-09 [CODE] The page content now owns a stacking context above the full-viewport literature layer; opaque cards and widgets mask the texture while transparent page space continues to reveal it. The effect remains limited to hover-capable fine pointers.
+
 [PROGRESS]
 
 - 2026-09-07 [CODE] Added exact and Stanza-backed language analysis, lazy text enrichment, linguistic saved-word identity, and reactive cross-text highlighting.
@@ -181,6 +187,8 @@ This supersedes the orb and Ctrl+I interaction clauses in D024 while preserving 
 
 [RECEIPTS]
 
+- 2026-09-09 [TOOL] Full-page literature reveal: 48 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the torch in central page space and confirmed opaque form surfaces paint above it. The shared page stacking context keeps the fixed reading timer and all other widgets above the background layer.
+- 2026-09-09 [TOOL] Editorial UI treatment: 48 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the compact double-framed word card, grouped darker examples, and the dark overlay treatment. The ambient gutter layer is CSS-gated to wide fine-pointer layouts and uses a soft circular mask.
 - 2026-09-09 [TOOL] Shortcut-only translation: 48 tests, lint, typecheck, production build, and diff validation passed. Browser checks confirmed the orb is absent and Ctrl+E still opens the hovered-word explanation. Source inspection confirmed revealed sentence and paragraph spans use the accent underline and clear when the held shortcut ends.
 - 2026-09-09 [TOOL] Hover translation shortcuts: 48 tests, lint, typecheck, and production build passed. Browser checks verified Ctrl+E word lookup, Ctrl+I full restore, and revealed translation text without a highlight background; held Ctrl+R/Ctrl+T use temporary state cleared on key release, pointer exit, or window blur.
 - 2026-09-09 [TOOL] Translation orb interaction: 47 tests, lint, typecheck, and production build passed. Browser checks verified symbol-only sentence/paragraph modes, automatic translation on drop, single-click restore, and return-to-home after both sentence and paragraph drops.
