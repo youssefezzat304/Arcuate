@@ -179,6 +179,7 @@ Use React Icons in the navigation and make the sidebar better match the editoria
 
 [DISCOVERIES]
 
+- 2026-09-10 [CODE] Form-level overflow clipping prevents custom listboxes from escaping the composer. Rounded surfaces must round their painted child sections while leaving the form overflow visible; pending-state clipping belongs on the loading overlay alone.
 - 2026-09-08 [TOOL] Gemini 3.6 Flash rejected the bilingual structured-output schema with HTTP 400 when both nested array levels advertised `maxItems: 300`. Omitting provider-facing `maxItems` from the bilingual schema resolves the rejection; post-response Zod validation continues to enforce the limits.
 - 2026-09-06 [TOOL] Model listing included Gemini 2.5 Flash, but generation rejected it for new users and recommended Gemini 3.6 Flash. Default updated to 3.6 Flash; GEMINI_MODEL remains configurable.
 
@@ -191,6 +192,7 @@ Use React Icons in the navigation and make the sidebar better match the editoria
 
 [OUTCOMES]
 
+- 2026-09-10 [CODE] Language, translation, and CEFR menus can again overlay lower composer controls and extend beyond the form in light and dark themes without losing rounded corners.
 - 2026-09-10 [CODE] Sidebar navigation now has one consistent icon source and a sharper print-inspired hierarchy across expanded and collapsed states.
 - 2026-09-10 [CODE] Text generation now visibly replaces the disabled composer with a stable-height typesetting proof until the reading opens or the request fails.
 - 2026-09-07 [CODE] Highlights and text styles now survive reopening a reading. A disabled-when-empty action at the reading top clears them after confirmation and leaves saved-word styling intact.
@@ -213,6 +215,7 @@ Use React Icons in the navigation and make the sidebar better match the editoria
 [WORKING SET]
 
 - `apps/web/src/components/generation-form.tsx`
+- `apps/web/src/app/page.tsx`
 - `apps/web/src/components/app-shell.tsx`
 - `apps/web/src/app/globals.css`
 - `apps/web/src/lib/saved-texts.ts`
@@ -223,10 +226,10 @@ Use React Icons in the navigation and make the sidebar better match the editoria
 - `apps/web/src/components/saved-reader.tsx`
 - `apps/web/tests/generation.test.mjs`
 - `apps/web/tests/text-formatting.test.mjs`
-- `docs/PRODUCT.md`
 
 [RECEIPTS]
 
+- 2026-09-10 [TOOL] Composer dropdown clipping fix: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks opened the long translation list and the CEFR menu and confirmed both render beyond the form boundary over lower controls.
 - 2026-09-10 [TOOL] Editorial sidebar refresh: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the React Icons treatment, active-state navigation, and aligned expanded/collapsed layouts.
 - 2026-09-10 [TOOL] Editorial generation animation: 50 tests, lint, typecheck, production build, and diff validation passed. Browser inspection confirmed the unchanged composer baseline; the pending state was not submitted because that would invoke the configured remote generation provider.
 - 2026-09-09 [TOOL] Sidebar-aware centering: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks at the desktop preview width measured matching 32px gaps between content and the sidebar edge/right viewport edge in both expanded and collapsed states.

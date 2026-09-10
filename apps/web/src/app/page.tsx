@@ -32,7 +32,7 @@ export default function Home() {
             className="block w-full resize-none bg-transparent px-5 pt-5 pb-3 text-base leading-7 outline-none placeholder:text-muted-foreground sm:px-6 sm:pt-6"
           />
 
-          <div className="border-t border-border bg-background px-4 py-4 sm:px-5">
+          <div className="rounded-b-[inherit] border-t border-border bg-background px-4 py-4 sm:px-5">
             <div className="mb-3 flex items-center justify-between gap-4">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 Text settings

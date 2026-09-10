@@ -136,7 +136,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             Reading desk
           </p>
           <div className="border-y border-border">
-            {navigationItems.map(({ href, label, icon: Icon, folio }) => {
+            {navigationItems.map(({ href, label, icon: Icon}) => {
               const active = pathname === href;
 
               return (
@@ -151,12 +151,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                 >
                   <Icon aria-hidden="true" className="size-[18px] shrink-0 stroke-[1.5]" />
                   <span className={labelClass}>{label}</span>
-                  <span
-                    aria-hidden="true"
-                    className={`${labelClass} ml-auto font-mono text-[9px] font-normal tracking-[0.08em] text-muted-foreground`}
-                  >
-                    {folio}
-                  </span>
                 </Link>
               );
             })}

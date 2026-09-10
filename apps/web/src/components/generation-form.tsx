@@ -80,7 +80,7 @@ export function GenerationForm({ children }: { children: ReactNode }) {
       <form
         onSubmit={submit}
         aria-busy={pending}
-        className="relative overflow-hidden rounded-xl border border-border bg-paper"
+        className="relative rounded-xl border border-border bg-paper"
       >
         <fieldset
           disabled={pending || Boolean(unsaved)}
@@ -93,7 +93,7 @@ export function GenerationForm({ children }: { children: ReactNode }) {
           <div
             role="status"
             aria-live="polite"
-            className="absolute inset-0 flex items-center justify-center bg-paper px-6 py-8"
+            className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] bg-paper px-6 py-8"
           >
             <div className="flex w-full max-w-md items-center gap-6 sm:gap-8">
               <div className="generation-proof" aria-hidden="true">
