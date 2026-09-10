@@ -161,3 +161,170 @@ select,
 textarea {
   font: inherit;
 }
+
+.generation-proof {
+  position: relative;
+  flex: 0 0 auto;
+  width: 7.25rem;
+  height: 9rem;
+  overflow: hidden;
+  border: 1px solid var(--foreground);
+  background: var(--paper);
+  box-shadow:
+    5px 5px 0 var(--warm-highlight),
+    6px 6px 0 var(--foreground);
+}
+
+.generation-proof::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    color-mix(in srgb, var(--accent) 24%, transparent) 50%,
+    transparent 62%
+  );
+  transform: translateX(-125%);
+  animation: proof-sweep 2.8s ease-in-out infinite;
+}
+
+.generation-proof__folio {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.8rem;
+  color: var(--foreground);
+  font-family: var(--app-font-serif);
+  font-size: 1.6rem;
+  font-style: italic;
+  line-height: 1;
+}
+
+.generation-proof__rule,
+.generation-proof__line {
+  position: absolute;
+  left: 0.8rem;
+  display: block;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: typeset-line 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.generation-proof__rule {
+  top: 2.65rem;
+  width: 5.6rem;
+  height: 2px;
+  background: var(--accent);
+}
+
+.generation-proof__line {
+  width: 5.6rem;
+  height: 1px;
+  background: color-mix(in srgb, var(--foreground) 58%, transparent);
+}
+
+.generation-proof__line--1 {
+  top: 3.7rem;
+  animation-delay: 80ms;
+}
+
+.generation-proof__line--2 {
+  top: 4.55rem;
+  width: 4.65rem;
+  animation-delay: 160ms;
+}
+
+.generation-proof__line--3 {
+  top: 5.4rem;
+  animation-delay: 240ms;
+}
+
+.generation-proof__line--4 {
+  top: 6.25rem;
+  width: 5.05rem;
+  animation-delay: 320ms;
+}
+
+.generation-proof__line--5 {
+  top: 7.1rem;
+  width: 3.7rem;
+  animation-delay: 400ms;
+}
+
+.generation-proof__page-number {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.55rem;
+  font-family: var(--app-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+}
+
+.generation-ellipsis::after {
+  content: '';
+  animation: editorial-ellipsis 1.5s steps(4, end) infinite;
+}
+
+@keyframes typeset-line {
+  0%,
+  10% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  42%,
+  78% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes proof-sweep {
+  0%,
+  48% {
+    transform: translateX(-125%);
+  }
+  78%,
+  100% {
+    transform: translateX(125%);
+  }
+}
+
+@keyframes editorial-ellipsis {
+  0% {
+    content: '';
+  }
+  25% {
+    content: '.';
+  }
+  50% {
+    content: '..';
+  }
+  75%,
+  100% {
+    content: '...';
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .generation-proof::after,
+  .generation-proof__rule,
+  .generation-proof__line,
+  .generation-ellipsis::after {
+    animation: none;
+  }
+
+  .generation-proof__rule,
+  .generation-proof__line {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .generation-ellipsis::after {
+    content: '…';
+  }
+}

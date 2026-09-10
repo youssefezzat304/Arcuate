@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function MyTextsPage() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center px-5 py-16 sm:px-8 sm:py-24">
+    <main className="mx-auto min-h-dvh max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Your reading collection
       </p>

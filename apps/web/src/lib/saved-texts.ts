@@ -45,11 +45,17 @@ export const savedTextSchema = generatedTextSchema
   }));
 export type SavedText = z.infer<typeof savedTextSchema>;
 const prefix = 'arcuate:text:v1:';
+export const SAVED_TEXTS_CHANGED_EVENT = 'arcuate:saved-texts-changed';
+
+function announceSavedTextsChanged() {
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(SAVED_TEXTS_CHANGED_EVENT));
+}
 
 export function saveText(text: SavedText) {
   const validated = savedTextSchema.parse(text);
   // One key per record avoids overwriting another tab's newly saved texts.
   localStorage.setItem(prefix + validated.id, JSON.stringify(validated));
+  announceSavedTextsChanged();
 }
 
 export function readText(id: string): SavedText | null {
@@ -77,6 +83,13 @@ export function saveTextAnnotations(id: string, annotations: TextAnnotation[]) {
   const updated = savedTextSchema.parse({ ...text, annotations });
   saveText(updated);
   return updated;
+}
+
+export function deleteText(id: string) {
+  const text = readText(id);
+  if (!text) throw new Error('This text is no longer saved in this browser.');
+  localStorage.removeItem(prefix + id);
+  announceSavedTextsChanged();
 }
 
 export function listTexts() {

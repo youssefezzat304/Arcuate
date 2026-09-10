@@ -32,6 +32,10 @@ The MVP includes:
 Texts are saved automatically in the current browser using localStorage and can
 be reopened from My texts without an account. Clearing site data removes them.
 Account holders will eventually have cloud storage; authentication is deferred.
+My texts presents saved readings as a responsive editorial card grid with a
+title-initial cover and per-card actions. The first card previews a future text
+import flow; importing is not implemented. A saved reading can be deleted from
+its action menu after confirmation.
 
 ## Generation scope
 
@@ -50,6 +54,11 @@ Readers can bookmark a selected word or short phrase (up to 200 characters) into
 an existing list or create a list while saving. Saved words shows each list and
 its words, with language and links to the source reading. Lists are saved on the
 current browser without an account.
+
+Word lookup provides two save actions. The bookmark icon immediately saves the
+lookup word to one global `Bookmarks` list, creating it on first use and reusing it
+across languages. The plus icon opens the standard picker to choose another list or
+create a new one.
 
 The library shows only list names. Clicking a name opens a dedicated list page
 at `/saved-words/[id]` with its words and actions to copy the list as Markdown, rename it, or delete it after confirmation.
@@ -85,14 +94,18 @@ Control+Y (strikethrough), and Escape (dismiss). Formatting shortcuts require a 
 
 Settings includes browser-local preferences for light, dark, or system-matched
 appearance; app language; and reader body-text size in pixels. Reader text
-defaults to 14px. App language currently updates the document language for
-accessibility; translated interface copy is not yet implemented.
+defaults to 14px, and the explanatory content inside word lookup follows the
+same size. App language currently updates the document language for accessibility;
+translated interface copy is not yet implemented.
 
 ## Navigation and reading timer
 
-Opening or collapsing the sidebar overlays the same centered page layout without
-shifting its content. On phones, the closed sidebar becomes a compact floating
-control so the centered content keeps the full reading width.
+On desktop, the page recenters within the horizontal space left beside the
+sidebar. Expanding or collapsing navigation therefore changes the content's
+available canvas while keeping the gap from the sidebar to the centered content
+equal to the content's right-side gap. On phones, navigation remains an overlay
+and its closed state becomes a compact floating control so reading keeps the full
+width.
 
 Each reading has a collapsible stopwatch in the right margin on wide screens,
 and above the article when space is limited. Start/resume and pause control
@@ -116,11 +129,13 @@ normal reader treatment with a primary-color underline and no highlight backgrou
 Original text and saved annotations remain unchanged.
 
 Click a source word for a popover with its translation, general meaning, contextual
-meaning, grammar, and exactly three examples with translations. Explanations use
+meaning, grammar, and up to four distinct examples with translations. Explanations use
 Gemini Flash-Lite and appear in the selected translation language. They are AI
-generated, with loading, retry, and error states. Drag selection still opens the
-formatting toolbar; selections crossing revealed translations cannot be annotated
-until originals are restored.
+generated, with loading, retry, and error states. The editorial popover presents
+the direct translation in its header and separates the larger explanation,
+examples, and grammar views into keyboard-accessible tabs. Drag selection still
+opens the formatting toolbar; selections crossing revealed translations cannot be
+annotated until originals are restored.
 
 Earlier source-only readings remain readable and support word explanations in
 English. Generate a new reading with a translation language to use sentence and

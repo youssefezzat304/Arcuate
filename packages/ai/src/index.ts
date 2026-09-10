@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { z } from 'zod';
 import { generatedTextSchema } from './schema.ts';
 import { bilingualTextSchema, assembleBilingualText } from './translation-schema.ts';
-export { explainWord } from './word-explanation.ts';
+export { explainWord, WORD_EXPLANATION_PROMPTS } from './word-explanation.ts';
 import { masterPrompt } from './prompt.ts';
 
 const levelGuidance = {

@@ -4,7 +4,13 @@ import { useEffect, useId, useRef, useState } from 'react';
 
 type Action = { label: string; onSelect: () => void };
 
-export function ListActionsMenu({ actions }: { actions: Action[] }) {
+export function ListActionsMenu({
+  actions,
+  label = 'List actions',
+}: {
+  actions: Action[];
+  label?: string;
+}) {
   const [open, setOpen] = useState(false);
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
@@ -39,7 +45,7 @@ export function ListActionsMenu({ actions }: { actions: Action[] }) {
       <button
         ref={trigger}
         type="button"
-        aria-label="List actions"
+        aria-label={label}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? id : undefined}
@@ -58,7 +64,7 @@ export function ListActionsMenu({ actions }: { actions: Action[] }) {
         <div
           id={id}
           role="menu"
-          aria-label="List actions"
+          aria-label={label}
           className="absolute right-0 top-full z-20 mt-2 w-52 max-w-[calc(100vw-64px)] rounded-lg border border-border bg-paper p-1 shadow-sm"
           onKeyDown={(event) => {
             const current = items.current.findIndex((item) => item === document.activeElement);

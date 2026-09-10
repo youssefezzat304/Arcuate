@@ -80,17 +80,49 @@ export function GenerationForm({ children }: { children: ReactNode }) {
       <form
         onSubmit={submit}
         aria-busy={pending}
-        className="rounded-xl border border-border bg-paper"
+        className="relative overflow-hidden rounded-xl border border-border bg-paper"
       >
-        <fieldset disabled={pending || Boolean(unsaved)} className="min-w-0 disabled:opacity-60">
+        <fieldset
+          disabled={pending || Boolean(unsaved)}
+          inert={pending ? true : undefined}
+          className={`min-w-0 transition-opacity duration-300 ${pending ? 'pointer-events-none opacity-0' : 'disabled:opacity-60'}`}
+        >
           {children}
         </fieldset>
+        {pending && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="absolute inset-0 flex items-center justify-center bg-paper px-6 py-8"
+          >
+            <div className="flex w-full max-w-md items-center gap-6 sm:gap-8">
+              <div className="generation-proof" aria-hidden="true">
+                <span className="generation-proof__folio">A</span>
+                <span className="generation-proof__rule" />
+                <span className="generation-proof__line generation-proof__line--1" />
+                <span className="generation-proof__line generation-proof__line--2" />
+                <span className="generation-proof__line generation-proof__line--3" />
+                <span className="generation-proof__line generation-proof__line--4" />
+                <span className="generation-proof__line generation-proof__line--5" />
+                <span className="generation-proof__page-number">01</span>
+              </div>
+              <div className="min-w-0">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Setting the type
+                </p>
+                <p className="font-serif text-2xl leading-tight tracking-[-0.025em] sm:text-3xl">
+                  Writing your reading
+                  <span className="generation-ellipsis" aria-hidden="true" />
+                  <span className="sr-only">…</span>
+                </p>
+                <p className="mt-3 text-xs leading-5 text-muted-foreground sm:text-sm">
+                  Longer reads may take a few minutes. Keep this page open.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </form>
-      {pending && (
-        <p role="status" className="mt-4 text-sm leading-6 text-muted-foreground">
-          Writing your text… Longer reads may take a few minutes. Keep this page open.
-        </p>
-      )}
       {error && (
         <p role="alert" className="mt-4 text-sm leading-6 text-foreground">
           {error}

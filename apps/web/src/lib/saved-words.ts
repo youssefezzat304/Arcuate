@@ -4,6 +4,7 @@ import { normalizeToken } from '@arcuate/language';
 import { createTextRequestSchema } from './reading-settings.ts';
 
 export const SAVED_WORDS_CHANGED_EVENT = 'arcuate:saved-words-changed';
+export const BOOKMARKS_LIST_NAME = 'Bookmarks';
 
 export const wordDraftSchema = z.object({
   text: z.string().trim().min(1).max(200),
@@ -110,6 +111,14 @@ export function saveWordToList(listId: string, draft: WordDraft) {
     writeList(list);
   }
   return { list, duplicate };
+}
+
+export function saveWordToBookmarks(draft: WordDraft) {
+  const existing = listWordLists().lists.find(
+    (list) => nameKey(list.name) === nameKey(BOOKMARKS_LIST_NAME),
+  );
+  if (existing) return saveWordToList(existing.id, draft);
+  return { list: createWordList(BOOKMARKS_LIST_NAME, draft), duplicate: false };
 }
 
 export function renameWordList(id: string, name: string) {

@@ -96,6 +96,20 @@ export const wordExplanationSchema = z.object({
         translation: z.string().trim().min(1).max(1000),
       }),
     )
-    .length(3),
+    .min(1)
+    .max(4)
+    .superRefine((examples, context) => {
+      const sources = new Set<string>();
+      for (const [index, example] of examples.entries()) {
+        const normalized = example.source.normalize('NFC').toLocaleLowerCase();
+        if (sources.has(normalized))
+          context.addIssue({
+            code: 'custom',
+            message: 'Example sentences must be distinct.',
+            path: [index, 'source'],
+          });
+        sources.add(normalized);
+      }
+    }),
 });
 export type WordExplanation = z.infer<typeof wordExplanationSchema>;

@@ -36,6 +36,7 @@ import { SaveWordDialog } from '@/components/save-word-dialog';
 import {
   listSavedWords,
   SAVED_WORDS_CHANGED_EVENT,
+  saveWordToBookmarks,
   type SavedWord,
   type WordDraft,
 } from '@/lib/saved-words';
@@ -353,6 +354,31 @@ export function FormattableReader({
     setNotice('');
   }
 
+  function lookupWordDraft(value: WordLookup): WordDraft {
+    const { input, blockIndex } = value;
+    let identity: Pick<WordDraft, 'lemmas' | 'partOfSpeech' | 'analysisVersion'> = {};
+    if (blockIndex > 0) {
+      const selectedTokens = (analysis.paragraphs[blockIndex - 1] ?? []).filter(
+        (token) => token.start >= input.start && token.end <= input.end,
+      );
+      const lexemes = selectedTokens.flatMap((token) => token.lexemes);
+      if (lexemes.length)
+        identity = {
+          lemmas: lexemes.map((lexeme) => lexeme.lemma),
+          partOfSpeech: lexemes.length === 1 ? lexemes[0]!.partOfSpeech : undefined,
+          analysisVersion: analysis.version,
+        };
+    }
+    return {
+      text: input.surface,
+      language,
+      sourceTextId: textId,
+      sourceTitle: title,
+      normalizedText: normalizeToken(input.surface, language),
+      ...identity,
+    };
+  }
+
   const showWord = useCallback(
     (blockIndex: number, start: number, end: number, element: HTMLElement) => {
       if (window.getSelection()?.toString().trim()) return;
@@ -362,6 +388,7 @@ export function FormattableReader({
       }
       const rect = element.getBoundingClientRect();
       setLookup({
+        blockIndex,
         input: {
           surface: texts[blockIndex]!.slice(start, end),
           paragraph: texts[blockIndex]!,
@@ -681,7 +708,32 @@ export function FormattableReader({
           })}
         </div>
       </div>
-      {lookup && <WordExplanationPopover lookup={lookup} onClose={closeLookup} />}
+      {lookup && (
+        <WordExplanationPopover
+          lookup={lookup}
+          onClose={closeLookup}
+          onBookmark={() => {
+            const draft = lookupWordDraft(lookup);
+            try {
+              const { list, duplicate } = saveWordToBookmarks(draft);
+              setNotice(duplicate ? `Already saved in ${list.name}.` : `Saved to ${list.name}.`);
+            } catch (failure) {
+              setNotice(
+                failure instanceof DOMException
+                  ? 'This word could not be bookmarked. Browser storage may be full or blocked.'
+                  : failure instanceof Error
+                    ? failure.message
+                    : 'This word could not be bookmarked. Please try again.',
+              );
+            }
+          }}
+          onAddToList={() => {
+            setWord(lookupWordDraft(lookup));
+            setLookup(null);
+            setNotice('');
+          }}
+        />
+      )}
       {selected && (
         <div
           ref={toolbarRef}

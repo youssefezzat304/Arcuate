@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   const model = process.env.GEMINI_LOOKUP_MODEL || 'gemini-3.5-flash-lite';
-  const key = JSON.stringify([1, model, parsed.data]);
+  const key = JSON.stringify([2, model, parsed.data]);
   const cached = cache.get(key);
   if (cached && cached.expiresAt > Date.now())
     return Response.json(cached.answer, { headers: { 'Cache-Control': 'no-store' } });

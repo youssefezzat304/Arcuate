@@ -7,6 +7,7 @@ import {
   listTexts,
   countCharacters,
   saveTextAnnotations,
+  deleteText,
 } from '../src/lib/saved-texts.ts';
 import { generateText } from '../../../packages/ai/src/index.ts';
 
@@ -25,6 +26,9 @@ Object.defineProperty(globalThis, 'localStorage', {
     },
     setItem(key, value) {
       data.set(key, value);
+    },
+    removeItem(key) {
+      data.delete(key);
     },
   },
 });
@@ -76,6 +80,21 @@ test('saved records survive reads, remain isolated, and sort newest first', () =
     ],
   );
   assert.equal(readText('323e4567-e89b-42d3-a456-426614174000'), null);
+});
+
+test('deletes only the selected saved text', () => {
+  saveText(record);
+  const second = { ...record, id: '223e4567-e89b-42d3-a456-426614174000' };
+  saveText(second);
+
+  deleteText(record.id);
+
+  assert.equal(readText(record.id), null);
+  assert.deepEqual(
+    listTexts().texts.map(({ id }) => id),
+    [second.id],
+  );
+  assert.throws(() => deleteText('323e4567-e89b-42d3-a456-426614174000'), /no longer saved/);
 });
 
 test('corrupt records are retained and reported alongside healthy records', () => {

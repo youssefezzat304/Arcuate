@@ -5,6 +5,7 @@ import {
   readWordList,
   listWordLists,
   saveWordToList,
+  saveWordToBookmarks,
   renameWordList,
   removeSavedWord,
   deleteWordList,
@@ -58,6 +59,19 @@ test('adds to existing lists without losing words, avoids duplicates per languag
   assert.equal(listWordLists().lists[0].words.length, 3);
   const another = createWordList('Favorites', word);
   assert.equal(another.words.length, 1);
+});
+
+test('global bookmarks are created once and reused across languages', () => {
+  const first = saveWordToBookmarks(word);
+  assert.equal(first.list.name, 'Bookmarks');
+  assert.equal(first.duplicate, false);
+  assert.equal(saveWordToBookmarks({ ...word, text: 'sonne' }).duplicate, true);
+  saveWordToBookmarks({ ...word, language: 'fr' });
+  saveWordToBookmarks({ ...word, text: 'Licht' });
+  const [bookmarks] = listWordLists().lists;
+  assert.equal(listWordLists().lists.length, 1);
+  assert.equal(bookmarks.name, 'Bookmarks');
+  assert.equal(bookmarks.words.length, 3);
 });
 
 test('rejects blank or duplicate list names and invalid selections', () => {

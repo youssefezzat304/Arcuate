@@ -6,7 +6,11 @@ import {
   translationFitsText,
   wordExplanationSchema,
 } from '../../../packages/ai/src/translation-schema.ts';
-import { generateText, explainWord } from '../../../packages/ai/src/index.ts';
+import {
+  generateText,
+  explainWord,
+  WORD_EXPLANATION_PROMPTS,
+} from '../../../packages/ai/src/index.ts';
 import { savedTextSchema } from '../src/lib/saved-texts.ts';
 import { wordExplanationRequestSchema } from '../src/lib/word-explanation.ts';
 import { sliceTextRuns, readingWords } from '../src/lib/reader-translation.ts';
@@ -151,14 +155,34 @@ test('word requests bind explanations to the selected occurrence and validate la
   ]) {
     assert.equal(wordExplanationRequestSchema.safeParse({ ...input, ...patch }).success, false);
   }
+  assert.equal(wordExplanationSchema.safeParse({ ...explanation, examples: [] }).success, false);
   assert.equal(
-    wordExplanationSchema.safeParse({ ...explanation, examples: explanation.examples.slice(0, 2) })
-      .success,
+    wordExplanationSchema.safeParse({
+      ...explanation,
+      examples: [...explanation.examples, ...explanation.examples.slice(0, 2)],
+    }).success,
     false,
+  );
+  assert.equal(
+    wordExplanationSchema.safeParse({
+      ...explanation,
+      examples: [explanation.examples[0], explanation.examples[0]],
+    }).success,
+    false,
+  );
+  assert.equal(
+    wordExplanationSchema.safeParse({
+      ...explanation,
+      examples: [
+        ...explanation.examples,
+        { source: 'Ihr steht jeden Tag auf.', translation: 'You get up every day.' },
+      ],
+    }).success,
+    true,
   );
 });
 
-test('Flash-Lite lookup sends contextual data and returns exactly three examples', async (t) => {
+test('Flash-Lite lookup sends section prompts and accepts up to four distinct examples', async (t) => {
   let sent;
   t.mock.method(globalThis, 'fetch', async (request, init) => {
     sent = JSON.parse(init?.body ?? (await request.text()));
@@ -168,7 +192,15 @@ test('Flash-Lite lookup sends contextual data and returns exactly three examples
     await explainWord(input, { apiKey: 'test-key', model: 'gemini-3.5-flash-lite' }),
     explanation,
   );
-  assert.deepEqual(JSON.parse(sent.contents[0].parts[0].text), input);
+  assert.deepEqual(JSON.parse(sent.contents[0].parts[0].text), {
+    prompts: WORD_EXPLANATION_PROMPTS,
+    word: input.surface,
+    context: input.paragraph,
+    selection: { start: input.start, end: input.end },
+    sourceLanguage: input.sourceLanguage,
+    targetLanguage: input.targetLanguage,
+    level: input.level,
+  });
   assert.equal(sent.generationConfig.maxOutputTokens, 3072);
 });
 

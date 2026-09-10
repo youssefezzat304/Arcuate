@@ -207,7 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div
         id="main-content"
         tabIndex={-1}
-        className="relative z-10 min-h-dvh pt-20 outline-none md:px-24 md:pt-0"
+        className="relative z-10 min-h-dvh pt-20 outline-none transition-[padding-left] duration-200 md:pt-0 md:pl-[260px] md:group-data-[collapsed=true]:pl-[84px] motion-reduce:transition-none"
       >
         {children}
       </div>

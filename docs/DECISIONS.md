@@ -6,6 +6,7 @@
 - 2026-09-07 [CODE] Now: saved words are recognized across readings, reader annotations persist per text, and Settings provides browser-local display preferences.
 - 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
 - 2026-09-08 [CODE] Provider: Gemini generation with optional aligned translations; Flash-Lite supplies contextual word explanations.
+- 2026-09-10 [CODE] Composer generation now uses an in-place editorial typesetting animation for the full pending request.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
 
 [DECISIONS]
@@ -103,7 +104,7 @@ D022 ACTIVE — 2026-09-08 [USER]
 Use the shared in-app confirmation dialog for list deletion and annotation clearing. Replace composer language/CEFR native selects with custom dropdowns. Add a bottom-right reader info button for shortcut help.
 2026-09-08 [CODE] The guide and formatting handler share a shortcut registry for future additions; the guide lists only implemented shortcuts.
 
-D023 ACTIVE — 2026-09-08 [USER]
+D023 SUPERSEDED IN PART BY D030 — 2026-09-08 [USER]
 Sidebar toggling must leave every page centered and stationary. Add a collapsible per-reading timer with start/pause, restart, stop/save, best time, and ten recent sessions.
 2026-09-08 [ASSUMPTION] Best means the shortest completed session for that reading. Completed history persists locally; unfinished timer state lasts while the reading remains open.
 2026-09-08 [CODE] Closed mobile navigation is a compact floating control; expanded navigation overlays the page.
@@ -125,7 +126,37 @@ Make the word-explanation popover more compact, give its examples a darker group
 2026-09-09 [USER] Extend the literature texture across the whole page, add more text and languages, and keep every card and widget above it. The background must never paint over the reading timer.
 2026-09-09 [CODE] The page content now owns a stacking context above the full-viewport literature layer; opaque cards and widgets mask the texture while transparent page space continues to reveal it. The effect remains limited to hover-capable fine pointers.
 
+D027 ACTIVE — 2026-09-09 [USER]
+Restyle word lookup around a strong headword-and-translation header with Explain, Examples, and Grammar views, while retaining Arcuate's editorial visual language and increasing the reading size.
+2026-09-09 [CODE] The existing structured explanation response is reorganized into accessible tabs without changing provider requests. The ink header, yellow serif headword, double frame, shaded examples, and larger serif content retain the established visual system; arrow, Home, and End keys navigate tabs.
+2026-09-09 [USER] Word-lookup explanatory text must use the same font-size preference as the reader.
+2026-09-09 [CODE] Lookup explanations, examples, grammar, tabs, and the direct translation now scale from `--reader-font-size`; the headword remains a distinct display heading.
+2026-09-09 [USER] Use dedicated task prompts for Explain, Examples, and Grammar. Examples request up to four distinct sentences in the source language, each followed by a translation.
+2026-09-09 [CODE] The three supplied prompts are sent together in the existing structured Gemini lookup request and mapped to their respective response fields. Runtime validation now accepts one to four examples and rejects duplicate source sentences.
+2026-09-09 [USER] Remove the white frame around word lookup.
+2026-09-09 [CODE] Word lookup now uses one clean outer border with no inset frame or white gap; its layout, tabs, and shadow remain unchanged.
+
+D028 ACTIVE — 2026-09-09 [USER]
+Remove the remaining white word-lookup outline. Add a bookmark action that saves immediately to a global `Bookmarks` list and a plus action that opens the existing choose-or-create-list flow.
+2026-09-09 [CODE] Word lookup has no outer border. `Bookmarks` is created on first use and then reused across languages through the existing validated localStorage list model; duplicate word/language pairs are not added twice. The plus action converts the lookup occurrence into the same linguistic word draft used by the selection toolbar before opening `SaveWordDialog`.
+
+D029 ACTIVE — 2026-09-09 [USER]
+Present My texts as a responsive card collection. Use the title's first letter as each cover, reserve the first card for a future import flow, and give every saved text a three-dot menu with deletion.
+2026-09-09 [CODE] Import remains a disabled visual placeholder. Text deletion removes only the selected browser-local record after confirmation and refreshes the library in the same tab.
+
+D030 ACTIVE — 2026-09-09 [USER]
+On desktop, center page content inside the space remaining beside the navigation sidebar so the left and right whitespace stays balanced as the sidebar expands or collapses.
+2026-09-09 [CODE] The shared shell reserves the sidebar's current width before child pages apply their existing centered max-width layouts. Mobile navigation remains an overlay. This supersedes only D023's stationary desktop-content requirement; its reading-timer decisions remain active.
+
+D031 ACTIVE — 2026-09-10 [USER]
+Play a loading animation while a reading is being generated, using the website's editorial visual language.
+2026-09-10 [CODE] The composer becomes an in-place paper proof with animated typesetting lines, a warm print-color sweep, progress copy, and a static reduced-motion treatment for the full request duration.
+
 [PROGRESS]
+
+- 2026-09-10 [CODE] Added an accessible, reduced-motion-aware editorial generation animation to the composer.
+- 2026-09-09 [CODE] Made every desktop page recenter responsively within the space beside the current sidebar width.
+- 2026-09-09 [CODE] Replaced the saved-text list with an editorial cover grid, a future-import placeholder, and confirmation-protected per-text deletion.
 
 - 2026-09-07 [CODE] Added exact and Stanza-backed language analysis, lazy text enrichment, linguistic saved-word identity, and reactive cross-text highlighting.
 - 2026-09-07 [CODE] Added reader formatting shortcuts, strikethrough, a theme-invariant black toolbar, and dark-mode annotation colors.
@@ -155,6 +186,7 @@ Make the word-explanation popover more compact, give its examples a darker group
 
 [OUTCOMES]
 
+- 2026-09-10 [CODE] Text generation now visibly replaces the disabled composer with a stable-height typesetting proof until the reading opens or the request fails.
 - 2026-09-07 [CODE] Highlights and text styles now survive reopening a reading. A disabled-when-empty action at the reading top clears them after confirmation and leaves saved-word styling intact.
 - 2026-09-07 [CODE] Reader selections now support Ctrl+B bold, Ctrl+H last-color highlighting, Ctrl+U underline, and Ctrl+Y strikethrough. The toolbar remains black across themes, while highlight fills and text colors use dark-mode-specific muted variants.
 - 2026-09-07 [CODE] Saved words now appear bold with a warm underline across same-language texts. Exact forms work without services; lemma-inflected forms activate when Stanza annotations are available.
@@ -174,6 +206,8 @@ Make the word-explanation popover more compact, give its examples a darker group
 
 [WORKING SET]
 
+- `apps/web/src/components/generation-form.tsx`
+- `apps/web/src/app/globals.css`
 - `apps/web/src/lib/saved-texts.ts`
 - `apps/web/src/lib/saved-words.ts`
 - `apps/web/src/lib/saved-word-matching.ts`
@@ -187,6 +221,12 @@ Make the word-explanation popover more compact, give its examples a darker group
 
 [RECEIPTS]
 
+- 2026-09-10 [TOOL] Editorial generation animation: 50 tests, lint, typecheck, production build, and diff validation passed. Browser inspection confirmed the unchanged composer baseline; the pending state was not submitted because that would invoke the configured remote generation provider.
+- 2026-09-09 [TOOL] Sidebar-aware centering: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks at the desktop preview width measured matching 32px gaps between content and the sidebar edge/right viewport edge in both expanded and collapsed states.
+- 2026-09-09 [TOOL] My texts card library: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the responsive import-first grid, title-initial cover, accessible three-dot menu, and dark delete-confirmation overlay without deleting the retained preview record.
+- 2026-09-09 [TOOL] Lookup save actions: 49 tests, lint, typecheck, production build, and diff validation passed. Browser checks confirmed the borderless lookup, immediate `Saved to Bookmarks` feedback, and the plus action opening the standard picker with `Bookmarks` and existing custom lists. Storage tests verify one global list, cross-language reuse, and duplicate suppression.
+- 2026-09-09 [TOOL] Section-specific word prompts: 48 tests, lint, typecheck, production build, and diff validation passed. Provider-mock assertions verified the exact Explain, Examples, and Grammar prompt registry plus word, context, offsets, languages, and CEFR data. Schema tests cover 1–4 examples, reject a fifth, and reject duplicate source sentences.
+- 2026-09-09 [TOOL] Tabbed word lookup: 48 tests, lint, typecheck, production build, and diff validation passed. Browser checks covered Explain, Examples, and Grammar at the narrow preview width; the larger content remained contained, and ArrowLeft moved focus and selection between tabs correctly.
 - 2026-09-09 [TOOL] Full-page literature reveal: 48 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the torch in central page space and confirmed opaque form surfaces paint above it. The shared page stacking context keeps the fixed reading timer and all other widgets above the background layer.
 - 2026-09-09 [TOOL] Editorial UI treatment: 48 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the compact double-framed word card, grouped darker examples, and the dark overlay treatment. The ambient gutter layer is CSS-gated to wide fine-pointer layouts and uses a soft circular mask.
 - 2026-09-09 [TOOL] Shortcut-only translation: 48 tests, lint, typecheck, production build, and diff validation passed. Browser checks confirmed the orb is absent and Ctrl+E still opens the hovered-word explanation. Source inspection confirmed revealed sentence and paragraph spans use the accent underline and clear when the held shortcut ends.
