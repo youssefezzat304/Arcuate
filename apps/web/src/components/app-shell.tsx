@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { FiBookmark, FiBookOpen, FiEdit3, FiLogIn, FiSidebar, FiSliders } from 'react-icons/fi';
 import { AmbientLiterature } from '@/components/ambient-literature';
 import { PREFERENCES_STORAGE_KEY, applyPreferences, readPreferences } from '@/lib/preferences';
 
@@ -11,57 +12,12 @@ const focusClass =
 const labelClass =
   'hidden whitespace-nowrap md:inline md:group-data-[collapsed=true]:hidden max-md:group-data-[mobile-open=true]:inline';
 
-function SidebarIcon({
-  name,
-}: {
-  name: 'new' | 'texts' | 'login' | 'collapse' | 'words' | 'settings';
-}) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="size-5 shrink-0"
-    >
-      {name === 'new' && (
-        <>
-          <path d="M14 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9" />
-          <path d="m17 3 4 4-10 10-5 1 1-5L17 3Z" />
-        </>
-      )}
-      {name === 'texts' && (
-        <>
-          <path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-2H4V4Z" />
-          <path d="M13 7a3 3 0 0 1 3-3h5v15h-4a4 4 0 0 0-4 2" />
-        </>
-      )}
-      {name === 'login' && (
-        <>
-          <path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M3 12h12m-4-4 4 4-4 4" />
-        </>
-      )}
-      {name === 'words' && <path d="M6 3h12v18l-6-4-6 4V3Z" />}
-      {name === 'settings' && (
-        <>
-          <path d="M4 6h16M4 12h16M4 18h16" />
-          <circle cx="8" cy="6" r="2" fill="var(--paper)" />
-          <circle cx="16" cy="12" r="2" fill="var(--paper)" />
-          <circle cx="10" cy="18" r="2" fill="var(--paper)" />
-        </>
-      )}
-      {name === 'collapse' && (
-        <>
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M9 4v16m7-11-3 3 3 3" />
-        </>
-      )}
-    </svg>
-  );
-}
+const navigationItems = [
+  { href: '/', label: 'New text', icon: FiEdit3},
+  { href: '/texts', label: 'My texts', icon: FiBookOpen},
+  { href: '/saved-words', label: 'Saved words', icon: FiBookmark},
+  { href: '/settings', label: 'Settings', icon: FiSliders},
+] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -126,10 +82,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           aria-label="Arcuate home"
           title="Arcuate"
           onClick={() => setMobileOpen(false)}
-          className={`max-md:hidden max-md:group-data-[mobile-open=true]:flex mb-5 flex h-12 shrink-0 items-center gap-0 rounded-lg px-3 font-serif text-2xl font-semibold tracking-[-0.04em] ${focusClass}`}
+          className={`mb-4 flex h-14 shrink-0 items-center gap-0 border-b border-foreground/15 px-3 font-serif text-2xl font-semibold tracking-[-0.04em] max-md:hidden max-md:group-data-[mobile-open=true]:flex ${focusClass}`}
         >
           <span>A</span>
           <span className={labelClass}>rcuate</span>
+          <span
+            className={`${labelClass} ml-auto font-mono text-[9px] font-normal tracking-[0.14em] text-muted-foreground`}
+          >
+            EST. 26
+          </span>
         </Link>
 
         <button
@@ -139,10 +100,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           aria-controls="app-sidebar"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           onClick={() => setCollapsed(!collapsed)}
-          className={`mb-7 hidden h-11 shrink-0 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-background hover:text-foreground md:flex ${focusClass}`}
+          className={`mb-8 hidden h-10 shrink-0 items-center gap-3 px-3 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground md:flex ${focusClass}`}
         >
-          <span className={collapsed ? 'rotate-180' : ''}>
-            <SidebarIcon name="collapse" />
+          <span
+            className={`transition-transform duration-200 motion-reduce:transition-none ${collapsed ? 'rotate-180' : ''}`}
+          >
+            <FiSidebar aria-hidden="true" className="size-5 shrink-0" />
           </span>
           <span className={labelClass}>Collapse</span>
         </button>
@@ -153,53 +116,65 @@ export function AppShell({ children }: { children: ReactNode }) {
           aria-expanded={mobileOpen}
           aria-controls="app-sidebar"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className={`mb-0 group-data-[mobile-open=true]:mb-7 flex h-11 shrink-0 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-background md:hidden ${focusClass}`}
+          className={`mb-0 flex h-10 shrink-0 items-center gap-3 px-3 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground group-data-[mobile-open=true]:mb-8 hover:text-foreground md:hidden ${focusClass}`}
         >
-          <span className={mobileOpen ? '' : 'rotate-180'}>
-            <SidebarIcon name="collapse" />
+          <span
+            className={`transition-transform duration-200 motion-reduce:transition-none ${mobileOpen ? '' : 'rotate-180'}`}
+          >
+            <FiSidebar aria-hidden="true" className="size-5 shrink-0" />
           </span>
           <span className={labelClass}>Collapse</span>
         </button>
 
         <nav
           aria-label="Main navigation"
-          className="space-y-2 max-md:hidden max-md:group-data-[mobile-open=true]:block"
+          className="max-md:hidden max-md:group-data-[mobile-open=true]:block"
         >
-          {(
-            [
-              { href: '/', label: 'New text', icon: 'new' },
-              { href: '/texts', label: 'My texts', icon: 'texts' },
-              { href: '/saved-words', label: 'Saved words', icon: 'words' },
-              { href: '/settings', label: 'Settings', icon: 'settings' },
-            ] as const
-          ).map(({ href, label, icon }) => (
-            <Link
-              key={href}
-              href={href}
-              aria-label={label}
-              aria-current={pathname === href ? 'page' : undefined}
-              title={label}
-              onClick={() => setMobileOpen(false)}
-              className={`flex h-12 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors hover:bg-background aria-[current=page]:bg-warm-highlight aria-[current=page]:text-foreground ${focusClass}`}
-            >
-              <SidebarIcon name={icon} />
-              <span className={labelClass}>{label}</span>
-            </Link>
-          ))}
+          <p
+            className={`${labelClass} mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground`}
+          >
+            Reading desk
+          </p>
+          <div className="border-y border-border">
+            {navigationItems.map(({ href, label, icon: Icon, folio }) => {
+              const active = pathname === href;
+
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-label={label}
+                  aria-current={active ? 'page' : undefined}
+                  title={label}
+                  onClick={() => setMobileOpen(false)}
+                  className={`relative flex h-12 items-center gap-3 border-b border-border px-3 text-xs font-semibold uppercase tracking-[0.08em] transition-colors last:border-b-0 hover:bg-background ${active ? 'bg-warm-highlight text-foreground before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-foreground' : 'text-ink-secondary'} ${focusClass}`}
+                >
+                  <Icon aria-hidden="true" className="size-[18px] shrink-0 stroke-[1.5]" />
+                  <span className={labelClass}>{label}</span>
+                  <span
+                    aria-hidden="true"
+                    className={`${labelClass} ml-auto font-mono text-[9px] font-normal tracking-[0.08em] text-muted-foreground`}
+                  >
+                    {folio}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
         <div className="mt-auto pt-8 max-md:hidden max-md:group-data-[mobile-open=true]:block">
-          <div className="border-t border-border pt-4">
+          <div className="border-t border-foreground/15 pt-4">
             <button
               type="button"
               disabled
               aria-label="Login (coming soon)"
               title="Login — coming soon"
-              className="flex h-12 w-full cursor-not-allowed items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground"
+              className="flex h-12 w-full cursor-not-allowed items-center gap-3 px-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
             >
-              <SidebarIcon name="login" />
+              <FiLogIn aria-hidden="true" className="size-[18px] shrink-0 stroke-[1.5]" />
               <span className={labelClass}>Login</span>
-              <span className={`${labelClass} ml-auto text-[10px]`}>Soon</span>
+              <span className={`${labelClass} ml-auto font-mono text-[9px] font-normal`}>Soon</span>
             </button>
           </div>
         </div>

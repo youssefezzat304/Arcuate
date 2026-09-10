@@ -152,8 +152,13 @@ D031 ACTIVE — 2026-09-10 [USER]
 Play a loading animation while a reading is being generated, using the website's editorial visual language.
 2026-09-10 [CODE] The composer becomes an in-place paper proof with animated typesetting lines, a warm print-color sweep, progress copy, and a static reduced-motion treatment for the full request duration.
 
+D032 ACTIVE — 2026-09-10 [USER]
+Use React Icons in the navigation and make the sidebar better match the editorial visual direction.
+2026-09-10 [CODE] The sidebar uses Feather icons through `react-icons`, a numbered Reading desk index, fine rules, compact uppercase navigation typography, and a print-like active band while preserving responsive collapse behavior.
+
 [PROGRESS]
 
+- 2026-09-10 [CODE] Replaced inline sidebar SVGs with React Icons and refined the navigation into a compact editorial index.
 - 2026-09-10 [CODE] Added an accessible, reduced-motion-aware editorial generation animation to the composer.
 - 2026-09-09 [CODE] Made every desktop page recenter responsively within the space beside the current sidebar width.
 - 2026-09-09 [CODE] Replaced the saved-text list with an editorial cover grid, a future-import placeholder, and confirmation-protected per-text deletion.
@@ -186,6 +191,7 @@ Play a loading animation while a reading is being generated, using the website's
 
 [OUTCOMES]
 
+- 2026-09-10 [CODE] Sidebar navigation now has one consistent icon source and a sharper print-inspired hierarchy across expanded and collapsed states.
 - 2026-09-10 [CODE] Text generation now visibly replaces the disabled composer with a stable-height typesetting proof until the reading opens or the request fails.
 - 2026-09-07 [CODE] Highlights and text styles now survive reopening a reading. A disabled-when-empty action at the reading top clears them after confirmation and leaves saved-word styling intact.
 - 2026-09-07 [CODE] Reader selections now support Ctrl+B bold, Ctrl+H last-color highlighting, Ctrl+U underline, and Ctrl+Y strikethrough. The toolbar remains black across themes, while highlight fills and text colors use dark-mode-specific muted variants.
@@ -207,12 +213,12 @@ Play a loading animation while a reading is being generated, using the website's
 [WORKING SET]
 
 - `apps/web/src/components/generation-form.tsx`
+- `apps/web/src/components/app-shell.tsx`
 - `apps/web/src/app/globals.css`
 - `apps/web/src/lib/saved-texts.ts`
 - `apps/web/src/lib/saved-words.ts`
 - `apps/web/src/lib/saved-word-matching.ts`
 - `apps/web/src/lib/text-formatting.ts`
-- `apps/web/src/components/clear-annotations-dialog.tsx`
 - `apps/web/src/components/formattable-reader.tsx`
 - `apps/web/src/components/saved-reader.tsx`
 - `apps/web/tests/generation.test.mjs`
@@ -221,6 +227,7 @@ Play a loading animation while a reading is being generated, using the website's
 
 [RECEIPTS]
 
+- 2026-09-10 [TOOL] Editorial sidebar refresh: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the React Icons treatment, active-state navigation, and aligned expanded/collapsed layouts.
 - 2026-09-10 [TOOL] Editorial generation animation: 50 tests, lint, typecheck, production build, and diff validation passed. Browser inspection confirmed the unchanged composer baseline; the pending state was not submitted because that would invoke the configured remote generation provider.
 - 2026-09-09 [TOOL] Sidebar-aware centering: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks at the desktop preview width measured matching 32px gaps between content and the sidebar edge/right viewport edge in both expanded and collapsed states.
 - 2026-09-09 [TOOL] My texts card library: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the responsive import-first grid, title-initial cover, accessible three-dot menu, and dark delete-confirmation overlay without deleting the retained preview record.
