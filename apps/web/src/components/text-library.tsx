@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
+import { AddTextDialog } from '@/components/add-text-dialog';
 import { ListActionsMenu } from '@/components/list-actions-menu';
 import { StatusNotice } from '@/components/status-notice';
 import { useNotice } from '@/hooks/use-notice';
@@ -22,6 +23,7 @@ type LibraryState =
 export function TextLibrary() {
   const [state, setState] = useState<LibraryState>({ status: 'loading' });
   const [pendingDelete, setPendingDelete] = useState<SavedText | null>(null);
+  const [addingText, setAddingText] = useState(false);
   const [notice, showNotice] = useNotice();
 
   useEffect(() => {
@@ -69,9 +71,8 @@ export function TextLibrary() {
         <li>
           <button
             type="button"
-            disabled
-            aria-label="Import a text, coming later"
-            className="flex h-full min-h-80 w-full cursor-not-allowed flex-col items-center justify-center rounded-xl border border-dashed border-border bg-paper px-6 text-center"
+            onClick={() => setAddingText(true)}
+            className="flex h-full min-h-80 w-full flex-col items-center justify-center rounded-xl border border-dashed border-border bg-paper px-6 text-center transition-colors hover:border-muted-foreground hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <span
               aria-hidden="true"
@@ -79,9 +80,9 @@ export function TextLibrary() {
             >
               +
             </span>
-            <span className="mt-6 font-serif text-2xl">Import a text</span>
+            <span className="mt-6 font-serif text-2xl">Add text</span>
             <span className="mt-2 text-xs uppercase tracking-[0.12em] text-muted-foreground">
-              Coming later
+              From your own collection
             </span>
           </button>
         </li>
@@ -111,11 +112,20 @@ export function TextLibrary() {
                 className="flex h-full flex-col rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <div
-                  className={`flex aspect-[4/3] items-center justify-center rounded-lg border border-border font-serif text-8xl ${coverTone}`}
+                  className={`relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg border border-border bg-cover bg-center font-serif text-8xl ${coverTone}`}
                   aria-hidden="true"
                   dir="auto"
+                  style={
+                    text.backgroundImage
+                      ? { backgroundImage: `url(${text.backgroundImage})` }
+                      : undefined
+                  }
                 >
-                  {Array.from(text.title.trim())[0] ?? 'A'}
+                  {text.backgroundImage ? (
+                    <span className="absolute inset-0 bg-overlay/20" />
+                  ) : (
+                    (Array.from(text.title.trim())[0] ?? 'A')
+                  )}
                 </div>
                 <h2 className="mt-5 line-clamp-3 font-serif text-2xl leading-tight" dir="auto">
                   {text.title}
@@ -134,7 +144,7 @@ export function TextLibrary() {
       </ul>
       {state.texts.length === 0 && (
         <p className="mt-6 text-sm leading-6 text-muted-foreground">
-          Your generated readings will appear here.{' '}
+          Your saved readings will appear here.{' '}
           <Link href="/" className="font-semibold text-foreground underline underline-offset-4">
             Create your first text
           </Link>
@@ -155,6 +165,15 @@ export function TextLibrary() {
             } catch {
               showNotice('This text could not be deleted. Please try again.');
             }
+          }}
+        />
+      )}
+      {addingText && (
+        <AddTextDialog
+          onClose={() => setAddingText(false)}
+          onAdded={() => {
+            setAddingText(false);
+            showNotice('Text added.');
           }}
         />
       )}

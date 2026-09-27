@@ -7,6 +7,7 @@
 - 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
 - 2026-09-08 [CODE] Provider: Gemini generation with optional aligned translations; Flash-Lite supplies contextual word explanations.
 - 2026-09-10 [CODE] Composer generation now uses an in-place editorial typesetting animation for the full pending request.
+- 2026-09-27 [CODE] My texts accepts manually supplied readings with optional local cover images and automatically derived character counts.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
 
 [DECISIONS]
@@ -140,7 +141,7 @@ D028 ACTIVE — 2026-09-09 [USER]
 Remove the remaining white word-lookup outline. Add a bookmark action that saves immediately to a global `Bookmarks` list and a plus action that opens the existing choose-or-create-list flow.
 2026-09-09 [CODE] Word lookup has no outer border. `Bookmarks` is created on first use and then reused across languages through the existing validated localStorage list model; duplicate word/language pairs are not added twice. The plus action converts the lookup occurrence into the same linguistic word draft used by the selection toolbar before opening `SaveWordDialog`.
 
-D029 ACTIVE — 2026-09-09 [USER]
+D029 SUPERSEDED IN PART BY D033 — 2026-09-09 [USER]
 Present My texts as a responsive card collection. Use the title's first letter as each cover, reserve the first card for a future import flow, and give every saved text a three-dot menu with deletion.
 2026-09-09 [CODE] Import remains a disabled visual placeholder. Text deletion removes only the selected browser-local record after confirmation and refreshes the library in the same tab.
 
@@ -156,8 +157,15 @@ D032 ACTIVE — 2026-09-10 [USER]
 Use React Icons in the navigation and make the sidebar better match the editorial visual direction.
 2026-09-10 [CODE] The sidebar uses Feather icons through `react-icons`, a numbered Reading desk index, fine rules, compact uppercase navigation typography, and a print-like active band while preserving responsive collapse behavior.
 
+D033 ACTIVE — 2026-09-27 [USER]
+Replace the disabled My texts import card with an Add text action. Its dialog collects a background image, title, body, language, and CEFR level; title and body require content and character count is automatic.
+2026-09-27 [CODE] Background images are optional, restricted to JPG, PNG, or WebP files up to 1 MB, stored browser-locally with the reading, and used as card covers. Manual readings use the existing validated saved-text, reader, analysis, annotation, and vocabulary flows.
+Reason: user-supplied readings should behave like generated readings without creating a parallel reader or persistence model.
+This supersedes only D029's disabled future-import placeholder; its card-grid and deletion decisions remain active.
+
 [PROGRESS]
 
+- 2026-09-27 [CODE] Replaced the disabled My texts import placeholder with a validated Add text dialog and optional image-backed covers.
 - 2026-09-10 [CODE] Replaced inline sidebar SVGs with React Icons and refined the navigation into a compact editorial index.
 - 2026-09-10 [CODE] Added an accessible, reduced-motion-aware editorial generation animation to the composer.
 - 2026-09-09 [CODE] Made every desktop page recenter responsively within the space beside the current sidebar width.
@@ -192,6 +200,7 @@ Use React Icons in the navigation and make the sidebar better match the editoria
 
 [OUTCOMES]
 
+- 2026-09-27 [CODE] Users can add their own reading, receive an automatic character count, and reopen it through the existing reader with the same language-aware functionality as generated text.
 - 2026-09-10 [CODE] Language, translation, and CEFR menus can again overlay lower composer controls and extend beyond the form in light and dark themes without losing rounded corners.
 - 2026-09-10 [CODE] Sidebar navigation now has one consistent icon source and a sharper print-inspired hierarchy across expanded and collapsed states.
 - 2026-09-10 [CODE] Text generation now visibly replaces the disabled composer with a stable-height typesetting proof until the reading opens or the request fails.
@@ -214,8 +223,8 @@ Use React Icons in the navigation and make the sidebar better match the editoria
 
 [WORKING SET]
 
-- `apps/web/src/components/generation-form.tsx`
-- `apps/web/src/app/page.tsx`
+- `apps/web/src/components/add-text-dialog.tsx`
+- `apps/web/src/components/text-library.tsx`
 - `apps/web/src/components/app-shell.tsx`
 - `apps/web/src/app/globals.css`
 - `apps/web/src/lib/saved-texts.ts`
@@ -229,6 +238,7 @@ Use React Icons in the navigation and make the sidebar better match the editoria
 
 [RECEIPTS]
 
+- 2026-09-27 [TOOL] Add text flow: 52 tests, repository lint, typecheck, production build, and diff validation passed. Automated browser inspection was unavailable because computer-use permission was not granted.
 - 2026-09-10 [TOOL] Composer dropdown clipping fix: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks opened the long translation list and the CEFR menu and confirmed both render beyond the form boundary over lower controls.
 - 2026-09-10 [TOOL] Editorial sidebar refresh: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the React Icons treatment, active-state navigation, and aligned expanded/collapsed layouts.
 - 2026-09-10 [TOOL] Editorial generation animation: 50 tests, lint, typecheck, production build, and diff validation passed. Browser inspection confirmed the unchanged composer baseline; the pending state was not submitted because that would invoke the configured remote generation provider.

@@ -33,9 +33,12 @@ Texts are saved automatically in the current browser using localStorage and can
 be reopened from My texts without an account. Clearing site data removes them.
 Account holders will eventually have cloud storage; authentication is deferred.
 My texts presents saved readings as a responsive editorial card grid with a
-title-initial cover and per-card actions. The first card previews a future text
-import flow; importing is not implemented. A saved reading can be deleted from
-its action menu after confirmation.
+title-initial cover and per-card actions. The first card opens an Add text dialog
+for saving an existing reading with a required title and body, language, CEFR
+level, and an optional cover image. Character count is derived automatically.
+Manually added readings use the same reader, annotation, and saved-word features
+as generated readings. A saved reading can be deleted from its action menu after
+confirmation.
 
 ## Generation scope
 

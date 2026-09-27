@@ -6,6 +6,9 @@ import {
   readText,
   listTexts,
   countCharacters,
+  countManualTextCharacters,
+  createManualText,
+  manualTextInputSchema,
   saveTextAnnotations,
   deleteText,
 } from '../src/lib/saved-texts.ts';
@@ -225,6 +228,52 @@ test('provider rejects malformed and incomplete responses', async (t) => {
 test('character counts include spaces and paragraph breaks without splitting Unicode characters', () => {
   assert.equal(countCharacters(['A B', 'C']), 6);
   assert.equal(countCharacters(['e\u0301😊']), 2);
+});
+
+test('manual texts require a title and body and derive their character count', () => {
+  const input = {
+    title: 'Eigener Text',
+    text: 'Erster Absatz.\n\nZweiter Absatz 😊',
+    language: 'de',
+    level: 'B1',
+  };
+  assert.equal(manualTextInputSchema.safeParse({ ...input, title: ' ' }).success, false);
+  assert.equal(manualTextInputSchema.safeParse({ ...input, text: '' }).success, false);
+  assert.equal(
+    manualTextInputSchema.safeParse({ ...input, title: 'A', text: 'B' }).success,
+    true,
+  );
+  assert.equal(countManualTextCharacters(input.text), 32);
+
+  const manual = createManualText(input);
+  assert.equal(manual.source, 'manual');
+  assert.deepEqual(manual.paragraphs, ['Erster Absatz.', 'Zweiter Absatz 😊']);
+  assert.equal(manual.characterCount, countManualTextCharacters(input.text));
+  assert.equal(manual.settings.language, 'de');
+  assert.equal(manual.settings.level, 'B1');
+});
+
+test('manual text cover images are validated and persist with the reading', () => {
+  const backgroundImage = 'data:image/png;base64,aA==';
+  const manual = createManualText({
+    backgroundImage,
+    title: 'Mit Bild',
+    text: 'Lesetext',
+    language: 'de',
+    level: 'A2',
+  });
+  saveText(manual);
+  assert.equal(readText(manual.id).backgroundImage, backgroundImage);
+  assert.equal(
+    manualTextInputSchema.safeParse({
+      backgroundImage: 'data:image/svg+xml;base64,aA==',
+      title: 'SVG',
+      text: 'Text',
+      language: 'de',
+      level: 'A2',
+    }).success,
+    false,
+  );
 });
 
 test('existing word-count records remain readable with a derived character count', () => {

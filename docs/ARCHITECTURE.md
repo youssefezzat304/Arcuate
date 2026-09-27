@@ -88,8 +88,12 @@ shared output schema, so client code does not import the provider SDK.
 
 The browser saves each validated response under `arcuate:text:v1:<uuid>` in
 localStorage before opening `/texts/[id]`. Records contain the title, paragraphs,
-settings, actual character count, creation time, and validated formatting
-annotations represented as text offsets plus semantic style values. `/texts` lists these records.
+settings, actual character count, creation time, optional source marker and cover
+image, and validated formatting annotations represented as text offsets plus
+semantic style values. `/texts` lists these records. The My texts Add text dialog
+creates manual records through the same validated schema, derives exact language
+analysis and grapheme-aware character counts locally, and accepts optional JPG,
+PNG, or WebP cover images up to 1 MB as browser-local data URLs.
 Per-record keys avoid replacing the whole library during concurrent tab writes.
 Corrupt records are reported and retained; storage failures allow retrying the
 save without another generation request. Clearing site data removes the library.

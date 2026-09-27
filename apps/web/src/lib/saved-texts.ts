@@ -5,6 +5,43 @@ import { textAnalysisSchema } from '@arcuate/language/schema';
 import { createTextRequestSchema } from './reading-settings.ts';
 import { textAnnotationSchema, type TextAnnotation } from './text-formatting.ts';
 
+const backgroundImageSchema = z
+  .string()
+  .max(1_500_000, 'Choose an image smaller than 1 MB.')
+  .regex(
+    /^data:image\/(?:jpeg|png|webp);base64,[a-zA-Z0-9+/]+=*$/,
+    'Choose a JPG, PNG, or WebP image.',
+  );
+
+export const manualTextInputSchema = z.object({
+  backgroundImage: backgroundImageSchema.optional(),
+  title: z.string().trim().min(1, 'Enter a title.').max(300, 'Use 300 characters or fewer.'),
+  text: z
+    .string()
+    .trim()
+    .min(1, 'Enter some text.')
+    .max(100_000, 'Use 100,000 characters or fewer.'),
+  language: createTextRequestSchema.shape.language,
+  level: createTextRequestSchema.shape.level,
+}).superRefine(({ text }, context) => {
+  const paragraphs = manualTextParagraphs(text);
+  if (paragraphs.length > 300) {
+    context.addIssue({
+      code: 'custom',
+      path: ['text'],
+      message: 'Use 300 paragraphs or fewer.',
+    });
+  }
+  if (paragraphs.some((paragraph) => paragraph.length > 20_000)) {
+    context.addIssue({
+      code: 'custom',
+      path: ['text'],
+      message: 'Keep each paragraph to 20,000 characters or fewer.',
+    });
+  }
+});
+export type ManualTextInput = z.infer<typeof manualTextInputSchema>;
+
 export function countCharacters(paragraphs: string[]) {
   const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
   return Array.from(segmenter.segment(paragraphs.join('\n\n'))).length;
@@ -12,6 +49,8 @@ export function countCharacters(paragraphs: string[]) {
 
 export const savedTextSchema = generatedTextSchema
   .extend({
+    source: z.enum(['generated', 'manual']).optional(),
+    backgroundImage: backgroundImageSchema.optional(),
     id: z.uuid(),
     createdAt: z.iso.datetime(),
     // Preserve the original preset on older readings without accepting it for new requests.
@@ -56,6 +95,38 @@ export function saveText(text: SavedText) {
   // One key per record avoids overwriting another tab's newly saved texts.
   localStorage.setItem(prefix + validated.id, JSON.stringify(validated));
   announceSavedTextsChanged();
+}
+
+export function manualTextParagraphs(text: string) {
+  return text
+    .trim()
+    .split(/\n\s*\n/u)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
+export function countManualTextCharacters(text: string) {
+  return countCharacters(manualTextParagraphs(text));
+}
+
+export function createManualText(input: ManualTextInput) {
+  const parsed = manualTextInputSchema.parse(input);
+  return savedTextSchema.parse({
+    source: 'manual',
+    backgroundImage: parsed.backgroundImage,
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    settings: {
+      topic: parsed.title,
+      language: parsed.language,
+      level: parsed.level,
+      // Manual readings have no requested length; retain the smallest valid legacy target.
+      length: 2000,
+    },
+    title: parsed.title,
+    paragraphs: manualTextParagraphs(parsed.text),
+    annotations: [],
+  });
 }
 
 export function readText(id: string): SavedText | null {
