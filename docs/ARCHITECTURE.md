@@ -178,6 +178,12 @@ to the original text. The reader keeps hidden original runs while showing transl
 spans, excludes translation/metadata from selection offsets, and rejects annotation
 selections crossing a revealed translation.
 
+Reader PDF export is browser-local and adds no PDF service or provider request.
+The browser lays out the original and saved translation as high-resolution A4
+canvas pages, preserving the browser's multilingual glyph rendering, then packages
+the JPEG pages into a downloadable PDF. Readings without saved translation export
+their original text only.
+
 `POST /api/words/explain` validates the selected surface against its offsets in a
 bounded source paragraph, language pair, and CEFR level. `packages/ai` owns the
 Flash-Lite prompt and structured output for meaning, context, grammar, and three

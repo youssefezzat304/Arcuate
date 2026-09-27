@@ -79,9 +79,12 @@ explanations are available on click; pronunciation remains planned.
 
 ## Text annotations
 
-Each reading has a Copy as Markdown button beside Clear annotations. It copies
-the title, language/CEFR/character-count metadata, and original paragraphs, without
-reader annotations or saved-word styling. The same metadata appears below the title.
+Each reading has icon actions for Copy as Markdown, Download as PDF, and Clear
+annotations. Markdown copies the title, language/CEFR/character-count metadata,
+and original paragraphs without annotations or saved-word styling. PDF downloads
+use an A4 editorial layout and include the translated title and each translated
+paragraph when the saved reading has a translation. The same metadata appears
+below the title.
 
 Reader highlights, text colors, bold, italic, underline, and strikethrough are
 saved with each text in the current browser and restored when the reading is

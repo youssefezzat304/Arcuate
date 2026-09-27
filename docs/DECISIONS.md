@@ -8,6 +8,7 @@
 - 2026-09-08 [CODE] Provider: Gemini generation with optional aligned translations; Flash-Lite supplies contextual word explanations.
 - 2026-09-10 [CODE] Composer generation now uses an in-place editorial typesetting animation for the full pending request.
 - 2026-09-27 [CODE] My texts accepts manually supplied readings with optional local cover images and automatically derived character counts.
+- 2026-09-27 [CODE] Reader actions are icon-based and saved bilingual readings can be downloaded as locally rendered PDFs.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
 
 [DECISIONS]
@@ -163,8 +164,14 @@ Replace the disabled My texts import card with an Add text action. Its dialog co
 Reason: user-supplied readings should behave like generated readings without creating a parallel reader or persistence model.
 This supersedes only D029's disabled future-import placeholder; its card-grid and deletion decisions remain active.
 
+D034 ACTIVE — 2026-09-27 [USER]
+Use icon-only reader actions and add a PDF download containing the reading and its translation language.
+2026-09-27 [CODE] Copy Markdown, Download PDF, and Clear annotations are accessible icon buttons with labels and tooltips. PDF export runs entirely in the browser, lays out source and saved translation pairs on A4 pages, and uses canvas-rendered page images so multilingual glyphs do not depend on PDF standard-font encoding. Source-only readings export without a translation section.
+Reason: the reader should offer compact actions and dependable multilingual downloads without adding a server PDF service or font bundle.
+
 [PROGRESS]
 
+- 2026-09-27 [CODE] Added compact reader icon actions and browser-local bilingual PDF downloads.
 - 2026-09-27 [CODE] Replaced the disabled My texts import placeholder with a validated Add text dialog and optional image-backed covers.
 - 2026-09-10 [CODE] Replaced inline sidebar SVGs with React Icons and refined the navigation into a compact editorial index.
 - 2026-09-10 [CODE] Added an accessible, reduced-motion-aware editorial generation animation to the composer.
@@ -200,6 +207,7 @@ This supersedes only D029's disabled future-import placeholder; its card-grid an
 
 [OUTCOMES]
 
+- 2026-09-27 [CODE] Saved readings can be downloaded in a print-oriented PDF that pairs every source paragraph with its available translation.
 - 2026-09-27 [CODE] Users can add their own reading, receive an automatic character count, and reopen it through the existing reader with the same language-aware functionality as generated text.
 - 2026-09-10 [CODE] Language, translation, and CEFR menus can again overlay lower composer controls and extend beyond the form in light and dark themes without losing rounded corners.
 - 2026-09-10 [CODE] Sidebar navigation now has one consistent icon source and a sharper print-inspired hierarchy across expanded and collapsed states.
@@ -225,9 +233,9 @@ This supersedes only D029's disabled future-import placeholder; its card-grid an
 
 - `apps/web/src/components/add-text-dialog.tsx`
 - `apps/web/src/components/text-library.tsx`
-- `apps/web/src/components/app-shell.tsx`
 - `apps/web/src/app/globals.css`
 - `apps/web/src/lib/saved-texts.ts`
+- `apps/web/src/lib/reading-pdf.ts`
 - `apps/web/src/lib/saved-words.ts`
 - `apps/web/src/lib/saved-word-matching.ts`
 - `apps/web/src/lib/text-formatting.ts`
@@ -238,6 +246,7 @@ This supersedes only D029's disabled future-import placeholder; its card-grid an
 
 [RECEIPTS]
 
+- 2026-09-27 [TOOL] Reader PDF export: 53 tests, repository lint, typecheck, production build, and diff validation passed. A representative German-English PDF was packaged by the application encoder, recognized as PDF 1.4 with one page, and its Quick Look render showed clean unclipped bilingual layout.
 - 2026-09-27 [TOOL] Add text flow: 52 tests, repository lint, typecheck, production build, and diff validation passed. Automated browser inspection was unavailable because computer-use permission was not granted.
 - 2026-09-10 [TOOL] Composer dropdown clipping fix: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks opened the long translation list and the CEFR menu and confirmed both render beyond the form boundary over lower controls.
 - 2026-09-10 [TOOL] Editorial sidebar refresh: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks verified the React Icons treatment, active-state navigation, and aligned expanded/collapsed layouts.

@@ -42,6 +42,9 @@ import {
 } from '@/lib/saved-words';
 import { findSavedWordRanges, type TextRange } from '@/lib/saved-word-matching';
 import { translationShortcutAction } from '@/lib/reader-shortcuts';
+import { downloadReadingPdf } from '@/lib/reading-pdf';
+import { SUPPORTED_LANGUAGES } from '@/lib/supported-languages';
+import { FiCopy, FiDownload, FiLoader, FiTrash2 } from 'react-icons/fi';
 
 const colors = ['yellow', 'rose', 'green', 'blue', 'purple'] as const;
 const controlClass =
@@ -126,6 +129,7 @@ export function FormattableReader({
   const [confirmClear, setConfirmClear] = useState(false);
   const [word, setWord] = useState<WordDraft | null>(null);
   const [notice, setNotice] = useNotice();
+  const [pdfPending, setPdfPending] = useState(false);
   const [savedWords, setSavedWords] = useState<SavedWord[]>([]);
   const rootRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -610,6 +614,8 @@ export function FormattableReader({
       <div dir="ltr" className="mb-6 flex flex-wrap justify-end gap-2">
         <button
           type="button"
+          aria-label="Copy as Markdown"
+          title="Copy as Markdown"
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(readingMarkdown(title, paragraphs, metadata));
@@ -618,19 +624,68 @@ export function FormattableReader({
               setNotice('Could not copy. Allow clipboard access and try again.');
             }
           }}
-          className="min-h-9 rounded-lg border border-border bg-paper px-3 py-2 font-sans text-xs font-semibold text-muted-foreground hover:bg-background hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+          className="flex size-10 items-center justify-center rounded-lg border border-border bg-paper text-muted-foreground hover:bg-background hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
         >
-          Copy as Markdown
+          <FiCopy aria-hidden="true" className="size-4" />
+        </button>
+        <button
+          type="button"
+          aria-label={translation ? 'Download PDF with translation' : 'Download PDF'}
+          title={translation ? 'Download as PDF with translation' : 'Download as PDF'}
+          disabled={pdfPending}
+          onClick={async () => {
+            setPdfPending(true);
+            try {
+              const sourceLanguage = SUPPORTED_LANGUAGES.find((item) => item.code === language);
+              const translatedLanguage = translation
+                ? SUPPORTED_LANGUAGES.find((item) => item.code === translation.language)
+                : undefined;
+              await downloadReadingPdf({
+                title,
+                paragraphs,
+                metadata,
+                sourceLanguage: {
+                  code: language,
+                  label: sourceLanguage?.name ?? language,
+                },
+                translation,
+                translationLanguage: translation
+                  ? {
+                      code: translation.language,
+                      label: translatedLanguage?.name ?? translation.language,
+                    }
+                  : undefined,
+              });
+              setNotice(
+                translation
+                  ? 'Downloaded PDF with translation.'
+                  : 'Downloaded PDF. This reading has no saved translation.',
+              );
+            } catch {
+              setNotice('The PDF could not be created. Please try again.');
+            } finally {
+              setPdfPending(false);
+            }
+          }}
+          className="flex size-10 items-center justify-center rounded-lg border border-border bg-paper text-muted-foreground hover:bg-background hover:text-foreground disabled:cursor-wait disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+        >
+          {pdfPending ? (
+            <FiLoader aria-hidden="true" className="size-4 animate-spin" />
+          ) : (
+            <FiDownload aria-hidden="true" className="size-4" />
+          )}
         </button>
         <button
           ref={clearButtonRef}
           type="button"
           dir="ltr"
+          aria-label="Clear annotations"
+          title="Clear annotations"
           disabled={!blocksHaveAnnotations(blocks)}
           onClick={() => setConfirmClear(true)}
-          className="min-h-9 rounded-lg border border-border bg-paper px-3 py-2 font-sans text-xs font-semibold text-muted-foreground hover:bg-background hover:text-foreground disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+          className="flex size-10 items-center justify-center rounded-lg border border-border bg-paper text-muted-foreground hover:bg-background hover:text-destructive disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
         >
-          Clear annotations
+          <FiTrash2 aria-hidden="true" className="size-4" />
         </button>
       </div>
       <div

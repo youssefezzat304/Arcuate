@@ -13,6 +13,7 @@ import {
   deleteText,
 } from '../src/lib/saved-texts.ts';
 import { generateText } from '../../../packages/ai/src/index.ts';
+import { buildPdfFromJpegs } from '../src/lib/reading-pdf.ts';
 
 const data = new Map();
 Object.defineProperty(globalThis, 'localStorage', {
@@ -274,6 +275,19 @@ test('manual text cover images are validated and persist with the reading', () =
     }).success,
     false,
   );
+});
+
+test('reading PDF builder creates a valid multi-page document container', () => {
+  const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xd9]);
+  const pdf = buildPdfFromJpegs([
+    { bytes: jpeg, width: 10, height: 10 },
+    { bytes: jpeg, width: 10, height: 10 },
+  ]);
+  const document = Buffer.from(pdf).toString('latin1');
+  assert.equal(document.startsWith('%PDF-1.4'), true);
+  assert.match(document, /\/Type \/Pages \/Count 2/);
+  assert.match(document, /\/Subtype \/Image/);
+  assert.equal(document.endsWith('%%EOF\n'), true);
 });
 
 test('existing word-count records remain readable with a derived character count', () => {
