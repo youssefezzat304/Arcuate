@@ -1,8 +1,14 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import type { IconType } from 'react-icons';
 
-type Action = { label: string; onSelect: () => void };
+type Action = {
+  label: string;
+  onSelect: () => void;
+  icon?: IconType;
+  tone?: 'default' | 'destructive';
+};
 
 export function ListActionsMenu({
   actions,
@@ -79,25 +85,31 @@ export function ListActionsMenu({
             items.current[next]?.focus();
           }}
         >
-          {actions.map((action, index) => (
-            <button
-              key={action.label}
-              ref={(element) => {
-                items.current[index] = element;
-              }}
-              type="button"
-              role="menuitem"
-              tabIndex={-1}
-              onClick={() => {
-                setOpen(false);
-                trigger.current?.focus();
-                action.onSelect();
-              }}
-              className="block min-h-11 w-full rounded-md px-3 py-2 text-left text-sm hover:bg-background focus:bg-background focus:outline-none"
-            >
-              {action.label}
-            </button>
-          ))}
+          {actions.map((action, index) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.label}
+                ref={(element) => {
+                  items.current[index] = element;
+                }}
+                type="button"
+                role="menuitem"
+                tabIndex={-1}
+                onClick={() => {
+                  setOpen(false);
+                  trigger.current?.focus();
+                  action.onSelect();
+                }}
+                className={`flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm hover:bg-background focus:bg-background focus:outline-none ${
+                  action.tone === 'destructive' ? 'text-destructive' : ''
+                }`}
+              >
+                {Icon && <Icon aria-hidden="true" className="size-4 shrink-0" />}
+                <span>{action.label}</span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

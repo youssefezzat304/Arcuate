@@ -8,6 +8,7 @@ import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { ListActionsMenu } from '@/components/list-actions-menu';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
+import { FiCopy, FiEdit3, FiTrash2 } from 'react-icons/fi';
 import {
   deleteWordList,
   removeSavedWord,
@@ -104,9 +105,10 @@ export function WordListSection({ list, preview = false }: { list: WordList; pre
         )}
         <ListActionsMenu
           actions={[
-            { label: 'Copy as Markdown', onSelect: copy },
+            { label: 'Copy as Markdown', icon: FiCopy, onSelect: copy },
             {
               label: 'Rename list',
+              icon: FiEdit3,
               onSelect: () => {
                 setName(list.name);
                 setRenaming(true);
@@ -114,7 +116,12 @@ export function WordListSection({ list, preview = false }: { list: WordList; pre
                 setNotice(null);
               },
             },
-            { label: 'Delete list', onSelect: () => setConfirmDelete(true) },
+            {
+              label: 'Delete list',
+              icon: FiTrash2,
+              tone: 'destructive',
+              onSelect: () => setConfirmDelete(true),
+            },
           ]}
         />
       </div>
@@ -174,12 +181,13 @@ export function WordListSection({ list, preview = false }: { list: WordList; pre
                   <button
                     type="button"
                     aria-label={`Remove ${word.text}`}
+                    title={`Remove ${word.text}`}
                     onClick={() =>
                       mutate(() => removeSavedWord(list.id, word.id), `Removed “${word.text}”.`)
                     }
-                    className={`${buttonClass} shrink-0`}
+                    className="flex size-11 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-background hover:text-destructive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
                   >
-                    Remove
+                    <FiTrash2 aria-hidden="true" className="size-4" />
                   </button>
                 </li>
               ))}

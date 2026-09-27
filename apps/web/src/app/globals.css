@@ -25,6 +25,7 @@
   --overlay: #0b0b0b;
   --accent: #f6bf13;
   --accent-foreground: #161616;
+  --destructive: #b42318;
   --app-font-sans: Arial, Helvetica, sans-serif;
   --app-font-serif: Georgia, 'Times New Roman', serif;
   --app-font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
@@ -41,6 +42,7 @@
   --warm-highlight: #665727;
   --accent: #e1ad12;
   --accent-foreground: #161616;
+  --destructive: #f87171;
   --color-yellow: #aa8735;
   --color-rose: #cb737e;
   --color-green: #639776;
@@ -66,6 +68,7 @@
   --color-overlay: var(--overlay);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
   --color-toolbar: var(--toolbar-background);
   --color-toolbar-foreground: var(--toolbar-foreground);
   --color-toolbar-muted: var(--toolbar-muted);

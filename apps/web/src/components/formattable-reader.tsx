@@ -711,6 +711,11 @@ export function FormattableReader({
       {lookup && (
         <WordExplanationPopover
           lookup={lookup}
+          bookmarked={
+            savedRanges[lookup.blockIndex]?.some(
+              (range) => range.start <= lookup.input.start && range.end >= lookup.input.end,
+            ) ?? false
+          }
           onClose={closeLookup}
           onBookmark={() => {
             const draft = lookupWordDraft(lookup);

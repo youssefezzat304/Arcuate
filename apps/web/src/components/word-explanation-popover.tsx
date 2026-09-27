@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { wordExplanationSchema, type WordExplanation } from '@arcuate/ai/schema';
 import type { WordExplanationRequest } from '@/lib/word-explanation';
+import { BsBookmark, BsBookmarkFill } from 'react-icons/bs';
 
 export type WordLookup = {
   blockIndex: number;
@@ -33,11 +34,13 @@ export function WordExplanationPopover({
   onClose,
   onBookmark,
   onAddToList,
+  bookmarked,
 }: {
   lookup: WordLookup;
   onClose: () => void;
   onBookmark: () => void;
   onAddToList: () => void;
+  bookmarked: boolean;
 }) {
   const lookupKey = JSON.stringify(lookup.input);
   const [state, setState] = useState<State>({ status: 'loading' });
@@ -200,21 +203,15 @@ export function WordExplanationPopover({
             <button
               type="button"
               onClick={onBookmark}
-              aria-label="Save word to Bookmarks"
-              title="Save to Bookmarks"
+              aria-label={bookmarked ? 'Word is saved' : 'Save word to Bookmarks'}
+              title={bookmarked ? 'Saved word' : 'Save to Bookmarks'}
               className="flex size-9 items-center justify-center rounded-md text-accent hover:bg-toolbar-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-                className="size-5"
-              >
-                <path d="M6 3h12v18l-6-4-6 4V3Z" />
-              </svg>
+              {bookmarked ? (
+                <BsBookmarkFill aria-hidden="true" className="size-5" />
+              ) : (
+                <BsBookmark aria-hidden="true" className="size-5" />
+              )}
             </button>
             <button
               type="button"
