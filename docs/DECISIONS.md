@@ -11,6 +11,7 @@
 - 2026-09-27 [CODE] Reader actions are icon-based and saved bilingual readings can be downloaded as locally rendered PDFs.
 - 2026-10-04 [CODE] Navigation includes Pricing, Support, and About routes; Pricing and Support are coming-soon pages.
 - 2026-10-04 [CODE] Supabase supports email/password and Google authentication, cookie-persisted sessions, current-browser logout, and a sidebar account indicator. Guest access and browser-local collections remain available.
+- 2026-10-04 [CODE] Saved readings can be extended in place with a continuation prompt and the existing length slider while retaining reading settings, translations, and annotations.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
 
 [DECISIONS]
@@ -180,7 +181,14 @@ Implement Supabase email/password signup and login, Continue with Google on both
 2026-10-04 [CODE] Use the Supabase browser/SSR SDKs, `/login`, `/signup`, and `/auth/callback` with PKCE. Next.js Proxy refreshes page-session cookies, preserves private cache headers, and forwards the new cookies to rendering. The layout verifies the account with `getUser()`. Logout uses local scope. Reading data stays browser-local and guest API access remains available; password reset and cloud storage are outside this scope.
 2026-10-04 [TOOL] Read-only project settings confirmed email/password and Google providers enabled, with email confirmation required. No remote configuration or user accounts were modified during implementation.
 
+D037 ACTIVE — 2026-10-04 [USER]
+Add an Extend text action at each reading's bottom, a continuation-prompt dialog, the home-page length option, and a dedicated master prompt carrying the original text and requested continuation. Preserve the reading language, CEFR level, and translation language.
+2026-10-04 [CODE] Append validated new paragraphs to the same local record. Bilingual readings append aligned translations; source-only readings remain source-only. Reuse the existing Gemini provider, token analysis, and 2,000–20,000-character targets. Preserve titles, original paragraphs, annotations, vocabulary, cover, and creation date. Retry storage failures without a second generation and reject stale/deleted originals.
+2026-10-04 [ASSUMPTION] The requested length applies only to new content. Bound original context to 100,000 UTF-16 code units and keep the existing 300-paragraph reading limit.
+
 [PROGRESS]
+
+- 2026-10-04 [CODE] Added extension dialog, shared length control, extension API/master prompt, validated append/save flow, and protection against stale background analysis overwriting an extended reading.
 
 - 2026-10-04 [CODE] Added Supabase account forms, OAuth callback, cookie session refresh, sidebar identity, and logout; email infrastructure remains deferred.
 
@@ -222,6 +230,7 @@ Implement Supabase email/password signup and login, Continue with Google on both
 
 [OUTCOMES]
 
+- 2026-10-04 [CODE] Readers can append generated continuations with inherited language/level/translation settings, a dedicated master prompt, preserved annotations, and save-only retries. The formatted reader remounts with all new paragraphs and moves to the first extension paragraph.
 - 2026-10-04 [CODE] The initial Supabase authentication scope is implemented. Email/password and Google share persistent cookie sessions; sidebar identity and local logout are available. Email delivery infrastructure, password reset, cloud collections, and generation gating remain deferred.
 - 2026-09-27 [CODE] Saved readings can be downloaded in a print-oriented PDF that pairs every source paragraph with its available translation.
 - 2026-09-27 [CODE] Users can add their own reading, receive an automatic character count, and reopen it through the existing reader with the same language-aware functionality as generated text.
@@ -247,21 +256,22 @@ Implement Supabase email/password signup and login, Continue with Google on both
 
 [WORKING SET]
 
-- `apps/web/src/lib/auth.ts`
-- `apps/web/src/lib/supabase/client.ts`
-- `apps/web/src/lib/supabase/server.ts`
-- `apps/web/src/lib/supabase/proxy.ts`
-- `apps/web/src/proxy.ts`
-- `apps/web/src/app/auth/callback/route.ts`
-- `apps/web/src/app/login/page.tsx`
-- `apps/web/src/app/signup/page.tsx`
-- `apps/web/src/app/layout.tsx`
-- `apps/web/src/components/auth-form.tsx`
-- `apps/web/src/components/account-navigation.tsx`
-- `apps/web/tests/auth.test.mjs`
+- `apps/web/src/lib/text-extension.ts`
+- `apps/web/src/lib/saved-texts.ts`
+- `apps/web/src/app/api/texts/extend/route.ts`
+- `apps/web/src/components/extend-text-dialog.tsx`
+- `apps/web/src/components/text-length-slider.tsx`
+- `apps/web/src/components/saved-reader.tsx`
+- `apps/web/src/components/formattable-reader.tsx`
+- `apps/web/tests/text-extension.test.mjs`
+- `packages/ai/src/prompt.ts`
+- `packages/ai/src/index.ts`
+- `docs/PRODUCT.md`
+- `docs/ARCHITECTURE.md`
 
 [RECEIPTS]
 
+- 2026-10-04 [TOOL] Text extension: all 77 tests, web lint, typecheck, production build, formatting, and diff validation passed. Provider mocks verified original text, user prompt, inherited settings, extension character target, and bilingual output. Storage tests covered annotation retention, conflicts, deletion, and save retries. HTTP checks verified home/reader routes plus extension input/origin rejection. Visual inspection was unavailable because computer-use permissions remained pending; no live Gemini generation was invoked.
 - 2026-10-04 [TOOL] Supabase authentication: all 64 tests, web lint, typecheck, production build, and diff validation passed. SDK/provider mocks exercised login, signup confirmation, PKCE, cookie persistence, refresh propagation, and local logout. HTTP checks verified guest access, both forms, private cache headers, and safe callback-error redirects. Live Google sign-in and visual UI inspection were not exercised because computer-use permissions were not granted.
 - 2026-10-04 [TOOL] Navigation additions: web lint, typecheck, production build, and diff validation passed. All three routes returned HTTP 200 with the new links, correct active navigation, and page titles. Visual browser inspection was unavailable because computer-use permissions were not granted.
 - 2026-09-27 [TOOL] Reader PDF export: 53 tests, repository lint, typecheck, production build, and diff validation passed. A representative German-English PDF was packaged by the application encoder, recognized as PDF 1.4 with one page, and its Quick Look render showed clean unclipped bilingual layout.

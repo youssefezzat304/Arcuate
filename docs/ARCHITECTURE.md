@@ -184,8 +184,37 @@ App language updates the root `lang` attribute; interface translations remain
 future work. Invalid stored records fall back to defaults, and the original
 boolean/theme-size record shape is migrated when read.
 
-The Gemini master prompt is maintained separately in `packages/ai/src/prompt.ts`
-and imported by the provider in `packages/ai/src/index.ts`.
+The generation and extension master prompts are maintained separately from
+provider orchestration in `packages/ai/src/prompt.ts` and imported by
+`packages/ai/src/index.ts`.
+
+## Text extensions
+
+`POST /api/texts/extend` validates a continuation prompt, character target, and a
+minimal copy of the original title, paragraphs, and inherited language/level/
+translation settings. It sends no cover image, annotations, or auth data to the
+provider. `packages/ai` uses the extension master prompt with the full original
+text and user instructions, sharing the existing structured Gemini response,
+translation validation, timeout, model configuration, and error handling.
+The route returns only the extension's paragraphs, aligned translations where
+requested, and paragraph-local language analysis.
+
+`apps/web/src/lib/text-extension.ts` validates the response and appends it to the
+latest browser-local reading. It preserves the original title, translated title,
+settings, cover, creation date, annotations, and existing analysis offsets.
+Mixed analysis providers retain their token records under a `mixed` analyzer
+marker. Character counts are derived again through the saved-reading schema.
+Content/settings conflicts and deleted readings are rejected before saving;
+annotation changes during generation are retained. The dialog caches unsaved
+output for save-only retries and aborts its browser request when dismissed.
+Provider work already started may continue after browser cancellation.
+
+The original context is bounded to 100,000 UTF-16 code units, the prompt to 2,000,
+and the combined reading to the existing 300-paragraph limit. Length and CEFR
+remain prompt targets. Appending remounts the formatted reader with the updated
+annotations and paragraph list so new content participates in translation,
+vocabulary, formatting, and export. Stale background analysis is checked against
+the latest paragraph list before being applied.
 
 ## Reading timer
 

@@ -61,6 +61,25 @@ in one response; translations do not count toward the source length target.
 
 Character counts include spaces, punctuation, and paragraph breaks, exclude the title, and count Unicode grapheme clusters (user-perceived characters).
 
+## Extending a reading
+
+An Extend text button at the bottom of each saved reading opens a dialog with a
+continuation prompt and the same 2,000–20,000-character slider as the composer.
+Language, CEFR level, and the existing translation language are inherited. The
+length target applies only to the new source-language paragraphs. Bilingual
+readings receive aligned translations for the extension; source-only readings
+remain source-only.
+
+The extension is appended to the same saved reading. Its original title, body,
+annotations, and vocabulary remain intact, and its character count is updated.
+After saving, the reader moves to the first new paragraph. Generation failures
+leave the original reading intact. Storage failures retain the generated
+extension in the open dialog and offer Retry saving without regenerating.
+Closing a pending dialog cancels the browser request. Existing text is limited
+to 100,000 UTF-16 code units of context, and a saved reading remains limited to
+300 paragraphs. Concurrent changes to the original content require generating
+against the latest version.
+
 ## Saved words
 
 Readers can bookmark a selected word or short phrase (up to 200 characters) into

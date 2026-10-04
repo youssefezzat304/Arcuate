@@ -6,6 +6,8 @@ import { analysisFitsText } from '@arcuate/language';
 import { textAnalysisSchema } from '@arcuate/language/schema';
 import { ReadingTimer } from '@/components/reading-timer';
 import { FormattableReader } from '@/components/formattable-reader';
+import { ExtendTextDialog } from '@/components/extend-text-dialog';
+import { FiPlus } from 'react-icons/fi';
 import { readText, saveText, saveTextAnnotations, type SavedText } from '@/lib/saved-texts';
 import type { TextAnnotation } from '@/lib/text-formatting';
 import { SUPPORTED_LANGUAGES } from '@/lib/supported-languages';
@@ -24,6 +26,8 @@ export function SavedReader({
 }) {
   const [state, setState] = useState<ReaderState>({ status: 'loading' });
   const enrichmentStarted = useRef(false);
+  const articleRef = useRef<HTMLElement>(null);
+  const [extending, setExtending] = useState(false);
   useEffect(() => {
     async function enrich(text: SavedText) {
       if (!enrichmentAvailable || enrichmentStarted.current || text.analysis.analyzer === 'stanza')
@@ -45,6 +49,7 @@ export function SavedReader({
         )
           return;
         const latest = readText(text.id) ?? text;
+        if (!analysisFitsText(parsed.data, latest.paragraphs, latest.settings.language)) return;
         const enriched = { ...latest, analysis: parsed.data };
         try {
           saveText(enriched);
@@ -103,7 +108,10 @@ export function SavedReader({
   return (
     <>
       <ReadingTimer key={text.id} textId={text.id} />
-      <article className="relative rounded-xl border border-border bg-paper px-6 py-10 sm:px-12 sm:py-14 lg:px-16">
+      <article
+        ref={articleRef}
+        className="relative rounded-xl border border-border bg-paper px-6 py-10 sm:px-12 sm:py-14 lg:px-16"
+      >
         <div
           lang={text.settings.language}
           dir={text.settings.language === 'ar' || text.settings.language === 'he' ? 'rtl' : 'ltr'}
@@ -113,7 +121,7 @@ export function SavedReader({
             translationLanguage={text.settings.translationLanguage ?? 'en'}
             level={text.settings.level}
             metadata={`${language} · ${text.settings.level} · ${text.characterCount.toLocaleString('en-US')} characters`}
-            key={text.id}
+            key={`${text.id}:${text.paragraphs.length}`}
             textId={text.id}
             language={text.settings.language}
             title={text.title}
@@ -123,7 +131,34 @@ export function SavedReader({
             onAnnotationsChange={persistAnnotations}
           />
         </div>
+        <div className="mt-10 flex justify-center border-t border-border pt-8">
+          <button
+            type="button"
+            onClick={() => setExtending(true)}
+            className="flex min-h-11 items-center gap-2 rounded-md bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+          >
+            <FiPlus aria-hidden="true" className="size-4" />
+            Extend text
+          </button>
+        </div>
       </article>
+      {extending && (
+        <ExtendTextDialog
+          text={text}
+          onClose={() => setExtending(false)}
+          onExtended={(updated) => {
+            const firstNewParagraph = text.paragraphs.length;
+            setState({ status: 'ready', text: updated });
+            requestAnimationFrame(() => {
+              const paragraph = articleRef.current?.querySelector<HTMLElement>(
+                `[data-reader-paragraph="${firstNewParagraph}"]`,
+              );
+              paragraph?.focus({ preventScroll: true });
+              paragraph?.scrollIntoView({ block: 'start' });
+            });
+          }}
+        />
+      )}
     </>
   );
 }

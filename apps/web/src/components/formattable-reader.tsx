@@ -718,7 +718,7 @@ export function FormattableReader({
         >
           {blocks.slice(1).map((runs, index) => {
             return (
-              <p key={index}>
+              <p key={index} data-reader-paragraph={index} tabIndex={-1}>
                 {translation
                   ? translation.paragraphs[index]!.sentences.map(
                       (sentence, sentenceIndex, sentences) => {
