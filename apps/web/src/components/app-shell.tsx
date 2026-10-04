@@ -3,7 +3,17 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { FiBookmark, FiBookOpen, FiEdit3, FiLogIn, FiSidebar, FiSliders } from 'react-icons/fi';
+import {
+  FiBookmark,
+  FiBookOpen,
+  FiCreditCard,
+  FiEdit3,
+  FiHelpCircle,
+  FiInfo,
+  FiLogIn,
+  FiSidebar,
+  FiSliders,
+} from 'react-icons/fi';
 import { AmbientLiterature } from '@/components/ambient-literature';
 import { PREFERENCES_STORAGE_KEY, applyPreferences, readPreferences } from '@/lib/preferences';
 
@@ -17,6 +27,9 @@ const navigationItems = [
   { href: '/texts', label: 'My texts', icon: FiBookOpen},
   { href: '/saved-words', label: 'Saved words', icon: FiBookmark},
   { href: '/settings', label: 'Settings', icon: FiSliders},
+  { href: '/pricing', label: 'Pricing', icon: FiCreditCard },
+  { href: '/support', label: 'Support', icon: FiHelpCircle },
+  { href: '/about', label: 'About', icon: FiInfo },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {

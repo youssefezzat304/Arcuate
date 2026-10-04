@@ -9,6 +9,7 @@
 - 2026-09-10 [CODE] Composer generation now uses an in-place editorial typesetting animation for the full pending request.
 - 2026-09-27 [CODE] My texts accepts manually supplied readings with optional local cover images and automatically derived character counts.
 - 2026-09-27 [CODE] Reader actions are icon-based and saved bilingual readings can be downloaded as locally rendered PDFs.
+- 2026-10-04 [CODE] Navigation includes Pricing, Support, and About routes; Pricing and Support are coming-soon pages.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
 
 [DECISIONS]
@@ -169,7 +170,13 @@ Use icon-only reader actions and add a PDF download containing the reading and i
 2026-09-27 [CODE] Copy Markdown, Download PDF, and Clear annotations are accessible icon buttons with labels and tooltips. PDF export runs entirely in the browser, lays out source and saved translation pairs on A4 pages, and uses canvas-rendered page images so multilingual glyphs do not depend on PDF standard-font encoding. Source-only readings export without a translation section.
 Reason: the reader should offer compact actions and dependable multilingual downloads without adding a server PDF service or font bundle.
 
+D035 ACTIVE — 2026-10-04 [USER]
+Add Pricing, Support, and About to the shared navigation.
+2026-10-04 [CODE] Each entry uses an existing Feather icon and links to its own page. Pricing and Support show coming-soon information; About describes the current graded-reader flow. Pricing plans, payments, and support contact details remain undefined.
+
 [PROGRESS]
+
+- 2026-10-04 [CODE] Added responsive Pricing, Support, and About navigation links and matching destination pages.
 
 - 2026-09-27 [CODE] Added compact reader icon actions and browser-local bilingual PDF downloads.
 - 2026-09-27 [CODE] Replaced the disabled My texts import placeholder with a validated Add text dialog and optional image-backed covers.
@@ -246,6 +253,7 @@ Reason: the reader should offer compact actions and dependable multilingual down
 
 [RECEIPTS]
 
+- 2026-10-04 [TOOL] Navigation additions: web lint, typecheck, production build, and diff validation passed. All three routes returned HTTP 200 with the new links, correct active navigation, and page titles. Visual browser inspection was unavailable because computer-use permissions were not granted.
 - 2026-09-27 [TOOL] Reader PDF export: 53 tests, repository lint, typecheck, production build, and diff validation passed. A representative German-English PDF was packaged by the application encoder, recognized as PDF 1.4 with one page, and its Quick Look render showed clean unclipped bilingual layout.
 - 2026-09-27 [TOOL] Add text flow: 52 tests, repository lint, typecheck, production build, and diff validation passed. Automated browser inspection was unavailable because computer-use permission was not granted.
 - 2026-09-10 [TOOL] Composer dropdown clipping fix: 50 tests, lint, typecheck, production build, and diff validation passed. Browser checks opened the long translation list and the CEFR menu and confirmed both render beyond the form boundary over lower controls.
