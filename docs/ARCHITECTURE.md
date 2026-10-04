@@ -99,7 +99,39 @@ Corrupt records are reported and retained; storage failures allow retrying the
 save without another generation request. Clearing site data removes the library.
 
 The CEFR validation/rewrite pipeline above remains planned. Current levels and
-character counts are prompt targets; `Intl.Segmenter` with grapheme granularity measures the returned body, including spaces and paragraph breaks but excluding the title. Counts are derived on validation, so older word-count records remain readable. Reader formatting is stored per text in localStorage and restored from validated offset annotations. Clearing annotations writes an empty annotation set without changing saved-word records or their independent rendering overlay. Selection formatting supports Control-key shortcuts for bold, last-color highlighting, underline, and strikethrough; shortcut handling is scoped to active reader selections. Authentication, cloud persistence, and distributed abuse controls remain unimplemented.
+character counts are prompt targets; `Intl.Segmenter` with grapheme granularity measures the returned body, including spaces and paragraph breaks but excluding the title. Counts are derived on validation, so older word-count records remain readable. Reader formatting is stored per text in localStorage and restored from validated offset annotations. Clearing annotations writes an empty annotation set without changing saved-word records or their independent rendering overlay. Selection formatting supports Control-key shortcuts for bold, last-color highlighting, underline, and strikethrough; shortcut handling is scoped to active reader selections. Cloud persistence and distributed abuse controls remain unimplemented.
+
+## Authentication
+
+`apps/web` uses `@supabase/supabase-js` and `@supabase/ssr` for cookie-based
+authentication. `/login` and `/signup` support email/password and Google OAuth.
+Zod validates the email forms and the minimal user record shown in the sidebar.
+The browser client persists sessions and notifies the account indicator of auth
+changes. Logout ends the current browser session, leaving other devices signed in.
+
+`src/proxy.ts` verifies and refreshes page sessions using `getClaims()`, forwards
+new cookies to both server rendering and the browser, and preserves no-cache
+headers. The root layout uses `getUser()` to obtain a server-verified identity;
+personalised pages render dynamically. Client session data is presentation-only.
+`/auth/callback` exchanges a PKCE code for a session and redirects to the home
+page, or `/login?error=callback` on failure. It accepts no arbitrary destination.
+Generation and other existing API routes remain accessible to guests.
+
+Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+in `apps/web/.env.local` and the deployment environment. Only the public
+publishable key is needed; Google OAuth secrets belong in Supabase's provider
+settings. In Supabase Auth URL Configuration, set the Site URL and allow
+`http://localhost:3000/auth/callback` for development, plus the corresponding
+exact HTTPS callback URL for production. In Google Cloud, the authorised redirect
+URI is Supabase's `https://<project-ref>.supabase.co/auth/v1/callback`.
+
+Email signup respects Supabase's email-confirmation configuration. Confirmation
+uses the same application callback and requires the browser that initiated signup
+for the PKCE verifier. Email delivery is managed by the Supabase project; no
+Resend integration or other SMTP infrastructure is configured by this code.
+Password reset, cloud libraries, account-specific local storage, and generation
+credits are outside this implementation. Existing browser-local readings and
+vocabulary are shared by accounts using the same browser.
 
 ## Local setup and verification
 

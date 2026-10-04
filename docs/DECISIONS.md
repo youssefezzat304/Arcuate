@@ -4,12 +4,13 @@
 - 2026-09-06 [CODE] Current state: Next.js at `apps/web` and provider/structured generation in `packages/ai`.
 - 2026-09-06 [CODE] Current state: Gemini generation replaces mock content; validated texts are saved in browser localStorage and listed in My texts.
 - 2026-09-07 [CODE] Now: saved words are recognized across readings, reader annotations persist per text, and Settings provides browser-local display preferences.
-- 2026-09-06 [CODE] Next: evaluate generated language, level, and length quality; authentication/cloud storage remain deferred.
+- 2026-10-04 [CODE] Next: evaluate generated language, level, and length quality; cloud storage and email delivery infrastructure remain deferred.
 - 2026-09-08 [CODE] Provider: Gemini generation with optional aligned translations; Flash-Lite supplies contextual word explanations.
 - 2026-09-10 [CODE] Composer generation now uses an in-place editorial typesetting animation for the full pending request.
 - 2026-09-27 [CODE] My texts accepts manually supplied readings with optional local cover images and automatically derived character counts.
 - 2026-09-27 [CODE] Reader actions are icon-based and saved bilingual readings can be downloaded as locally rendered PDFs.
 - 2026-10-04 [CODE] Navigation includes Pricing, Support, and About routes; Pricing and Support are coming-soon pages.
+- 2026-10-04 [CODE] Supabase supports email/password and Google authentication, cookie-persisted sessions, current-browser logout, and a sidebar account indicator. Guest access and browser-local collections remain available.
 - 2026-09-06 [CODE] Tests: Node built-in runner with native TypeScript stripping (Node 22.18+).
 
 [DECISIONS]
@@ -174,7 +175,14 @@ D035 ACTIVE — 2026-10-04 [USER]
 Add Pricing, Support, and About to the shared navigation.
 2026-10-04 [CODE] Each entry uses an existing Feather icon and links to its own page. Pricing and Support show coming-soon information; About describes the current graded-reader flow. Pricing plans, payments, and support contact details remain undefined.
 
+D036 ACTIVE — 2026-10-04 [USER]
+Implement Supabase email/password signup and login, Continue with Google on both forms, logout, persistent sessions, and a signed-in sidebar indicator. Defer Resend and other email delivery infrastructure.
+2026-10-04 [CODE] Use the Supabase browser/SSR SDKs, `/login`, `/signup`, and `/auth/callback` with PKCE. Next.js Proxy refreshes page-session cookies, preserves private cache headers, and forwards the new cookies to rendering. The layout verifies the account with `getUser()`. Logout uses local scope. Reading data stays browser-local and guest API access remains available; password reset and cloud storage are outside this scope.
+2026-10-04 [TOOL] Read-only project settings confirmed email/password and Google providers enabled, with email confirmation required. No remote configuration or user accounts were modified during implementation.
+
 [PROGRESS]
+
+- 2026-10-04 [CODE] Added Supabase account forms, OAuth callback, cookie session refresh, sidebar identity, and logout; email infrastructure remains deferred.
 
 - 2026-10-04 [CODE] Added responsive Pricing, Support, and About navigation links and matching destination pages.
 
@@ -214,6 +222,7 @@ Add Pricing, Support, and About to the shared navigation.
 
 [OUTCOMES]
 
+- 2026-10-04 [CODE] The initial Supabase authentication scope is implemented. Email/password and Google share persistent cookie sessions; sidebar identity and local logout are available. Email delivery infrastructure, password reset, cloud collections, and generation gating remain deferred.
 - 2026-09-27 [CODE] Saved readings can be downloaded in a print-oriented PDF that pairs every source paragraph with its available translation.
 - 2026-09-27 [CODE] Users can add their own reading, receive an automatic character count, and reopen it through the existing reader with the same language-aware functionality as generated text.
 - 2026-09-10 [CODE] Language, translation, and CEFR menus can again overlay lower composer controls and extend beyond the form in light and dark themes without losing rounded corners.
@@ -238,21 +247,22 @@ Add Pricing, Support, and About to the shared navigation.
 
 [WORKING SET]
 
-- `apps/web/src/components/add-text-dialog.tsx`
-- `apps/web/src/components/text-library.tsx`
-- `apps/web/src/app/globals.css`
-- `apps/web/src/lib/saved-texts.ts`
-- `apps/web/src/lib/reading-pdf.ts`
-- `apps/web/src/lib/saved-words.ts`
-- `apps/web/src/lib/saved-word-matching.ts`
-- `apps/web/src/lib/text-formatting.ts`
-- `apps/web/src/components/formattable-reader.tsx`
-- `apps/web/src/components/saved-reader.tsx`
-- `apps/web/tests/generation.test.mjs`
-- `apps/web/tests/text-formatting.test.mjs`
+- `apps/web/src/lib/auth.ts`
+- `apps/web/src/lib/supabase/client.ts`
+- `apps/web/src/lib/supabase/server.ts`
+- `apps/web/src/lib/supabase/proxy.ts`
+- `apps/web/src/proxy.ts`
+- `apps/web/src/app/auth/callback/route.ts`
+- `apps/web/src/app/login/page.tsx`
+- `apps/web/src/app/signup/page.tsx`
+- `apps/web/src/app/layout.tsx`
+- `apps/web/src/components/auth-form.tsx`
+- `apps/web/src/components/account-navigation.tsx`
+- `apps/web/tests/auth.test.mjs`
 
 [RECEIPTS]
 
+- 2026-10-04 [TOOL] Supabase authentication: all 64 tests, web lint, typecheck, production build, and diff validation passed. SDK/provider mocks exercised login, signup confirmation, PKCE, cookie persistence, refresh propagation, and local logout. HTTP checks verified guest access, both forms, private cache headers, and safe callback-error redirects. Live Google sign-in and visual UI inspection were not exercised because computer-use permissions were not granted.
 - 2026-10-04 [TOOL] Navigation additions: web lint, typecheck, production build, and diff validation passed. All three routes returned HTTP 200 with the new links, correct active navigation, and page titles. Visual browser inspection was unavailable because computer-use permissions were not granted.
 - 2026-09-27 [TOOL] Reader PDF export: 53 tests, repository lint, typecheck, production build, and diff validation passed. A representative German-English PDF was packaged by the application encoder, recognized as PDF 1.4 with one page, and its Quick Look render showed clean unclipped bilingual layout.
 - 2026-09-27 [TOOL] Add text flow: 52 tests, repository lint, typecheck, production build, and diff validation passed. Automated browser inspection was unavailable because computer-use permission was not granted.

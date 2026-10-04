@@ -31,7 +31,8 @@ The MVP includes:
 
 Texts are saved automatically in the current browser using localStorage and can
 be reopened from My texts without an account. Clearing site data removes them.
-Account holders will eventually have cloud storage; authentication is deferred.
+Signed-in users currently use the same browser-local collection. Cloud storage
+and migration of guest readings to an account remain deferred.
 My texts presents saved readings as a responsive editorial card grid with a
 title-initial cover and per-card actions. The first card opens an Add text dialog
 for saving an existing reading with a required title and body, language, CEFR
@@ -39,6 +40,15 @@ level, and an optional cover image. Character count is derived automatically.
 Manually added readings use the same reader, annotation, and saved-word features
 as generated readings. A saved reading can be deleted from its action menu after
 confirmation.
+
+## Accounts
+
+Users can create an account or log in with email/password or Continue with Google.
+The sidebar shows the signed-in email and a logout action. Sessions persist across
+reloads and refresh automatically. Email signup follows the Supabase project's
+confirmation setting and displays a check-your-email message when confirmation is
+required. Guest reading and generation remain available. Password reset and email
+delivery infrastructure are outside the initial authentication scope.
 
 ## Generation scope
 

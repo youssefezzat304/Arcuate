@@ -10,11 +10,12 @@ import {
   FiEdit3,
   FiHelpCircle,
   FiInfo,
-  FiLogIn,
   FiSidebar,
   FiSliders,
 } from 'react-icons/fi';
 import { AmbientLiterature } from '@/components/ambient-literature';
+import { AccountNavigation } from '@/components/account-navigation';
+import type { AuthUser } from '@/lib/auth';
 import { PREFERENCES_STORAGE_KEY, applyPreferences, readPreferences } from '@/lib/preferences';
 
 const focusClass =
@@ -23,16 +24,22 @@ const labelClass =
   'hidden whitespace-nowrap md:inline md:group-data-[collapsed=true]:hidden max-md:group-data-[mobile-open=true]:inline';
 
 const navigationItems = [
-  { href: '/', label: 'New text', icon: FiEdit3},
-  { href: '/texts', label: 'My texts', icon: FiBookOpen},
-  { href: '/saved-words', label: 'Saved words', icon: FiBookmark},
-  { href: '/settings', label: 'Settings', icon: FiSliders},
+  { href: '/', label: 'New text', icon: FiEdit3 },
+  { href: '/texts', label: 'My texts', icon: FiBookOpen },
+  { href: '/saved-words', label: 'Saved words', icon: FiBookmark },
+  { href: '/settings', label: 'Settings', icon: FiSliders },
   { href: '/pricing', label: 'Pricing', icon: FiCreditCard },
   { href: '/support', label: 'Support', icon: FiHelpCircle },
   { href: '/about', label: 'About', icon: FiInfo },
 ] as const;
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({
+  children,
+  initialUser,
+}: {
+  children: ReactNode;
+  initialUser: AuthUser | null;
+}) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -149,7 +156,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             Reading desk
           </p>
           <div className="border-y border-border">
-            {navigationItems.map(({ href, label, icon: Icon}) => {
+            {navigationItems.map(({ href, label, icon: Icon }) => {
               const active = pathname === href;
 
               return (
@@ -172,17 +179,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="mt-auto pt-8 max-md:hidden max-md:group-data-[mobile-open=true]:block">
           <div className="border-t border-foreground/15 pt-4">
-            <button
-              type="button"
-              disabled
-              aria-label="Login (coming soon)"
-              title="Login — coming soon"
-              className="flex h-12 w-full cursor-not-allowed items-center gap-3 px-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
-            >
-              <FiLogIn aria-hidden="true" className="size-[18px] shrink-0 stroke-[1.5]" />
-              <span className={labelClass}>Login</span>
-              <span className={`${labelClass} ml-auto font-mono text-[9px] font-normal`}>Soon</span>
-            </button>
+            <AccountNavigation
+              initialUser={initialUser}
+              labelClass={labelClass}
+              onNavigate={() => setMobileOpen(false)}
+            />
           </div>
         </div>
       </aside>
